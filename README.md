@@ -1,24 +1,5 @@
-# README
+# Gemotion
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Figma (MVP)
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+(https://www.figma.com/file/ME2zLN3ohSOVdtNTTMqmRT/GE.motion-(MVP)?type=design&node-id=17-268&mode=design&t=utngsSRn4Em9h8yy-0)[Figma]
