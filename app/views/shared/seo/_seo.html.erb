@@ -1,0 +1,22 @@
+<% 
+  title = content_for?(:title) ? yield(:title) : "Ge.Motion"
+  description = content_for?(:description) ? yield(:description)  :  "Créateur de vidéo et d'émotion."
+  image = content_for?(:seo_image) ? yield(:seo_image)  : ""
+  published = content_for?(:seo_d_published) ? yield(:seo_d_published)  : ""
+  modified = content_for?(:seo_d_modified) ? yield(:seo_d_modified)  : ""
+%>
+
+<title><%= title %> | Ge.Motion</title>
+<meta name="description" content="<%= description %>">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- OG Tags for Social Media -->
+<meta property="og:title" content="<%= title %> | Ge.Motion">
+<meta property="og:description" content="<%= description %>">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ge.Motion">
+
+<!-- Twitter Card Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= title %> | Ge.Motion">
+<meta name="twitter:description" content="<%= description %>">

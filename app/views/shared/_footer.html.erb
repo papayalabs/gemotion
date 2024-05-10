@@ -1,0 +1,45 @@
+<footer>
+     <p>GE.Motion</p>
+
+     <div>
+        <p>Contact</p>
+        <div> 
+            <%= image_tag "icons/email.svg" %>
+            <%= link_to "email@gmail.com", "mailto:email@gmail.com" %>
+        </div>
+        <div> 
+            <%= image_tag "icons/phone.svg" %>
+            <%= link_to "000-000-000", "telto:0000000" %>
+        </div>
+     </div>
+
+     <div>
+        <p>Inscription</p>
+        
+        <%= link_to "Créer un compte", root_path %>
+        <%= link_to "Se connecter", root_path %>
+        <%= link_to "Contactez-nous", root_path %>
+     </div>
+
+     <div>
+        <p>Créer une vidéo</p>
+        
+        <%= link_to "Démarrer", root_path %>
+        <%= link_to "Comment ca marche", about_path %>
+        <%= link_to "Tarification", price_path %>
+     </div>
+
+     <div>
+        <p>Social</p>
+        
+        <%= link_to "https://instagram.com", target: "_blank" do %>
+            <%= image_tag "icons/instagram.svg" %>
+        <% end %>
+        <%= link_to "https://facebook.com", target: "_blank" do %>
+            <%= image_tag "icons/facebook.svg" %>
+        <% end %>
+        <%= link_to "https://twitter.com", target: "_blank" do %>
+            <%= image_tag "icons/twitter.svg" %>
+        <% end %>
+     </div>
+</footer>
