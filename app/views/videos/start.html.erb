@@ -1,0 +1,29 @@
+<div>
+  <h1 class="font-bold text-4xl">Choisissez la méthode de création vidéo</h1>
+
+  <div>
+    <%= image_tag "icons/image.svg" %>
+    <p>Plusieurs choix de vidéos :</p>
+    <ul>
+      <li>Pour un cadeau unique: Réalisez  à plusieurs une vidéo collaborative, personnalisée riche en émotions</li>
+      <li>Pour une vidéo à réaliser en solo:  Créez un film personnel facilement à partir de vos propres photos et vidéos .</li>
+    </ul>
+  </div>
+
+  <div class="">
+    <p>Je choisis:</p>
+
+    <%= form_with url: start_post_path, method: :post do |f| %>
+      <div class="">
+        <%= f.radio_button :video_type, "colab" %>
+        <%= f.label :video_type_colab, "Je crée une vidéo collaborative à offrir" %>
+      </div>
+
+      <div class="">
+        <%= f.radio_button :video_type, "solo" %>
+        <%= f.label :video_type_solo, "Je crée ma vidéo solo" %>
+      </div>
+      <%= f.submit "Étape suivante" %>
+    <% end %>
+  </div>
+</div>

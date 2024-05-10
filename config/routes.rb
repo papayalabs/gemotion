@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
-  get 'static/home'
-  get 'static/about'
-  get 'static/prices'
 
+  # Video
+  get 'videos/start', to: "videos#start", as: "start"
+  post 'videos/start', to: "videos#start_post", as: "start_post"
+
+  get 'videos/occasion', to: "videos#occasion", as: "occasion"
+  post 'videos/occasion', to: "videos#occasion_post", as: "occasion_post"
+
+  get 'videos/destinataire', to: "videos#destinataire", as: "destinataire"
+  post 'videos/destinataire', to: "videos#destinataire_post", as: "destinataire_post"
 
   # Static pages
   get 'about', to: 'static#about', as: "about"
