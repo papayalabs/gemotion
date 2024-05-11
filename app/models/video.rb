@@ -31,7 +31,7 @@ class Video < ApplicationRecord
     end
 
     def validate_date_fin
-        return false if self.end_date.nil? || !self.end_date.is_a?(DateTime)
+        return false if self.end_date.nil? || !self.end_date.is_a?(ActiveSupport::TimeWithZone)
         return true
     end
 

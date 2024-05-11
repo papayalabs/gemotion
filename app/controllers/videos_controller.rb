@@ -100,7 +100,6 @@ class VideosController < ApplicationController
     # TODO: change when user login to current_user.videos.last
     @video = Video.last
     # On check si une vidéo existe
-    debugger
     if @video.nil?
       redirect_to start_path, alert: "Aucune vidéo trouvé."
     # Si une vidéo existe, on doit être sur la bonne étape
