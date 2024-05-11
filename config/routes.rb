@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
 
   # Video
+  get 'videos/back', to: "videos#go_back", as: "step_back"
+
   get 'videos/start', to: "videos#start", as: "start"
   post 'videos/start', to: "videos#start_post", as: "start_post"
 
@@ -10,6 +12,12 @@ Rails.application.routes.draw do
   get 'videos/destinataire', to: "videos#destinataire", as: "destinataire"
   post 'videos/destinataire', to: "videos#destinataire_post", as: "destinataire_post"
 
+  get 'videos/info_destinataire', to: "videos#info_destinataire", as: "info_destinataire"
+  post 'videos/info_destinataire', to: "videos#info_destinataire_post", as: "info_destinataire_post"
+  
+  get 'videos/date_fin', to: "videos#date_fin", as: "date_fin"
+  post 'videos/date_fin', to: "videos#date_fin_post", as: "date_fin_post"
+  
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'prices', to: 'static#prices', as: "price"

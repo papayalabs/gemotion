@@ -4,6 +4,7 @@ class CreateVideos < ActiveRecord::Migration[7.1]
       t.integer :video_type, null: false
       t.string :stop_at, null: false, default: 'start'
       t.integer :occasion
+      t.datetime :end_date
 
       t.timestamps
     end

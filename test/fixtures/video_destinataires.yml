@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  genre: 1
+  age: 1
+  name: MyString
+  more_info: MyText
+  video: one
+
+two:
+  genre: 1
+  age: 1
+  name: MyString
+  more_info: MyText
+  video: two

@@ -1,0 +1,43 @@
+<div>
+  <h1 class="font-bold text-4xl">Qui va recevoir cette merveilleuse vidéo ?</h1>
+
+  <div>
+    <%= image_tag "icons/image.svg" %>
+    <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
+  </div>
+
+  <div class="">
+
+    <%= form_with url: info_destinataire_post_path, method: :post do |f| %>
+      <div class="">
+        <%= f.label :age_destinataire, "1" %>
+        <%= f.number_field :age_destinataire, placeholder: "Indiquez l'âge du destinataire", value: @video.video_destinataire&.age %>
+      </div>
+
+      <div class="">
+        <%= f.label :name_destinataire, "2" %>
+        <%= f.text_field :name_destinataire, placeholder: "Indiquez le nom du destinataire", value: @video.video_destinataire&.name %>
+      </div>
+
+      <div class="">
+        <%= f.label :more_info_destinataire, "3" %>
+        <%= f.text_area :more_info_destinataire, placeholder: "Indiquez le nombre d'enfants et les prénoms des enfants (facultatif)", value: @video.video_destinataire&.more_info %>
+      </div>
+
+      <div class="">
+        <h4>Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !</h4>
+        <p>*Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.</p>
+        <%= f.label :special_request_destinataire, "4" %>
+        <%= f.text_area :special_request_destinataire, placeholder: "Décrivez votre théme", value: @video.video_destinataire&.specific_request %>
+        <div class="">
+          <%= image_tag "icons/alert.svg" %>
+          <p>Veuillez noter qu'un frais supplémentaire sera appliqué pour une vidéo avec le thème que vous avez choisi</p>
+        </div>
+      </div>
+
+      <%= f.submit "Étape suivante" %>
+    <% end %>
+
+    <%= link_to "Étape précédente", step_back_path %>
+  </div>
+</div>
