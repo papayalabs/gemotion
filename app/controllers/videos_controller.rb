@@ -121,6 +121,17 @@ class VideosController < ApplicationController
     end
   end
 
+  def photo_intro_post
+    @video.stop_at = @video.next_step()
+
+    if @video.validate_photo_intro() && @video.save()
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render photo_intro_path, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def select_video

@@ -45,6 +45,10 @@ class Video < ApplicationRecord
         return true
     end
 
+    def validate_photo_intro
+        return true
+    end
+
     def next_step
         curr_step = self.way.find_index self.stop_at
         return 0 if curr_step.nil?
