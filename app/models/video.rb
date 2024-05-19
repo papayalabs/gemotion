@@ -1,11 +1,12 @@
 class Video < ApplicationRecord
     enum :video_type, { solo: 0, colab: 1 }
     enum :occasion, { anniversaire: 0, mariage: 1 }
+    enum :theme, {specific_request: 0, theme_1: 1, theme_2: 2}
 
     has_many :video_destinataires
 
-    SOLO_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'intro', 'photo_intro']
-    COLAB_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'intro', 'photo_intro']
+    SOLO_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro']
+    COLAB_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro']
 
     def video_destinataire
         self.video_destinataires.last
@@ -27,11 +28,20 @@ class Video < ApplicationRecord
         return false if video_destinataire.name.empty?
         return false if video_destinataire.age.nil? || !video_destinataire.age.is_a?(Numeric)
         return false if video_destinataire.more_info.empty?
+        return false unless self.way.include?(self.stop_at)
         return true 
     end
 
     def validate_date_fin
         return false if self.end_date.nil? || !self.end_date.is_a?(ActiveSupport::TimeWithZone)
+        return false unless self.way.include?(self.stop_at)
+        return true
+    end
+
+    def validate_introduction
+        return false unless Video.themes.include?(self.theme.downcase())
+        return false if self.specific_request? && self.theme_specific_request.blank?
+        return false unless self.way.include?(self.stop_at)
         return true
     end
 

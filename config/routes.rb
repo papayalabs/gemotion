@@ -17,6 +17,13 @@ Rails.application.routes.draw do
   
   get 'videos/date_fin', to: "videos#date_fin", as: "date_fin"
   post 'videos/date_fin', to: "videos#date_fin_post", as: "date_fin_post"
+
+  get 'videos/introduction', to: "videos#introduction", as: "introduction"
+  post 'videos/introduction', to: "videos#introduction_post", as: "introduction_post"
+
+  get 'videos/photo_intro', to: "videos#photo_intro", as: "photo_intro"
+  post 'videos/photo_intro', to: "videos#photo_intro_post", as: "photo_intro_post"
+
   
   # Static pages
   get 'about', to: 'static#about', as: "about"

@@ -5,6 +5,8 @@ class CreateVideos < ActiveRecord::Migration[7.1]
       t.string :stop_at, null: false, default: 'start'
       t.integer :occasion
       t.datetime :end_date
+      t.integer :theme
+      t.text :theme_specific_request
 
       t.timestamps
     end

@@ -28,7 +28,7 @@
         <h4>Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !</h4>
         <p>*Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.</p>
         <%= f.label :special_request_destinataire, "4" %>
-        <%= f.text_area :special_request_destinataire, placeholder: "Décrivez votre théme", value: @video.video_destinataire&.specific_request %>
+        <%= f.text_area :special_request_destinataire, placeholder: "Décrivez votre théme", value: @video.theme_specific_request %>
         <div class="">
           <%= image_tag "icons/alert.svg" %>
           <p>Veuillez noter qu'un frais supplémentaire sera appliqué pour une vidéo avec le thème que vous avez choisi</p>

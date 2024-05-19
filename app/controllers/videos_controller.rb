@@ -28,6 +28,9 @@ class VideosController < ApplicationController
   def start_post
     # Creation d'une nouvelle vidéo
     @video = Video.new
+    if params[:video_type].nil?
+      return render start_path, status: :unprocessable_entity
+    end
     # Le type de la vidéo depuis le radio button du formulaire
     @video.video_type = params[:video_type].downcase
     # On est à la première étape de la vidéo
@@ -37,7 +40,7 @@ class VideosController < ApplicationController
     if @video.validate_start() && @video.save()
       redirect_to send("#{@video.next_step()}_path")
     else
-      render 'videos/start', status: :unprocessable_entity
+      render start_path, status: :unprocessable_entity
     end
   end
 
@@ -48,7 +51,8 @@ class VideosController < ApplicationController
    if @video.validate_occasion() && @video.save()
       redirect_to send("#{@video.next_step()}_path")
    else
-      render 'videos/occasion', status: :unprocessable_entity
+      @video.update(stop_at: @video.current_step)
+      render occasion_path, status: :unprocessable_entity
    end
   end
 
@@ -59,7 +63,8 @@ class VideosController < ApplicationController
    if @video.validate_destinataire(@vd) && @vd.save() && @video.save()
       redirect_to send("#{@video.next_step()}_path")
    else
-      render 'videos/destinataire', status: :unprocessable_entity
+      @video.update(stop_at: @video.current_step)
+      render destinataire_path, status: :unprocessable_entity
    end
   end
 
@@ -68,13 +73,18 @@ class VideosController < ApplicationController
     @vd.age = params[:age_destinataire]
     @vd.name = params[:name_destinataire]
     @vd.more_info = params[:more_info_destinataire]
-    @vd.specific_request = params[:special_request_destinataire]
+    unless params[:special_request_destinataire].blank?
+      @video.theme = 'specific_request'
+      @video.theme_specific_request = params[:special_request_destinataire]
+    end
+
     @video.stop_at = @video.next_step()
 
     if @video.validate_info_destinataire(@vd) && @vd.save() && @video.save()
       redirect_to send("#{@video.next_step()}_path")
     else
-      return render 'videos/info_destinataire', status: :unprocessable_entity
+      @video.update(stop_at: @video.current_step)
+      return render info_destinataire_path, status: :unprocessable_entity
     end
 
     unless params[:special_request_destinataire].nil?
@@ -84,13 +94,30 @@ class VideosController < ApplicationController
 
 
   def date_fin_post
+    if params[:end_date].blank?
+      return render date_fin_path, status: :unprocessable_entity
+    end
+
     @video.end_date = DateTime.parse(params[:end_date])
     @video.stop_at = @video.next_step()
 
     if @video.validate_date_fin() && @video.save()
       redirect_to send("#{@video.next_step()}_path")
     else
-      return render 'videos/date_fin', status: :unprocessable_entity
+      @video.update(stop_at: @video.current_step)
+      return render date_fin_path, status: :unprocessable_entity
+    end
+  end
+
+  def introduction_post
+    @video.theme = params[:theme]
+    @video.theme_specific_request = params[:special_request]
+    @video.stop_at = @video.next_step()
+    if @video.validate_introduction() && @video.save()
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render introduction_path, status: :unprocessable_entity
     end
   end
 

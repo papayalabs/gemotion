@@ -20,7 +20,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_11_102609) do
     t.string "name"
     t.text "more_info"
     t.bigint "video_id", null: false
-    t.text "specific_request"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["video_id"], name: "index_video_destinataires_on_video_id"
@@ -31,6 +30,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_11_102609) do
     t.string "stop_at", default: "start", null: false
     t.integer "occasion"
     t.datetime "end_date"
+    t.integer "theme"
+    t.text "theme_specific_request"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
