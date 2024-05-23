@@ -10,23 +10,25 @@
     
     <h2>Choisissez les chapitres qui figureront dans le film ( 12 chapitres max )</h2>
 
-    <%= form_with url: select_chapters_path, method: :post do |f| %>
+    <%= form_with url: select_chapters_post_path, method: :post do |f| %>
         <div class="">
-        <% @chapterstype.each do |ct| %>
-            <div>
-                <% if ct.image.attached? %>
-                    <%= image_tag ct.image, class: "h-[150px] w-[200px] object-cover rounded" %>
-                <% else %>
-                    <p>Pas d'image</p>
-                <% end %>
-                <p><%= ct.name %></p>
-            </div>
-        <% end %>
+            <% @chapterstype.each do |ct| %>
+                <div>
+                    <%= f.check_box "chapters[#{ct.id}][select]", { }, true, false %>
+                    <% if ct.image.attached? %>
+                        <%= image_tag ct.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+                    <% else %>
+                        <p>Pas d'image</p>
+                    <% end %>
+                    <p><%= ct.name %></p>
+                    <%= f.text_field "chapters[#{ct.id}][text]" %>
+                </div>
+            <% end %>
         </div>
 
         <%= f.submit "Étape suivante" %>
     <% end %>
 
-    <%= link_to "Étape précédente", step_back_path %>
+    <%= render "videos/shared/back_button" %>
   </div>
 </div>

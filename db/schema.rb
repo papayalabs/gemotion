@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_23_092148) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_23_143408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -48,6 +48,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_23_092148) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "video_chapters", force: :cascade do |t|
+    t.bigint "chapter_type_id", null: false
+    t.bigint "video_id", null: false
+    t.text "text", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chapter_type_id"], name: "index_video_chapters_on_chapter_type_id"
+    t.index ["video_id"], name: "index_video_chapters_on_video_id"
+  end
+
   create_table "video_destinataires", force: :cascade do |t|
     t.integer "genre"
     t.integer "age"
@@ -72,5 +82,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_23_092148) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "video_chapters", "chapter_types"
+  add_foreign_key "video_chapters", "videos"
   add_foreign_key "video_destinataires", "videos"
 end

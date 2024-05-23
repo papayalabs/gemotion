@@ -10,6 +10,12 @@ class VideosController < ApplicationController
     # TODO: delete current video if user confirmation
   end
 
+  ##
+  # Cette méthode pose problème si l'on utilise turbo car le préchargement
+  # provoque le recul en arrière. Il faut donc desactiver turbo sur les liens
+  # souhaitant ce servir de step_back_path.
+  # Utilise le template dans videos/shared/_back_button.html.erb pour récupérer
+  # un lien fonctionnel
   def go_back
     #TODO: change with current_user.videos.last
     @video = Video.last
@@ -137,7 +143,19 @@ class VideosController < ApplicationController
   end
 
   def select_chapters_post
+    chapter_to_create = []
+    params.permit(chapters: [:select, :text])['chapters'].each do |k,v|
+      if v['select'] == 'true'
+        chapter_to_create.append({chapter_type_id: k, text: v['text']})
+      end
+    end
 
+    if @video.video_chapters.create(chapter_to_create)
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render select_chapters_path, status: :unprocessable_entity
+    end
   end
 
   private

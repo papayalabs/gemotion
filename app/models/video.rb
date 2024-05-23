@@ -4,6 +4,7 @@ class Video < ApplicationRecord
     enum :theme, {specific_request: 0, theme_1: 1, theme_2: 2}
 
     has_many :video_destinataires
+    has_many :video_chapters
 
     SOLO_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters']
     COLAB_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters']
