@@ -132,6 +132,14 @@ class VideosController < ApplicationController
     end
   end
 
+  def select_chapters
+    @chapterstype = ChapterType.all
+  end
+
+  def select_chapters_post
+
+  end
+
   private
 
   def select_video

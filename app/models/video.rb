@@ -5,8 +5,8 @@ class Video < ApplicationRecord
 
     has_many :video_destinataires
 
-    SOLO_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro']
-    COLAB_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro']
+    SOLO_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters']
+    COLAB_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters']
 
     def video_destinataire
         self.video_destinataires.last

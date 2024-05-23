@@ -24,7 +24,9 @@ Rails.application.routes.draw do
   get 'videos/photo_intro', to: "videos#photo_intro", as: "photo_intro"
   post 'videos/photo_intro', to: "videos#photo_intro_post", as: "photo_intro_post"
 
-  
+  get 'videos/select_chapters', to: "videos#select_chapters", as: "select_chapters"
+  post 'videos/select_chapters', to: "videos#select_chapters_post", as: "select_chapters_post"
+
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'prices', to: 'static#prices', as: "price"
