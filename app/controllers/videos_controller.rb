@@ -151,9 +151,10 @@ class VideosController < ApplicationController
     
     # Si le chapitre est déjà sélectionné, on doit le modifier 
     find_chapters = [] # On crée un tableau servant à la requete SQL IN pour ne récupérer que des chapitres déjà crée
-    params_allow.each { |k, v| find_chapters.append(k) }
+    params_allow.each { |k, v| find_chapters.append(k) if v['select'] == 'true' }
     # On cherche avec la request SQL IN les video_chapters ayant déjà un chapitre lié à l'ancien
     chapter_to_updates_model = @video.video_chapters.where(chapter_type_id: find_chapters)
+    chapter_to_delete = @video.video_chapters.where.not(chapter_type_id: find_chapters)
     id_chapter_type = [] # L'id uniquement des chapitre_type en relation avec les chapitres video a modifier.
     chapter_to_updates_by_chapter_type = {} # Un hash permettant de faire une recherche par le chapitre_type
     chapter_to_updates_model.each { |k| 
@@ -188,7 +189,8 @@ class VideosController < ApplicationController
       return render select_chapters_path, status: :unprocessable_entity
     end
 
-    if @video.video_chapters.create(chapter_to_create) && @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
+    if @video.video_chapters.create(chapter_to_create) && @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values) && chapter_to_delete.delete_all
+      @video.update(stop_at: @video.next_step())
       redirect_to send("#{@video.next_step()}_path")
     else
       @video.update(stop_at: @video.current_step)
