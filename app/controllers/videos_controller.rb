@@ -1,6 +1,7 @@
 class VideosController < ApplicationController
   before_action :select_video, except: %i[ start start_post go_back ]
-  
+  before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
+
   def start
     #TODO: with last user
     @video = Video.last
@@ -139,21 +140,59 @@ class VideosController < ApplicationController
   end
 
   def select_chapters
-    @chapterstype = ChapterType.all
   end
 
   def select_chapters_post
-    chapter_to_create = []
-    params.permit(chapters: [:select, :text])['chapters'].each do |k,v|
-      if v['select'] == 'true'
-        chapter_to_create.append({chapter_type_id: k, text: v['text']})
+    # On authorize que certain parametre
+    params_allow = params.permit(chapters: [:select, :text])['chapters']
+    
+    chapter_to_create = [] # Un tableau a remplir de chapitre a créer
+    chapter_to_updates = {} # Un hash a remplir de chapitre a modifier
+    
+    # Si le chapitre est déjà sélectionné, on doit le modifier 
+    find_chapters = [] # On crée un tableau servant à la requete SQL IN pour ne récupérer que des chapitres déjà crée
+    params_allow.each { |k, v| find_chapters.append(k) }
+    # On cherche avec la request SQL IN les video_chapters ayant déjà un chapitre lié à l'ancien
+    chapter_to_updates_model = @video.video_chapters.where(chapter_type_id: find_chapters)
+    id_chapter_type = [] # L'id uniquement des chapitre_type en relation avec les chapitres video a modifier.
+    chapter_to_updates_by_chapter_type = {} # Un hash permettant de faire une recherche par le chapitre_type
+    chapter_to_updates_model.each { |k| 
+      id_chapter_type.append(k.chapter_type_id.to_s)
+      chapter_to_updates_by_chapter_type[k.chapter_type_id.to_s] = k
+    }
+
+    # On ne se prépare à créer que les éléments qu'il faut.
+    params_allow.each do |k,v|
+      # Si un chapitre existe déjà avec ce type de chapitre, on ne le crée pas ...
+      unless id_chapter_type.include?(k) 
+        # Si l'élément est bien séléctionné
+        if v['select'] == 'true'
+          # On l'ajoute dans la liste des éléments à supprimer
+          chapter_to_create.append({chapter_type_id: k, text: v['text']})
+        end
+      # ... on le modifie
+      else
+        # Si le chapitre est toujours sélectionné, on le modifie
+        if v['select'] == 'true'
+          video_chapter = chapter_to_updates_by_chapter_type[k]
+          chapter_to_updates[video_chapter.id] = {
+            text: v['text']
+          }
+        end
       end
     end
 
-    if @video.video_chapters.create(chapter_to_create)
+    # 12 chapitres maximum
+    if (chapter_to_create.size + chapter_to_updates.size) >= 12
+      flash[:alert] = "Ne sélectionnez que 12 chapitres maximum"
+      return render select_chapters_path, status: :unprocessable_entity
+    end
+
+    if @video.video_chapters.create(chapter_to_create) && @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
       redirect_to send("#{@video.next_step()}_path")
     else
       @video.update(stop_at: @video.current_step)
+      @chapterstype = ChapterType.all
       return render select_chapters_path, status: :unprocessable_entity
     end
   end
@@ -170,5 +209,24 @@ class VideosController < ApplicationController
     elsif ![@video.next_step.downcase(), "#{@video.next_step.downcase()}_post"].include?(params[:action].downcase())
       redirect_to send("#{@video.next_step()}_path"), alert: "Vous devez finaliser cette étape avant de passer à la prochaine."
     end
+  end
+
+  def define_chapter_type
+    # On va cherche la query directement dans SQL
+    q_results = ActiveRecord::Base.connection.exec_query('
+      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "video_chapters".text 
+      FROM "chapter_types" 
+      LEFT OUTER JOIN "video_chapters" ON "video_chapters"."chapter_type_id" = "chapter_types"."id" AND video_chapters.video_id = $1 
+      ORDER BY "chapter_types".created_at ASC', 
+      'selectChapterWithData', 
+      [@video.id])
+    # On recupere le resultat est filtre pour n'avoir que les ID de chapters_types
+    r_only_id = q_results.rows.map { |v| v[0] }
+    # On recupere les ChaptersType (le modèle Rails).
+    chapter_types = ChapterType.where(id: r_only_id)
+    # On transforme cela en hash (pour effectuer une accessation en 0(n))
+    chapter_types_h = Hash[chapter_types.map { |ct| [ct.id, ct] }]
+
+    @chapterstype = q_results.as_json.map { |k| {ct: chapter_types_h[k['id']], text: k['text'], select: !k['text'].blank? }}
   end
 end

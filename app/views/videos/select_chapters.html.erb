@@ -12,16 +12,16 @@
 
     <%= form_with url: select_chapters_post_path, method: :post do |f| %>
         <div class="">
-            <% @chapterstype.each do |ct| %>
+            <% @chapterstype.each do |res| %>
                 <div>
-                    <%= f.check_box "chapters[#{ct.id}][select]", { }, true, false %>
-                    <% if ct.image.attached? %>
-                        <%= image_tag ct.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+                    <%= f.check_box "chapters[#{res[:ct].id}][select]", {checked: res[:select] }, true, false %>
+                    <% if res[:ct].image.attached? %>
+                        <%= image_tag res[:ct].image, class: "h-[150px] w-[200px] object-cover rounded" %>
                     <% else %>
                         <p>Pas d'image</p>
                     <% end %>
-                    <p><%= ct.name %></p>
-                    <%= f.text_field "chapters[#{ct.id}][text]" %>
+                    <p><%= res[:ct].name %></p>
+                    <%= f.text_field "chapters[#{res[:ct].id}][text]", value: res[:text] %>
                 </div>
             <% end %>
         </div>
