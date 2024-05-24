@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_24_064859) do
     t.datetime "end_date"
     t.integer "theme"
     t.text "theme_specific_request"
+    t.string "token"
     t.text "music_specific_request"
     t.text "dedicace_specific_request"
     t.datetime "created_at", null: false

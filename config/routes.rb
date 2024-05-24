@@ -33,6 +33,12 @@ Rails.application.routes.draw do
   get 'videos/dedicace', to: "videos#dedicace", as: "dedicace"
   post 'videos/dedicace', to: "videos#dedicace_post", as: "dedicace_post"
 
+  get 'videos/share', to: "videos#share", as: "share"
+  post 'videos/share', to: "videos#share_post", as: "share_post"
+  get 'videos/skip_share', to: "videos#skip_share", as: "skip_share"
+  
+  get 'join/videos/:id', to: 'videos#join', as: 'join'
+
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'prices', to: 'static#prices', as: "price"

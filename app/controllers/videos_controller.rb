@@ -1,8 +1,9 @@
 class VideosController < ApplicationController
-  before_action :select_video, except: %i[ start start_post go_back ]
+  before_action :select_video, except: %i[ start start_post go_back join]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
+  before_action :select_join_video, only: %i[join]
 
   def start
     #TODO: with last user
@@ -44,6 +45,8 @@ class VideosController < ApplicationController
     @video.video_type = params[:video_type].downcase
     # On est à la première étape de la vidéo
     @video.stop_at = @video.way.first
+    # Generate the unique identifier of the video
+    @video.generate_token
 
     # Validate and create the video
     if @video.validate_start() && @video.save()
@@ -250,6 +253,34 @@ class VideosController < ApplicationController
     end
   end
 
+  def share_post
+    # Le mailer fonctionne mais pas le join
+    email = params[:email]
+    if email.blank?
+      flash[:alert] = "Un email doit être indiqué pour envoyer l'invitation."
+      return render share_path, status: :unprocessable_entity
+    end
+
+    InvitationMailer.with(url: join_url(@video.token), email: email).send_invitation.deliver_later
+    flash[:notice] = "Invitation envoyé."
+    redirect_to share_path
+  end
+
+  def join
+    # Cette étape nécessite l'authentification car pour l'instant nous ne faisons pas d'identifiant de vidéo par utilisateur.
+  end
+
+  def skip_share
+    @video.stop_at = @video.next_step()
+
+    if @video.save()
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render share_path, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def select_video
@@ -259,7 +290,7 @@ class VideosController < ApplicationController
     if @video.nil?
       redirect_to start_path, alert: "Aucune vidéo trouvé."
     # Si une vidéo existe, on doit être sur la bonne étape
-    elsif ![@video.next_step.downcase(), "#{@video.next_step.downcase()}_post"].include?(params[:action].downcase())
+    elsif ![@video.next_step.downcase(), "#{@video.next_step.downcase()}_post", "skip_#{@video.next_step.downcase()}"].include?(params[:action].downcase())
       redirect_to send("#{@video.next_step()}_path"), alert: "Vous devez finaliser cette étape avant de passer à la prochaine."
     end
   end
@@ -289,5 +320,9 @@ class VideosController < ApplicationController
 
   def define_dedicace
     @dedicaces = Dedicace.all
+  end
+
+  def select_join_video
+    @video = Video.find_by!(token: params[:id])
   end
 end

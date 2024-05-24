@@ -7,6 +7,7 @@ class CreateVideos < ActiveRecord::Migration[7.1]
       t.datetime :end_date
       t.integer :theme
       t.text :theme_specific_request
+      t.string :token
 
       t.text :music_specific_request
       t.text :dedicace_specific_request

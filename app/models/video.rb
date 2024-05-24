@@ -15,6 +15,11 @@ class Video < ApplicationRecord
     def video_destinataire
         self.video_destinataires.last
     end
+
+    def generate_token
+        self.token = SecureRandom.urlsafe_base64(20)
+        generate_token if Video.exists?(token: self.token)
+    end
     
     def validate_start
         Video.video_types.keys.include?(self.video_type.downcase()) && self.way.include?(self.stop_at)
