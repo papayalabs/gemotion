@@ -8,6 +8,9 @@ class CreateVideos < ActiveRecord::Migration[7.1]
       t.integer :theme
       t.text :theme_specific_request
 
+      t.text :music_specific_request
+      t.text :dedicace_specific_request
+      
       t.timestamps
     end
   end

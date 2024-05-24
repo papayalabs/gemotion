@@ -29,3 +29,35 @@ defi = ChapterType.create(name: 'Defi')
 defi.image.attach(
                 io: File.open(Rails.root.join('app/assets/images/chapters/challenge.jpeg')), 
                 filename: 'challenge.jpeg')
+
+ovni = Music.create(name: "L'Ovni")
+ovni.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/ovni.mp3')), 
+    filename: 'ovni.mp3')
+
+
+tchikita = Music.create(name: "Tchikita")
+tchikita.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/tchikita.mp3')), 
+    filename: 'tchikita.mp3')
+
+    bande = Music.create(name: "Bande")
+bande.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/bande.mp3')), 
+    filename: 'bande.mp3')
+
+
+carpool = Dedicace.create(name: 'Carpool', description: "Description du thème de la dédicace finale. Ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur.")
+carpool.video.attach(
+        io: File.open(Rails.root.join('app/assets/videos/previews/specific_request.mp4')), 
+        filename: 'carpool.mp4')
+
+chanson = Dedicace.create(name: 'Chanson', description: "Description du thème de la dédicace finale. Ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur.")
+chanson.video.attach(
+            io: File.open(Rails.root.join('app/assets/videos/previews/theme_1.mp4')), 
+            filename: 'chanson.mp4')
+        
+ondanse = Dedicace.create(name: 'On danse', description: "Description du thème de la dédicace finale. Ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur.")
+ondanse.video.attach(
+                io: File.open(Rails.root.join('app/assets/videos/previews/theme_2.mp4')), 
+                filename: 'ondanse.mp4')

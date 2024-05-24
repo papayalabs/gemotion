@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_23_143408) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_24_064859) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -48,6 +48,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_23_143408) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "dedicaces", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "musics", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "video_chapters", force: :cascade do |t|
     t.bigint "chapter_type_id", null: false
     t.bigint "video_id", null: false
@@ -76,8 +89,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_23_143408) do
     t.datetime "end_date"
     t.integer "theme"
     t.text "theme_specific_request"
+    t.text "music_specific_request"
+    t.text "dedicace_specific_request"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "music_id"
+    t.bigint "dedicace_id"
+    t.index ["dedicace_id"], name: "index_videos_on_dedicace_id"
+    t.index ["music_id"], name: "index_videos_on_music_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -85,4 +104,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_23_143408) do
   add_foreign_key "video_chapters", "chapter_types"
   add_foreign_key "video_chapters", "videos"
   add_foreign_key "video_destinataires", "videos"
+  add_foreign_key "videos", "dedicaces"
+  add_foreign_key "videos", "musics"
 end
