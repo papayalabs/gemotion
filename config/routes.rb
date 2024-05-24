@@ -27,6 +27,12 @@ Rails.application.routes.draw do
   get 'videos/select_chapters', to: "videos#select_chapters", as: "select_chapters"
   post 'videos/select_chapters', to: "videos#select_chapters_post", as: "select_chapters_post"
 
+  get 'videos/music', to: "videos#music", as: "music"
+  post 'videos/music', to: "videos#music_post", as: "music_post"
+
+  get 'videos/dedicace', to: "videos#dedicace", as: "dedicace"
+  post 'videos/dedicace', to: "videos#dedicace_post", as: "dedicace_post"
+
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'prices', to: 'static#prices', as: "price"

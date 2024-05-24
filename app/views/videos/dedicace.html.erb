@@ -1,0 +1,32 @@
+<div>
+  <h1 class="font-bold text-4xl">Choisissez votre dédicace personnalisée pour la fin de votre film</h1>
+
+  <div>
+    <%= image_tag "icons/image.svg" %>
+    <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
+  </div>
+
+  <div class="">
+    
+    <%= form_with url: dedicace_post_path, method: :post do |f| %>
+        <div class="">
+            <% @dedicaces.each do |dedicace| %>
+                <div>
+                    <%= f.radio_button "dedicace", dedicace.id, {checked: dedicace == @video.dedicace}%>
+                    <% if dedicace.video.attached? %>
+                        <%= video_tag dedicace.video, controls: true, class: "h-[150px] w-[150px]"%>
+                    <% else %>
+                        <p>Pas de vidéo</p>
+                    <% end %>
+                    <p><%= dedicace.name %></p>
+                    <p><%= dedicace.description %></p>
+                </div>
+            <% end %>
+        </div>
+
+        <%= f.submit "Étape suivante" %>
+    <% end %>
+
+    <%= render "videos/shared/back_button" %>
+  </div>
+</div>

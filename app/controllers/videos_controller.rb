@@ -1,6 +1,8 @@
 class VideosController < ApplicationController
   before_action :select_video, except: %i[ start start_post go_back ]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
+  before_action :define_music, only: %i[music music_post]
+  before_action :define_dedicace, only: %i[dedicace dedicace_post]
 
   def start
     #TODO: with last user
@@ -188,7 +190,8 @@ class VideosController < ApplicationController
       flash[:alert] = "Ne sélectionnez que 12 chapitres maximum"
       return render select_chapters_path, status: :unprocessable_entity
     end
-
+    
+    # Création, Mise à jour et suppression
     if @video.video_chapters.create(chapter_to_create) && @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values) && chapter_to_delete.delete_all
       @video.update(stop_at: @video.next_step())
       redirect_to send("#{@video.next_step()}_path")
@@ -196,6 +199,54 @@ class VideosController < ApplicationController
       @video.update(stop_at: @video.current_step)
       @chapterstype = ChapterType.all
       return render select_chapters_path, status: :unprocessable_entity
+    end
+  end
+
+  def music_post
+    if params[:music].nil?
+      flash[:alert] = "Vous devez séléctionnez une musique"
+      return render music_path, status: :unprocessable_entity
+    end
+
+    # Utilisation de find_by pour avoir un objet nil si pas trouvé.
+    music = Music.find_by(id: params[:music])
+    if music.nil?
+      flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
+      return render music_path, status: :unprocessable_entity
+    end
+
+    @video.music = music
+    @video.stop_at = @video.next_step()
+
+    if @video.save()
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render music_path, status: :unprocessable_entity
+    end
+  end
+
+  def dedicace_post
+    if params[:dedicace].nil?
+      flash[:alert] = "Vous devez séléctionnez une dedicace"
+      return render dedicace_path, status: :unprocessable_entity
+    end
+
+    # Utilisation de find_by pour avoir un objet nil si pas trouvé.
+    dedicace = Dedicace.find_by(id: params[:dedicace])
+    if dedicace.nil?
+      flash[:alert] = "Sélection incorrecte. La dedicace n'existe pas."
+      return render dedicace_path, status: :unprocessable_entity
+    end
+
+    @video.dedicace = dedicace
+    @video.stop_at = @video.next_step()
+
+    if @video.save()
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render dedicace_path, status: :unprocessable_entity
     end
   end
 
@@ -230,5 +281,13 @@ class VideosController < ApplicationController
     chapter_types_h = Hash[chapter_types.map { |ct| [ct.id, ct] }]
 
     @chapterstype = q_results.as_json.map { |k| {ct: chapter_types_h[k['id']], text: k['text'], select: !k['text'].blank? }}
+  end
+
+  def define_music
+    @musics = Music.all
+  end
+
+  def define_dedicace
+    @dedicaces = Dedicace.all
   end
 end
