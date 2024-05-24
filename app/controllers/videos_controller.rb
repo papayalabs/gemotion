@@ -4,6 +4,7 @@ class VideosController < ApplicationController
   before_action :define_music, only: %i[music music_post]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
   before_action :select_join_video, only: %i[join]
+  before_action :define_video_chapters, only: %i[content content_post]
 
   def start
     #TODO: with last user
@@ -271,14 +272,14 @@ class VideosController < ApplicationController
   end
 
   def skip_share
-    @video.stop_at = @video.next_step()
+    skip_element(share_path)
+  end
 
-    if @video.save()
-      redirect_to send("#{@video.next_step()}_path")
-    else
-      @video.update(stop_at: @video.current_step)
-      return render share_path, status: :unprocessable_entity
-    end
+  def content_post
+  end
+
+  def skip_content
+    skip_element(content_path)
   end
 
   private
@@ -324,5 +325,20 @@ class VideosController < ApplicationController
 
   def select_join_video
     @video = Video.find_by!(token: params[:id])
+  end
+
+  def define_video_chapters
+    @video_chapters = @video.video_chapters
+  end
+
+  def skip_element(error_path)
+    @video.stop_at = @video.next_step()
+
+    if @video.save()
+      redirect_to send("#{@video.next_step()}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      return render error_path, status: :unprocessable_entity
+    end
   end
 end

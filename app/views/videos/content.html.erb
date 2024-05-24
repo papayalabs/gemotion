@@ -1,0 +1,29 @@
+<div>
+  <h1 class="font-bold text-4xl">Il est temps de remplir vos chapitres de merveilleux souvenirs !</h1>
+
+  <div>
+    <%= image_tag "icons/image.svg" %>
+    <p>Faites glisser ou ajouter vos photos et/ou vidéos dans les chapitres ci-dessous</p>
+  </div>
+
+  <div class="">
+
+    <% @video_chapters.each do |video_chapter| %>
+        <%= form_with url: content_post_path, method: :post do |f| %>  
+            <% if video_chapter.chapter_type.image.attached? %>
+                <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+            <% else %>
+                <p>Pas d'image</p>
+            <% end %>
+            <p><%= video_chapter.chapter_type.name %></p>    
+            <%= f.file_field :elements %>
+            <%= f.submit "Mettre en ligne" %>
+        <% end %>
+    <% end %>
+
+    <%= render "videos/shared/back_button" %>
+    
+    <%= link_to "Étape suivante", skip_share_path, data: {turbo: false} %>
+
+  </div>
+</div>
