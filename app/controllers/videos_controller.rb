@@ -288,11 +288,21 @@ class VideosController < ApplicationController
   end
 
   def content_dedicace
-
   end
 
   def content_dedicace_post
-    # TODO: use model dedicace content to have many content in dedicace and made file upload to this.
+
+    params[:contents].each do |file|
+      dc = @video.dedicace_contents.create(position: @video.dedicace_contents.count)
+      dc.content.attach(file)
+    end
+
+    flash[:notice] = "Contenu ajouté."
+    redirect_to content_dedicace_path
+  end
+
+  def skip_content_dedicace
+    skip_element(content_dedicace_path)
   end
 
   private

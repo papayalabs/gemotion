@@ -1,0 +1,31 @@
+<div>
+  <h1 class="font-bold text-4xl">Ajoutez votre partie vidéo à la dédicace finale</h1>
+
+  <div>
+    <%= image_tag "icons/image.svg" %>
+    <p>Filmez vous directement sur notre plateforme (via votre tablette, téléphone, ordinateur)</p>
+  </div>
+
+  <div class="">
+        <p>Vos médias</p>
+        <p>Thème: <%= @video.dedicace.name %></p>
+
+        <%= form_with url: content_dedicace_post_path, method: :post do |f| %>
+
+            <% @video.dedicace_contents.order(position: :asc)&.each do |dc| %>
+                <% if dc.content.attached? %>
+                    <%= video_tag dc.content, controls: true, autobuffer: true%>
+                <% end %>
+            <% end %>
+
+            <%= f.file_field :contents, multiple: true %>
+
+            <%= f.submit "Mettre en ligne" %>
+        <% end %>
+
+    <%= render "videos/shared/back_button" %>
+    
+    <%= link_to "Étape suivante", skip_content_dedicace_path, data: {turbo: false} %>
+
+  </div>
+</div>

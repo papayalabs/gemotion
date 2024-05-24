@@ -5,6 +5,7 @@ class Video < ApplicationRecord
 
     has_many :video_destinataires
     has_many :video_chapters
+    has_many :dedicace_contents
 
     belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
