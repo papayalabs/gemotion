@@ -1,7 +1,7 @@
 class VideoChapter < ApplicationRecord
   belongs_to :chapter_type
   belongs_to :video
-  has_many_attached :elements
+  has_one_attached :element
 
   validates :text, presence: true
 end

@@ -276,6 +276,11 @@ class VideosController < ApplicationController
   end
 
   def content_post
+    @video_chapter = @video.video_chapters.find(params[:id])
+    @video_chapter.element.attach params[:element]
+
+    flash[:notice] = "Contenu ajouté."
+    redirect_to content_path
   end
 
   def skip_content

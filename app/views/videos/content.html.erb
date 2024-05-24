@@ -9,14 +9,21 @@
   <div class="">
 
     <% @video_chapters.each do |video_chapter| %>
-        <%= form_with url: content_post_path, method: :post do |f| %>  
+        <%= form_with url: content_post_path(video_chapter), method: :post do |f| %>  
             <% if video_chapter.chapter_type.image.attached? %>
                 <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
             <% else %>
                 <p>Pas d'image</p>
             <% end %>
-            <p><%= video_chapter.chapter_type.name %></p>    
-            <%= f.file_field :elements %>
+            <p><%= video_chapter.chapter_type.name %></p> 
+
+            <% if video_chapter.element.attached? %>
+                <p>Vidéo actuel</p>
+                <%= video_tag video_chapter.element, controls: true, autobuffer: true%>
+            <% end %>
+
+            <%= f.file_field :element %>
+            <p>*La vidéo ne devra pas excéder plus de 10 secondes</p>
             <%= f.submit "Mettre en ligne" %>
         <% end %>
     <% end %>
