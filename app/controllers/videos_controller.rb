@@ -287,6 +287,14 @@ class VideosController < ApplicationController
     skip_element(content_path)
   end
 
+  def content_dedicace
+
+  end
+
+  def content_dedicace_post
+    # TODO: use model dedicace content to have many content in dedicace and made file upload to this.
+  end
+
   private
 
   def select_video
