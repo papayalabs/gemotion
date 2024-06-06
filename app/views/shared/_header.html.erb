@@ -1,9 +1,27 @@
 <header>
-    <p>GE.Motion</p>
-
-    <%= link_to "Accueil", root_path %>
-    <%= link_to "Comment ca marche", about_path %>
-    <%= link_to "Tarification", price_path %>
-
-    <%= link_to "Démarrer", start_path %>
+    <div class="">
+        <%# logo %>
+        <%= image_tag 'gemotion-logo.svg', alt: 'Gemotion Logo' %>
+        <%# main nav %>
+        <nav>
+            <ul>
+                <li>
+                    <%= link_to "Accueil", root_path %>
+                </li>
+                <li>
+                    <%= link_to "Comment ca marche", about_path %>
+                </li>
+                <li>
+                    <%= link_to "Tarification", price_path %>
+                </li>
+            </ul>
+        </nav>
+        <%# app nav %>
+        <nav>
+            <ul>
+                <li></li>
+                <li><%= link_to "Démarrer", start_path %></li>
+            </ul>
+        </nav>
+    </div>
 </header>
