@@ -11,14 +11,21 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Montserrat", "Inter var", ...defaultTheme.fontFamily.sans],
+        "red-hat-display": [
+          "'Red Hat Display'",
+          ...defaultTheme.fontFamily.sans,
+        ],
       },
       colors: {
-        "header-bg": "#201F1F",
+        "shared-bg": "#201F1F",
       },
       spacing: {
         "14.43px": "14.43px",
         "16.78px": "16.78px",
         "28.32px": "28.32px",
+      },
+      lineHeight: {
+        "25px": "25px",
       },
     },
   },

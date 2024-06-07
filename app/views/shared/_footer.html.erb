@@ -1,45 +1,67 @@
 <footer>
-     <p>GE.Motion</p>
 
-     <div>
-        <p>Contact</p>
-        <div> 
-            <%= image_tag "icons/email.svg" %>
-            <%= link_to "email@gmail.com", "mailto:email@gmail.com" %>
+    <section id="footer">
+        <div class="w-[1280px] mx-auto flex justify-between items-center">
+            <%= image_tag 'gemotion-logo-header.svg', alt: 'Gemotion Logo' %>
+            <div id="footer_contacts">
+                <p>Contacts</p>
+                <nav>
+                    <ul>
+                        <li><%= image_tag "icons/email.svg" %> <%= link_to "email@gmail.com", "mailto:email@gmail.com" %></li>
+                        <li><%= image_tag "icons/phone.svg" %> <%= link_to "000-000-000", "telto:0000000" %></li>
+                    </ul>
+                </nav>
+            </div>
+            <div id="footer_inscription">
+                <p>Inscription</p>
+                <nav>
+                    <ul>
+                        <li><%= link_to "Créer un compte", root_path %></li>
+                        <li><%= link_to "Se connecter", root_path %></li>
+                        <li><%= link_to "Contactez-nous", root_path %></li>
+                    </ul>
+                </nav>
+            </div>
+            <div id="footer_video">
+                <p>Créer une vidéo</p>
+                <nav>
+                    <ul>
+                        <li><%= link_to "Démarrer", start_path %></li>
+                        <li><%= link_to "Comment ca marche", about_path %></li>
+                        <li><%= link_to "Tarification", price_path %></li>
+                    </ul>
+                </nav>
+            </div>
+            <div id="footer_socials">
+                <p>Socials</p>
+                <nav>
+                    <ul>
+                        <li>
+                            <%= link_to "https://instagram.com", target: "_blank" do %>
+                            <%= image_tag "icons/instagram.svg" %>
+                            <% end %>
+                        </li>
+                        <li>
+                            <%= link_to "https://facebook.com", target: "_blank" do %>
+                            <%= image_tag "icons/facebook.svg" %>
+                            <% end %>
+                        </li>
+                        <li>
+                            <%= link_to "https://twitter.com", target: "_blank" do %>
+                            <%= image_tag "icons/twitter.svg" %>
+                            <% end %>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
-        <div> 
-            <%= image_tag "icons/phone.svg" %>
-            <%= link_to "000-000-000", "telto:0000000" %>
-        </div>
-     </div>
+    </section>
 
-     <div>
-        <p>Inscription</p>
-        
-        <%= link_to "Créer un compte", root_path %>
-        <%= link_to "Se connecter", root_path %>
-        <%= link_to "Contactez-nous", root_path %>
-     </div>
+    <section id="copyright" class="py-4 bg-shared-bg">
+        <p class="text-white text-base font-red-hat-display font-normal leading-[25px] break-words text-center">
+            @2024 All rights reserved. Created by Digitality Agency
+        </p>
+    </section>
 
-     <div>
-        <p>Créer une vidéo</p>
-        
-        <%= link_to "Démarrer", start_path %>
-        <%= link_to "Comment ca marche", about_path %>
-        <%= link_to "Tarification", price_path %>
-     </div>
 
-     <div>
-        <p>Social</p>
-        
-        <%= link_to "https://instagram.com", target: "_blank" do %>
-            <%= image_tag "icons/instagram.svg" %>
-        <% end %>
-        <%= link_to "https://facebook.com", target: "_blank" do %>
-            <%= image_tag "icons/facebook.svg" %>
-        <% end %>
-        <%= link_to "https://twitter.com", target: "_blank" do %>
-            <%= image_tag "icons/twitter.svg" %>
-        <% end %>
-     </div>
 </footer>
