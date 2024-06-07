@@ -12,7 +12,7 @@
 
   <body>
     <%= render "shared/header" %>
-    
+
     <% unless notice.nil? %>
       <p class="notice w-full text-success text-center p-3 bg-green-50"><%= notice %></p>
     <% end %>
@@ -20,9 +20,12 @@
       <p class="alert w-full text-red-500 text-center p-3 bg-red-50"><%= alert %></p>
     <% end %>
 
-    <main class="container mx-auto mt-28 px-5 flex">
+    <%# <main class="container mx-auto mt-28 px-5 flex"> %>
+    <main class="">
       <%= yield %>
     </main>
+
+    <%= render "shared/footer" %>
   </body>
-  <%= render "shared/footer" %>
+
 </html>

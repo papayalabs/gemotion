@@ -1,0 +1,185 @@
+<section id="faq">
+    <h2>FAQs</h2>
+    <p>Find answers to frequently asked questions about GE.Motion.</p>
+
+    <div class="faq-section">
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="true">
+                <h3>Qu'est-ce que GE.Motion ?</h3>
+                <%= image_tag "icons/chevron-up.svg", alt: "Chevron Up", class: "chevron" %>
+            </header>
+            <div class="faq-answer">
+                <p>E mOtions-vidéo est une plateforme innovante simple d'utilisation qui vous permet de créer des vidéos personnalisées uniques et émotionnelles pour toutes les occasions en mettant en commun vos photos et/ou vidéos. Offrez une vidéo unique et originale grâce à l'option de la dédicace personnalisée qui fera fondre d'émotions son destinataire. E mOtions-vidéo se charge du montage pour un rendu fluide et professionnel.</p>
+            </div>
+        </article>
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="false">
+                <h3>Qu'est-ce que E mOtions-video ?</h3>
+                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+            </header>
+            <div class="faq-answer hidden">
+                <p>E mOtions-video est une plateforme innovante simple d'utilisation qui vous permet de créer des vidéos personnalisées uniques et émotionnelles pour toutes les occasions en mettant en commun vos photos et/ou vidéos. Offrez une vidéo unique et originale grâce à l'option de la dédicace personnalisée qui fera fondre d'émotions son destinataire. E mOtions-video se charge du montage pour un rendu fluide et professionnel.</p>
+            </div>
+        </article>
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="false">
+                <h3>Combien coûtent les vidéos ?</h3>
+                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+            </header>
+            <div class="faq-answer hidden">
+                <p>Nos prix varient en fonction des options choisies. Veuillez consulter notre page Tarifs pour plus de détails.</p>
+            </div>
+        </article>
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="false">
+                <h3>Que reçois-je après le paiement ?</h3>
+                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+            </header>
+            <div class="faq-answer hidden">
+                <p>Vous recevrez une vidéo personnalisée de haute qualité, prête à être partagée ou téléchargée.</p>
+            </div>
+        </article>
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="false">
+                <h3>Quels modes de paiement acceptez-vous ?</h3>
+                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+            </header>
+            <div class="faq-answer hidden">
+                <p>Nous acceptons les cartes de crédit et les paiements via PayPal.</p>
+            </div>
+        </article>
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="false">
+                <h3>Puis-je payer à la fin de la création de la vidéo ?</h3>
+                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+            </header>
+            <div class="faq-answer hidden">
+                <p>Le paiement doit être effectué avant la finalisation de la vidéo.</p>
+            </div>
+        </article>
+        <article class="faq-item">
+            <header class="faq-question" aria-expanded="false">
+                <h3>Comment puis-je inviter des personnes à créer notre vidéo ?</h3>
+                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+            </header>
+            <div class="faq-answer hidden">
+                <p>Vous pouvez inviter des personnes en partageant un lien unique qui leur permettra de contribuer à votre projet vidéo.</p>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const items = document.querySelectorAll(".faq-item");
+
+    function toggleAccordion() {
+        const itemToggle = this.getAttribute('aria-expanded');
+
+        items.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            const chevron = question.querySelector('.chevron');
+
+            question.setAttribute('aria-expanded', 'false');
+            answer.classList.add('hidden');
+            answer.style.maxHeight = null;
+            chevron.src = '<%= asset_path("icons/chevron-down.svg") %>';
+        });
+
+        if (itemToggle === 'false') {
+            this.setAttribute('aria-expanded', 'true');
+            const answer = this.nextElementSibling;
+            const chevron = this.querySelector('.chevron');
+            answer.classList.remove('hidden');
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            chevron.src = '<%= asset_path("icons/chevron-up.svg") %>';
+        }
+    }
+
+    items.forEach(item => {
+        item.querySelector('.faq-question').addEventListener('click', toggleAccordion);
+    });
+
+    // Initialize the first item as expanded
+    if (items.length > 0) {
+        const firstQuestion = items[0].querySelector('.faq-question');
+        const firstAnswer = items[0].querySelector('.faq-answer');
+        const firstChevron = items[0].querySelector('.faq-question .chevron');
+
+        firstQuestion.setAttribute('aria-expanded', 'true');
+        firstAnswer.classList.remove('hidden');
+        firstAnswer.style.maxHeight = firstAnswer.scrollHeight + 'px';
+        firstChevron.src = '<%= asset_path("icons/chevron-up.svg") %>';
+    }
+});
+</script>
+
+<style>
+.faq-section {
+    width: 100%;
+    height: 100%;
+    padding: 48px;
+    background: white;
+    box-shadow: 4px 4px 20px 5px rgba(12.69, 102.84, 131.31, 0.1);
+    border-radius: 20px;
+    border: 1px #c9e1ff solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 1062px;
+}
+
+.faq-section h3 {
+    color: #0d6783;
+    font-size: 20px;
+    font-family: "Montserrat";
+    font-weight: 700;
+    line-height: 24px;
+    word-wrap: break-word;
+}
+
+.faq-section p {
+    color: #201f1f;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25px;
+    word-wrap: break-word;
+}
+
+.faq-section article.faq-item {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    border-top: 1px solid rgba(0, 0, 0, 0.20);
+    padding-top: 24px;
+}
+
+.faq-question {
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease, color 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-question[aria-expanded="true"] {
+    background: inherit;
+    color: inherit;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, padding 0.5s ease;
+}
+
+.hidden {
+    max-height: 0 !important;
+    padding: 0 !important;
+}
+</style>

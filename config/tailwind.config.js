@@ -25,8 +25,12 @@ module.exports = {
         "16.78px": "16.78px",
         "28.32px": "28.32px",
       },
+      fontSize: {
+        "70px": "70px",
+      },
       lineHeight: {
         "25px": "25px",
+        "81px": "81px",
       },
     },
   },

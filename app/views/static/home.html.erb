@@ -1,9 +1,37 @@
-<%= render "shared/seo/seocompletion", 
-  title: "Accueil",
-  description: ""
-%>
+<%= render "shared/seo/seocompletion", title: "Accueil", description: "" %>
 
-<div>
-  <h1 class="font-bold text-4xl">Static#home</h1>
-  <p>Find me in app/views/static/home.html.erb</p>
-</div>
+<section id="hero">
+  <h1 class="text-[#201F1F] text-[70px] text-center font-montserrat font-black uppercase leading-[81px] break-words mx-auto max-w-[1060px]">
+    Grâce à E <span class="text-[#0D6783]">motions-video</span> offrez un cadeau unique et personnalisé
+  </h1>
+
+  <%= link_to "Démarrer", start_path, class: "cta" %>
+</section>
+
+<section id="satisfied">
+  <h2>Vous ne payez que si vous êtes satisfait du résultat!</h2>
+</section>
+
+<section id="how">
+  <h2>Comment ca marche</h2>
+  <%= link_to "Lire la suite", about_path, class: "cta" %>
+</section>
+
+<section id="dedication">
+  <h2>Choisissez la dédicace de fin qui rendra votre film unique</h2>
+  <a class="cta">Afficher plus de fonctionnalités</a>
+</section>
+
+<section id="prices">
+  <h2>Nos tarifs</h2>
+  <p>Le coût de votre vidéo est basé sur sa durée. Faites des prévisualisations gratuites et payez seulement à la fin lorsque vous êtes complètement satisfait et prêt à finaliser votre cadeau vidéo.</p>
+  <a class="cta">Créer une vidéo</a>
+</section>
+
+<section id="testimonials">
+  <h2>TESTIMONIALS</h2>
+</section>
+
+<%= render "shared/faq" %>
+
+<%= render "shared/questions" %>
