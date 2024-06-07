@@ -1,27 +1,32 @@
-<header>
-    <div class="">
-        <%# logo %>
-        <%= image_tag 'gemotion-logo.svg', alt: 'Gemotion Logo' %>
-        <%# main nav %>
-        <nav>
-            <ul>
-                <li>
-                    <%= link_to "Accueil", root_path %>
-                </li>
-                <li>
-                    <%= link_to "Comment ca marche", about_path %>
-                </li>
-                <li>
-                    <%= link_to "Tarification", price_path %>
-                </li>
-            </ul>
-        </nav>
-        <%# app nav %>
-        <nav>
-            <ul>
-                <li></li>
-                <li><%= link_to "Démarrer", start_path %></li>
-            </ul>
-        </nav>
-    </div>
+<header class="py-4 bg-header-bg">
+  <div class="w-[1280px] mx-auto flex justify-between items-center">
+    <%= image_tag 'gemotion-logo.svg', alt: 'Gemotion Logo' %>
+
+    <nav id="primary_menu" class="flex space-x-8">
+      <ul class="flex space-x-8">
+        <li>
+          <%= link_to "Accueil", root_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words" %>
+        </li>
+        <li>
+          <%= link_to "Comment ça marche", about_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words" %>
+        </li>
+        <li>
+          <%= link_to "Tarification", price_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words" %>
+        </li>
+      </ul>
+    </nav>
+
+    <nav id="secondary_menu" class="flex space-x-8">
+      <ul class="flex space-x-8">
+        <li>
+          <%= link_to "#" do %>
+            <%= image_tag "icons/profile.svg" %>
+          <% end %>
+        </li>
+        <li class="flex items-center h-full">
+          <%= link_to "Démarrer", start_path, class: "text-black text-lg font-montserrat font-bold leading-7 break-words w-full h-full bg-white rounded-[15px] px-[28.32px] pt-[14.43px] pb-[16.78px] flex items-center justify-center" %>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </header>
