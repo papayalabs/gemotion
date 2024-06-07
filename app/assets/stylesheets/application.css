@@ -21,6 +21,17 @@ section {
   align-items: center;
 }
 
+h1 {
+  text-align: center;
+  font-family: Montserrat;
+  font-size: 70px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 81px; /* 115.714% */
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
 h2 {
   color: #000;
   font-size: 40px;
