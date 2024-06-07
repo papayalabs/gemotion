@@ -1,7 +1,9 @@
 <footer>
   <section id="footer" class="py-12">
     <div class="w-[1280px] mx-auto flex justify-between items-start">
-      <%= image_tag 'gemotion-logo-footer.svg', alt: 'Gemotion Logo' %>
+      <%= link_to root_path do %>
+        <%= image_tag 'gemotion-logo-footer.svg', alt: 'Gemotion Logo' %>
+      <% end %>
       <div id="footer_contacts">
         <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[20px]">Contacts</p>
         <nav>
