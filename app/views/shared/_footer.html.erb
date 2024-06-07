@@ -1,67 +1,75 @@
 <footer>
+  <section id="footer" class="py-12">
+    <div class="w-[1280px] mx-auto flex justify-between items-start">
+      <%= image_tag 'gemotion-logo-footer.svg', alt: 'Gemotion Logo' %>
+      <div id="footer_contacts">
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[20px]">Contacts</p>
+        <nav>
+          <ul class="flex flex-col gap-[14px]">
+            <li class="flex items-center gap-[6px]">
+              <%= link_to "mailto:email@gmail.com", aria: { label: "Send an email to email@gmail.com" } do %>
+                <%= image_tag "icons/email.svg", alt: "Email Icon" %>
+              <% end %>
+              <%= link_to "email@gmail.com", "mailto:email@gmail.com", aria: { label: "Send an email to email@gmail.com" } %>
+            </li>
+            <li class="flex items-center gap-[6px]">
+              <%= link_to "tel:0000000", aria: { label: "Call 000-000-000" } do %>
+                <%= image_tag "icons/phone.svg", alt: "Phone Icon" %>
+              <% end %>
+              <%= link_to "000-000-000", "tel:0000000", aria: { label: "Call 000-000-000" } %>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div id="footer_inscription">
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px]">Inscription</p>
+        <nav>
+          <ul class="flex flex-col gap-[5px]">
+            <li><%= link_to "Créer un compte", root_path %></li>
+            <li><%= link_to "Se connecter", root_path %></li>
+            <li><%= link_to "Contactez-nous", root_path %></li>
+          </ul>
+        </nav>
+      </div>
+      <div id="footer_video">
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px]">Créer une vidéo</p>
+        <nav>
+          <ul class="flex flex-col gap-[5px]">
+            <li><%= link_to "Démarrer", start_path %></li>
+            <li><%= link_to "Comment ca marche", about_path %></li>
+            <li><%= link_to "Tarification", price_path %></li>
+          </ul>
+        </nav>
+      </div>
+      <div id="footer_socials">
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[23px]">Socials</p>
+        <nav>
+          <ul class="flex flex-row gap-[11px]">
+            <li>
+              <%= link_to "https://instagram.com", target: "_blank", aria: { label: "Visit our Instagram page" } do %>
+                <%= image_tag "icons/instagram.svg", alt: "Instagram Icon" %>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to "https://facebook.com", target: "_blank", aria: { label: "Visit our Facebook page" } do %>
+                <%= image_tag "icons/facebook.svg", alt: "Facebook Icon" %>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to "https://twitter.com", target: "_blank", aria: { label: "Visit our Twitter page" } do %>
+                <%= image_tag "icons/twitter.svg", alt: "Twitter Icon" %>
+              <% end %>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
 
-    <section id="footer">
-        <div class="w-[1280px] mx-auto flex justify-between items-center">
-            <%= image_tag 'gemotion-logo-header.svg', alt: 'Gemotion Logo' %>
-            <div id="footer_contacts">
-                <p>Contacts</p>
-                <nav>
-                    <ul>
-                        <li><%= image_tag "icons/email.svg" %> <%= link_to "email@gmail.com", "mailto:email@gmail.com" %></li>
-                        <li><%= image_tag "icons/phone.svg" %> <%= link_to "000-000-000", "telto:0000000" %></li>
-                    </ul>
-                </nav>
-            </div>
-            <div id="footer_inscription">
-                <p>Inscription</p>
-                <nav>
-                    <ul>
-                        <li><%= link_to "Créer un compte", root_path %></li>
-                        <li><%= link_to "Se connecter", root_path %></li>
-                        <li><%= link_to "Contactez-nous", root_path %></li>
-                    </ul>
-                </nav>
-            </div>
-            <div id="footer_video">
-                <p>Créer une vidéo</p>
-                <nav>
-                    <ul>
-                        <li><%= link_to "Démarrer", start_path %></li>
-                        <li><%= link_to "Comment ca marche", about_path %></li>
-                        <li><%= link_to "Tarification", price_path %></li>
-                    </ul>
-                </nav>
-            </div>
-            <div id="footer_socials">
-                <p>Socials</p>
-                <nav>
-                    <ul>
-                        <li>
-                            <%= link_to "https://instagram.com", target: "_blank" do %>
-                            <%= image_tag "icons/instagram.svg" %>
-                            <% end %>
-                        </li>
-                        <li>
-                            <%= link_to "https://facebook.com", target: "_blank" do %>
-                            <%= image_tag "icons/facebook.svg" %>
-                            <% end %>
-                        </li>
-                        <li>
-                            <%= link_to "https://twitter.com", target: "_blank" do %>
-                            <%= image_tag "icons/twitter.svg" %>
-                            <% end %>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </section>
-
-    <section id="copyright" class="py-4 bg-shared-bg">
-        <p class="text-white text-base font-red-hat-display font-normal leading-[25px] break-words text-center">
-            @2024 All rights reserved. Created by Digitality Agency
-        </p>
-    </section>
-
-
+  <section id="copyright" class="py-4 bg-shared-bg">
+    <p class="text-white text-base font-red-hat-display font-normal leading-[25px] break-words text-center">
+      @2024 All rights reserved. Created by
+      <%= link_to "Digitality Agency", "https://digitality-agency.com", target: "_blank", class: "text-white" %>
+    </p>
+  </section>
 </footer>

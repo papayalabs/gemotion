@@ -18,6 +18,7 @@ module.exports = {
       },
       colors: {
         "shared-bg": "#201F1F",
+        "title-color": "#0D6783",
       },
       spacing: {
         "14.43px": "14.43px",
