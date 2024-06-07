@@ -1,6 +1,8 @@
 <header class="py-4 bg-shared-bg">
   <div class="w-[1280px] mx-auto flex justify-between items-center">
-    <%= image_tag 'gemotion-logo-header.svg', alt: 'Gemotion Logo' %>
+    <%= link_to root_path do %>
+      <%= image_tag 'gemotion-logo-header.svg', alt: 'Gemotion Logo' %>
+    <% end %>
 
     <nav id="primary_menu" class="flex space-x-8">
       <ul class="flex space-x-8">

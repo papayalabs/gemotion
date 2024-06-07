@@ -9,7 +9,8 @@
 </section>
 
 <section id="satisfied">
-  <h2>Vous ne payez que si vous êtes satisfait du résultat!</h2>
+  <h2 class="max-w-[740px]">Vous ne payez que si vous êtes satisfait du résultat!</h2>
+  <p class="max-w-[764px]">E-motions Vidéo est une plateforme innovante qui vous permet de créer à plusieurs des vidéos personnalisées uniques et chargées d'émotions pour toutes les occasions. Offrez un cadeau original et inoubliable à vos proches en retraçant les moments forts de leur vie.</p>
 </section>
 
 <section id="how">
@@ -18,13 +19,62 @@
 </section>
 
 <section id="dedication">
-  <h2>Choisissez la dédicace de fin qui rendra votre film unique</h2>
+  <h2 class="max-w-[740px]">Choisissez la dédicace de fin qui rendra votre film unique</h2>
+  <p>Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
+
+<div class="max-w-[1062px] mx-auto flex gap-[41px] items-center">
+  <div class="flex-1">
+    <%= image_tag 'gemotion-home-dedication-img.png', alt: 'Image 1', class: 'w-full h-auto' %>
+  </div>
+  <ul class="min-w-[413px] max-w-[413px] pl-5">
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">01 Danse</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">02 Boulette</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">03 Les Balais</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">04 Carpool</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">05 Ballon</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">06 Messages écrits</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">07 Messages vocaux</li>
+    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">08 Les shots</li>
+  </ul>
+</div>
+
   <a class="cta">Afficher plus de fonctionnalités</a>
 </section>
 
-<section id="prices">
+<section id="pricing" class="py-12">
   <h2>Nos tarifs</h2>
-  <p>Le coût de votre vidéo est basé sur sa durée. Faites des prévisualisations gratuites et payez seulement à la fin lorsque vous êtes complètement satisfait et prêt à finaliser votre cadeau vidéo.</p>
+  <p class="max-w-[837px] mx-auto text-center">
+    Le coût de votre vidéo est basé sur sa durée. Faites des prévisualisations gratuites et payez seulement à la fin lorsque vous êtes complètement satisfait et prêt à finaliser votre cadeau vidéo.
+  </p>
+  <div class="w-[1280px] mx-auto flex justify-between items-start gap-8">
+    <!-- Card 1 -->
+    <div class="pricing-card bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
+      <%= image_tag 'gemotion-home-price-img.png', alt: 'Image 1', class: 'mb-4' %>
+      <p class="price text-xl font-bold mb-2">€20/min</p>
+      <div class="duration text-center">
+        <p class="label text-sm font-medium text-gray-600">Durée</p>
+        <p class="value text-lg font-bold text-gray-900">0:00-5:00 min</p>
+      </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="pricing-card bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
+      <%= image_tag 'gemotion-home-price-img.png', alt: 'Image 2', class: 'mb-4' %>
+      <p class="price text-xl font-bold mb-2">€30/min</p>
+      <div class="duration text-center">
+        <p class="label text-sm font-medium text-gray-600">Durée</p>
+        <p class="value text-lg font-bold text-gray-900">5:01-10:00 min</p>
+      </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="pricing-card bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
+      <%= image_tag 'gemotion-home-price-img.png', alt: 'Image 3', class: 'mb-4' %>
+      <p class="price text-xl font-bold mb-2">€40/min</p>
+      <div class="duration text-center">
+        <p class="label text-sm font-medium text-gray-600">Durée</p>
+        <p class="value text-lg font-bold text-gray-900">10:01+ min</p>
+      </div>
+    </div>
+  </div>
   <a class="cta">Créer une vidéo</a>
 </section>
 
@@ -35,3 +85,4 @@
 <%= render "shared/faq" %>
 
 <%= render "shared/questions" %>
+
