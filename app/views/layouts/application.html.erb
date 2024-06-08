@@ -4,13 +4,12 @@
     <%= render "shared/seo/seo" %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
-
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
+
     <%= render "shared/header" %>
 
     <% unless notice.nil? %>
@@ -20,12 +19,12 @@
       <p class="alert w-full text-red-500 text-center p-3 bg-red-50"><%= alert %></p>
     <% end %>
 
-    <%# <main class="container mx-auto mt-28 px-5 flex"> %>
-    <main class="">
+    <main>
       <%= yield %>
     </main>
 
     <%= render "shared/footer" %>
+
   </body>
 
 </html>

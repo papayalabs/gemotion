@@ -1,13 +1,21 @@
-// Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails";
 import "controllers";
+import { Swiper, Navigation, Pagination } from "./swiper-bundle.min.js";
+import "swiper/swiper-bundle.min.css";
 
-import Swiper from "swiper/bundle";
-import "swiper/swiper-bundle.css";
+document.addEventListener("turbo:load", function () {
+  Swiper.use([Navigation, Pagination]);
 
-const { environment } = require("@rails/webpacker");
-const webpack = require("webpack");
-
-// Ajouter une configuration supplémentaire si nécessaire
-
-module.exports = environment;
+  const swiper = new Swiper(".swiper-container", {
+    slidesPerView: 1,
+    spaceBetween: 10,
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+  });
+});
