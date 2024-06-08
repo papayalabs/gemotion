@@ -1,0 +1,42 @@
+<!-- app/views/your_view.html.erb -->
+
+<section id="testimonials">
+    <h2>TESTIMONIALS</h2>
+
+    <div class="swiper-container">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">Votre Contenu</div>
+        <div class="swiper-slide">Votre Contenu</div>
+        <div class="swiper-slide">Votre Contenu</div>
+    </div>
+    <!-- Add Pagination -->
+    <div class="swiper-pagination"></div>
+    <!-- Add Navigation -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    </div>
+
+</section>
+
+<script>
+
+document.addEventListener('turbolinks:load', function() {
+  var swiper = new Swiper('.swiper-container', {
+    slidesPerView: 1,
+    spaceBetween: 10,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+  });
+});
+
+</script>
+
+<style>
+
+</style>

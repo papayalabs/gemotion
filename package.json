@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@rails/webpacker": "5.4.3",
+    "swiper": "^11.1.4"
+  }
+}
