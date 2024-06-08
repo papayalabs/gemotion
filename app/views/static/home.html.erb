@@ -1,52 +1,77 @@
 <%= render "shared/seo/seocompletion", title: "Accueil", description: "" %>
 
-<section id="hero">
-  <h1 class="text-[#201F1F] text-[70px] text-center font-montserrat font-black uppercase leading-[81px] break-words mx-auto max-w-[1060px]">
-    Grâce à E <span class="text-[#0D6783]">motions-video</span> offrez un cadeau unique et personnalisé
-  </h1>
+<section id="hero" class="">
+  <div class="relative max-w-[1060px] pt-[550px] pb-[18px] mx-auto text-center">
+    <h1 class="text-[#201F1F] text-[70px] font-montserrat font-black uppercase leading-[81px] break-words mx-auto mb-[48px]">
+      Grâce à E <span class="text-[#0D6783]">motions-video</span> offrez un cadeau unique et personnalisé
+    </h1>
 
-  <%= link_to "Démarrer", start_path, class: "cta" %>
+    <a class="cta mx-auto mb-[48px]" href="/videos/start">Démarrer</a>
+
+    <p class="absolute bottom-0 right-0 hero-p max-w-[370px]">
+      Transformez vos vidéos et photos en véritables chefs-d'œuvre en quelques clics seulement.
+    </p>
+  </div>
 </section>
 
 <section id="satisfied">
-  <h2 class="max-w-[740px]">Vous ne payez que si vous êtes satisfait du résultat!</h2>
-  <p class="max-w-[764px]">E-motions Vidéo est une plateforme innovante qui vous permet de créer à plusieurs des vidéos personnalisées uniques et chargées d'émotions pour toutes les occasions. Offrez un cadeau original et inoubliable à vos proches en retraçant les moments forts de leur vie.</p>
+  <div class="relative max-w-[764px]">
+    <h2 class="max-w-[740px] mb-[32px]">Vous ne payez que si vous êtes satisfait du résultat!</h2>
+    <%= image_tag 'gemotion-home-satisfied-img.png', class: 'absolute top-[-61px] right-[-61px] w-[164px] h-[73px] object-contain object-center' %>
+    <p class="">E-motions Vidéo est une plateforme innovante qui vous permet de créer à plusieurs des vidéos personnalisées uniques et chargées d'émotions pour toutes les occasions. Offrez un cadeau original et inoubliable à vos proches en retraçant les moments forts de leur vie.</p>
+  </div>
 </section>
 
 <section id="how">
-  <h2>Comment ca marche</h2>
+  <div class="max-w-[1062px]">
+    <h2 class="text-left mb-[69px]">Comment ça marche</h2>
+
+    <div class="mx-auto flex items-center gap-[96px] mb-[48px]">
+      <div class="flex-1">
+        <ul class="flex flex-col gap-[32px]">
+          <li class="how-li">Choisissez les caractéristiques de votre film</li>
+          <li class="how-li">Invitez des participants</li>
+          <li class="how-li">Chaque participant témoigne avec des vidéos et/ou des photos</li>
+          <li class="how-li">Offrez le film</li>
+        </ul>
+      </div>
+      <%= image_tag 'gemotion-home-how-img.png', class: 'w-[583px] h-auto object-contain object-center' %>
+    </div>
+
+  </div>
+
   <%= link_to "Lire la suite", about_path, class: "cta" %>
 </section>
 
 <section id="dedication">
-  <h2 class="max-w-[740px]">Choisissez la dédicace de fin qui rendra votre film unique</h2>
-  <p>Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
+  <h2 class="max-w-[740px] mb-[32px]">Choisissez la dédicace de fin qui rendra votre film unique</h2>
+  <p class="mb-[48px]">Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
 
-<div class="max-w-[1062px] mx-auto flex gap-[41px] items-center">
-  <div class="flex-1">
-    <%= image_tag 'gemotion-home-dedication-img.png', alt: 'Image 1', class: 'w-full h-auto' %>
+  <div class="max-w-[1062px] mx-auto flex gap-[41px] items-center mb-[48px]">
+    <div class="flex-1">
+      <%= image_tag 'gemotion-home-dedication-img.png', alt: 'Image 1', class: 'w-full h-auto' %>
+    </div>
+    <ul class="min-w-[413px] max-w-[413px] pl-5">
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">01 Danse</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">02 Boulette</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">03 Les Balais</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">04 Carpool</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">05 Ballon</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">06 Messages écrits</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">07 Messages vocaux</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">08 Les shots</li>
+    </ul>
   </div>
-  <ul class="min-w-[413px] max-w-[413px] pl-5">
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">01 Danse</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">02 Boulette</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">03 Les Balais</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">04 Carpool</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">05 Ballon</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">06 Messages écrits</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">07 Messages vocaux</li>
-    <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">08 Les shots</li>
-  </ul>
-</div>
 
   <a class="cta">Afficher plus de fonctionnalités</a>
 </section>
 
 <section id="pricing" class="py-12">
-  <h2>Nos tarifs</h2>
-  <p class="max-w-[837px] mx-auto text-center">
+  <h2 class="mb-[32px]">Nos tarifs</h2>
+  <p class="max-w-[837px] mx-auto text-center mb-[48px]">
     Le coût de votre vidéo est basé sur sa durée. Faites des prévisualisations gratuites et payez seulement à la fin lorsque vous êtes complètement satisfait et prêt à finaliser votre cadeau vidéo.
   </p>
-  <div class="w-[1280px] mx-auto flex justify-between items-start gap-8">
+  <div class="w-[1280px] mx-auto flex justify-between items-start gap-8  mb-[48px]">
     <!-- Card 1 -->
     <div class="pricing-card bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
       <%= image_tag 'gemotion-home-price-img.png', alt: 'Image 1', class: 'mb-4' %>
