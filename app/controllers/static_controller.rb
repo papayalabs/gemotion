@@ -5,6 +5,10 @@ class StaticController < ApplicationController
   def about
   end
 
-  def prices
+  def pricing
   end
+
+  def contact
+  end
+
 end

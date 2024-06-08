@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get 'contacts/new'
+  get 'contacts/create'
+  resources :contacts, only: [:new, :create]
 
   # Video
   get 'videos/back', to: "videos#go_back", as: "step_back"
@@ -14,7 +17,7 @@ Rails.application.routes.draw do
 
   get 'videos/info_destinataire', to: "videos#info_destinataire", as: "info_destinataire"
   post 'videos/info_destinataire', to: "videos#info_destinataire_post", as: "info_destinataire_post"
-  
+
   get 'videos/date_fin', to: "videos#date_fin", as: "date_fin"
   post 'videos/date_fin', to: "videos#date_fin_post", as: "date_fin_post"
 
@@ -44,12 +47,13 @@ Rails.application.routes.draw do
   get 'videos/content_dedicace', to: "videos#content_dedicace", as: "content_dedicace"
   post 'videos/content_dedicace', to: "videos#content_dedicace_post", as: "content_dedicace_post"
   get 'videos/skip_content_dedicace', to: "videos#skip_content_dedicace", as: "skip_content_dedicace"
-  
+
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 
   # Static pages
   get 'about', to: 'static#about', as: "about"
-  get 'prices', to: 'static#prices', as: "price"
+  get 'pricing', to: 'static#pricing', as: "pricing"
+  get 'contact', to: 'static#contact', as: "contact"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
