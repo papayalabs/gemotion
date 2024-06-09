@@ -4,7 +4,7 @@
     </section>
 
     <section id="about_steps" class="bg-[#FAFEFF]">
-        <div class="m-auto max-w-[1062px] ">
+        <div class="m-auto max-w-[1062px] steps-container">
             <p class="text-center">Créer votre vidéo personnalisée, il n'y a rien de plus simple</p>
             <%= render "shared/about/step1" %>
             <%= render "shared/about/step2" %>
@@ -16,19 +16,157 @@
         </div>
     </section>
 
-    <%= render "shared/faq" %>
+    <section id="watch">
+        <h2 class="mb-[48px]">Regardez notre court tutoriel</h2>
+        <div class="flex w-[1062px] p-[40px] relative items-center gap-[61px] rounded-[20px] border border-custom-border bg-custom-white shadow-custom mb-[56px]">
+            <%= video_tag asset_path('about.mp4'), id: 'about-video-element', controls: false, width: 982, height: 425, poster: asset_path('gemotion-about-video-poster.svg') %>
+            <div id="play-button" class="absolute inset-0 flex items-center justify-center cursor-pointer">
+                <%= image_tag 'icons/about-video-play.svg', alt: 'Play Button' %>
+            </div>
+        </div>
+        <%= link_to 'Créer une vidéo', start_path, class:"cta" %>
+    </section>
 
+    <%= render "shared/faq" %>
     <%= render "shared/questions" %>
 
 </div>
 
-<style>
+<script>
+/*
+document.addEventListener("DOMContentLoaded", function() {
+  const videoElement = document.getElementById('about-video-element');
+  const playButton = document.getElementById('play-button');
 
+  if (videoElement && playButton) {
+    playButton.addEventListener('click', function() {
+      videoElement.setAttribute('controls', true);
+      videoElement.play();
+      playButton.style.display = 'none';
+    });
+
+    videoElement.addEventListener('pause', function() {
+      playButton.style.display = 'flex';
+    });
+  }
+
+  const steps = document.querySelectorAll('.step');
+  const options = {
+    threshold: 0.5
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.remove('hidden');
+          entry.target.classList.add(entry.target.classList.contains('slide-left') ? 'animate-slide-in-left' : 'animate-slide-in-right');
+          observer.unobserve(entry.target);
+        }, index * 300);
+      }
+    });
+  }, options);
+
+  steps.forEach((step, index) => {
+    if (index % 2 === 0) {
+      step.classList.add('slide-left', 'hidden');
+    } else {
+      step.classList.add('slide-right', 'hidden');
+    }
+    observer.observe(step);
+  });
+});
+*/
+</script>
+
+<style>
 #about_hero {
-    background-image: url('<%= asset_path("gemotion-about-hero-bg.png") %>');
-    background-position: center 80%;
-    background-repeat: no-repeat;
-    background-size: cover;
+  background-image: url('<%= asset_path("gemotion-about-hero-bg.png") %>');
+  background-position: center 80%;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
+
+/*
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.slide-left {
+  transform: translateX(-100%);
+}
+
+.slide-right {
+  transform: translateX(100%);
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s ease-out forwards;
+  opacity: 1;
+  visibility: visible;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.8s ease-out forwards;
+  opacity: 1;
+  visibility: visible;
+}*/
+
+.steps-container {
+  position: relative;
+}
+
+.step {
+  position: relative;
+  margin: 20px 0; /* Adjust spacing as needed */
+}
+
+.step:nth-child(even):not(:last-child)::after {
+  content: url('<%= asset_path("gemotion-next-step-left.svg") %>');
+  position: absolute;
+  left: -120px; /* Adjust positioning as needed */
+  top: 100%;
+  transform: translateY(-50%);
+}
+
+.step:nth-child(odd):not(:last-child)::after {
+  content: url('<%= asset_path("gemotion-next-step-right.svg") %>');
+  position: absolute;
+  right: -120px; /* Adjust positioning as needed */
+  top: 100%;
+  transform: translateY(-50%);
+}
+
+/* Specific rule to hide the arrow on the last element if it's even */
+.step:nth-child(even):last-child::after {
+  content: none;
+}
+
+
+
+
 
 </style>
