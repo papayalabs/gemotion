@@ -5,8 +5,53 @@
 
     <%= render "shared/pricing" %>
 
+    <section>
+        <h2 class="mb-[40px]">Ajoutez une touche spéciale à votre vidéo</h2>
+        <div class="max-w-[1062px] mx-auto flex items-center gap-[61px]">
+            <ul class="flex flex-col gap-[20px]">
+                <li class="touch">Sélectionnez les chapitres, les musiques, la dédicace de fin,... pour un film personnalisé</li>
+                <li class="touch">Invitez des participants</li>
+                <li class="touch">Partagez vos photos et/ou vidéos</li>
+                <li class="touch">Offrez le film</li>
+            </ul>
+            <%= image_tag 'gemotion-pricing-touch.png', class: 'max-w-[583px] h-auto object-contain object-center' %>
+        </div>
+    </section>
+
+
     <%= render "shared/faq" %>
 
     <%= render "shared/questions" %>
 
 </div>
+
+<style>
+
+#pricing .hero {
+  background-image: url('<%= asset_path("gemotion-pricing-hero-bg.png") %>');
+  background-position: center 80%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.touch {
+  display: flex;
+  width: 383px;
+  height: 124px;
+  padding: 26px 24px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  border: 1px solid var(--Linear-2, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  color: #000;
+  text-align: center;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 120% */
+}
+
+</style>
