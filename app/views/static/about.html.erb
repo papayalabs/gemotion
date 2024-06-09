@@ -1,4 +1,34 @@
-<div class="pt-[135px] flex justify-center">
-    <h1>Comment ça marche</h1>
-    <p>Créer votre vidéo personnalisée, il n'y a rien de plus simple</p>
+<div id="about">
+    <section id="about_hero" class="p-0">
+        <h1 class="pt-[135px] pb-[118px]">Comment ça marche</h1>
+    </section>
+
+    <section id="about_steps" class="bg-[#FAFEFF]">
+        <div class="m-auto max-w-[1062px] ">
+            <p class="text-center">Créer votre vidéo personnalisée, il n'y a rien de plus simple</p>
+            <%= render "shared/about/step1" %>
+            <%= render "shared/about/step2" %>
+            <%= render "shared/about/step3" %>
+            <%= render "shared/about/step4" %>
+            <%= render "shared/about/step5" %>
+            <%= render "shared/about/step6" %>
+            <%= render "shared/about/step7" %>
+        </div>
+    </section>
+
+    <%= render "shared/faq" %>
+
+    <%= render "shared/questions" %>
+
 </div>
+
+<style>
+
+#about_hero {
+    background-image: url('<%= asset_path("gemotion-about-hero-bg.png") %>');
+    background-position: center 80%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+</style>
