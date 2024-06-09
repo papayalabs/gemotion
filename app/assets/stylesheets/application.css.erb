@@ -174,17 +174,16 @@ h2 {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  gap: 64px;
   display: inline-flex";
 
 }
 
 .pricing-card img {
   margin-bottom: 16px;
-  /* width: 70px;
-  height: 51px;
+  width: 134px;
+  height: auto;
   object-fit: contain;
-  object-position: center; */
+  object-position: center;
 }
 
 .pricing-card .text-xl {
@@ -199,13 +198,27 @@ h2 {
   font-family: Montserrat;
   font-weight: 700;
   line-height: 37px;
-  word-wrap: break-word
+  word-wrap: break-word;
+  margin-bottom: 24px;
 }
 
-.pricing-card .duration p {
-  margin: 0;
-  font-size: 16px;
-  line-height: 24px;
+.pricing-card .duration .label {
+  color: #000;
+  text-align: center;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 120% */
+  margin-bottom: 12px;
+}
+
+.pricing-card .duration .value {
+  color: var(--Black, #000);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 166.667% */
 }
 
 /* TESTIMONIALS */
