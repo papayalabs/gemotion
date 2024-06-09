@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  get 'contacts/new'
-  get 'contacts/create'
+  # resources :contacts, only: [:new, :create]
+
   resources :contacts, only: [:new, :create]
 
   # Video
@@ -53,7 +53,6 @@ Rails.application.routes.draw do
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'pricing', to: 'static#pricing', as: "pricing"
-  get 'contact', to: 'static#contact', as: "contact"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

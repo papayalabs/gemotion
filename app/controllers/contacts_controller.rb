@@ -1,24 +1,20 @@
 class ContactsController < ApplicationController
   def new
-    @contact_form = ContactForm.new
+    @contact = Contact.new
   end
 
   def create
-    @contact_form = ContactForm.new(contact_form_params)
-
-    if @contact_form.valid?
-      # Traitez la soumission du formulaire, par exemple, envoyez un email
-      flash[:notice] = "Votre message a été envoyé avec succès."
-      redirect_to contact_path
+    @contact = Contact.new(contact_params)
+    if @contact.save
+      redirect_to new_contact_path, notice: 'Message envoyé avec succès.'
     else
-      flash[:alert] = "Il y a des erreurs dans votre formulaire."
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 
   private
 
-  def contact_form_params
-    params.require(:contact_form).permit(:name, :email, :message)
+  def contact_params
+    params.require(:contact).permit(:name, :email, :message)
   end
 end

@@ -1,22 +1,75 @@
-<h1>Contactez-nous</h1>
+<div id="contact" class="pt-[72px] pb-[104px] bg-[#FAFEFF]">
 
-<%= form_with url: contacts_path, method: :post, local: true do |form| %>
-  <div class="field">
-    <%= form.label :name, "Nom et prénom*" %>
-    <%= form.text_field :name, required: true %>
+  <h1 class="mb-[32px]"><span class="text-[#0D6783]">Contactez</span>-nous</h1>
+  <p class="text-center mb-[40px]">Notre équipe est toujours heureuse de vous aider à répondre à vos questions.</p>
+
+  <!-- url: contacts_path  -->
+  <div class="max-w-[821px] m-auto rounded-[20px] border border-[#C9E1FF] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.1)] p-[72px] mb-[64px]">
+    <%= form_with url: new_contact_path, method: :post, local: true do |form| %>
+      <div class="field mb-[16px]">
+        <%= form.text_field :name, required: true, placeholder: "Nom et prénom*", class: "w-full pt-[18px] pb-[17px] pl-[24px] rounded-[15px] border border-[#201F1F] placeholder-[#201F1F80] placeholder-red-hat-display placeholder-text-[16px] placeholder-font-normal placeholder-leading-[25px]" %>
+      </div>
+
+      <div class="field mb-[16px]">
+        <%= form.email_field :email, required: true, placeholder: "Email*", class: "w-full pt-[18px] pb-[17px] pl-[24px] rounded-[15px] border border-[#201F1F] placeholder-[#201F1F80] placeholder-red-hat-display placeholder-text-[16px] placeholder-font-normal placeholder-leading-[25px]" %>
+      </div>
+
+      <div class="field mb-[48px]">
+        <%= form.text_area :message, required: true, placeholder: "Votre question*", class: "w-full h-[158px] pt-[18px] pb-[17px] pl-[24px] rounded-[15px] border border-[#201F1F] placeholder-[#201F1F80] placeholder-red-hat-display placeholder-text-[16px] placeholder-font-normal placeholder-leading-[25px]" %>
+      </div>
+
+      <div class="actions">
+        <%= form.submit "Envoyer", class: "w-full py-[16px] px-[56px] rounded-[15px] bg-[#201F1F] text-white" %>
+      </div>
+    <% end %>
   </div>
 
-  <div class="field">
-    <%= form.label :email, "Email*" %>
-    <%= form.email_field :email, required: true %>
-  </div>
+  <ul class="flex justify-center gap-[156px]">
+    <li class="flex flex-col items-center">
+      <%= image_tag 'gemotion-contact-phone.png', class: 'w-[141px] h-[141px] object-contain object-center' %>
+      <span class="text-center text-black text-[18px] font-normal leading-[30px]">000-000-000</span>
+    </li>
+    <li class="flex flex-col items-center">
+      <%= image_tag 'gemotion-contact-mail.png', class: 'w-[141px] h-[141px] object-contain object-center' %>
+      <span class="text-center text-black text-[18px] font-normal leading-[30px]">email@gmail.com</span>
+    </li>
+    <li class="flex flex-col items-center">
+      <%= image_tag 'gemotion-contact-whatsapp.png', class: 'w-[141px] h-[141px] object-contain object-center' %>
+      <span class="text-center text-black text-[18px] font-normal leading-[30px]">000-000-000</span>
+    </li>
+  </ul>
 
-  <div class="field">
-    <%= form.label :message, "Votre question*" %>
-    <%= form.text_area :message, required: true %>
-  </div>
+</div>
 
-  <div class="actions">
-    <%= form.submit "Envoyer" %>
-  </div>
-<% end %>
+<style>
+
+h1 {
+  color: var(--Black, #201F1F);
+
+  /* H1 */
+  font-family: Montserrat;
+  font-size: 70px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 81px;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+p {
+  color: var(--Black, #201F1F);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px;
+}
+
+::placeholder {
+  color: rgba(32, 31, 31, 0.50);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 25px;
+}
+
+</style>

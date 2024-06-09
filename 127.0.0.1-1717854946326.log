@@ -1,2 +1,0 @@
-127.0.0.1/:1 An import map is added after module script load was triggered.
-127.0.0.1/:1 Uncaught TypeError: Failed to resolve module specifier "application". Relative references must start with either "/", "./", or "../".
