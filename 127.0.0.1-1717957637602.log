@@ -1,0 +1,1 @@
+application-eaf693525002d9af2fb057722f333d308853292e77bbb09e0d2b70fce26ed004.js:5 Uncaught SyntaxError: The requested module 'swiper' does not provide an export named 'Navigation' (at application-eaf693525002d9af2fb057722f333d308853292e77bbb09e0d2b70fce26ed004.js:5:18)
