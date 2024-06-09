@@ -3,7 +3,6 @@
   <h1 class="mb-[32px]"><span class="text-[#0D6783]">Contactez</span>-nous</h1>
   <p class="text-center mb-[40px]">Notre équipe est toujours heureuse de vous aider à répondre à vos questions.</p>
 
-  <!-- url: contacts_path  -->
   <div class="max-w-[821px] m-auto rounded-[20px] border border-[#C9E1FF] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.1)] p-[72px] mb-[64px]">
     <%= form_with url: new_contact_path, method: :post, local: true do |form| %>
       <div class="field mb-[16px]">
@@ -24,37 +23,30 @@
     <% end %>
   </div>
 
-  <ul class="flex justify-center gap-[156px]">
-    <li class="flex flex-col items-center">
+<ul class="flex justify-center gap-[156px]">
+  <li class="flex flex-col items-center">
+    <%= link_to 'tel:+33611223344', target: '_blank' do %>
       <%= image_tag 'gemotion-contact-phone.png', class: 'w-[141px] h-[141px] object-contain object-center' %>
       <span class="text-center text-black text-[18px] font-normal leading-[30px]">000-000-000</span>
-    </li>
-    <li class="flex flex-col items-center">
+    <% end %>
+  </li>
+  <li class="flex flex-col items-center">
+    <%= link_to 'mailto:email@gmail.com', target: '_blank' do %>
       <%= image_tag 'gemotion-contact-mail.png', class: 'w-[141px] h-[141px] object-contain object-center' %>
       <span class="text-center text-black text-[18px] font-normal leading-[30px]">email@gmail.com</span>
-    </li>
-    <li class="flex flex-col items-center">
+    <% end %>
+  </li>
+  <li class="flex flex-col items-center">
+    <%= link_to 'https://wa.me/33611223344', target: '_blank' do %>
       <%= image_tag 'gemotion-contact-whatsapp.png', class: 'w-[141px] h-[141px] object-contain object-center' %>
       <span class="text-center text-black text-[18px] font-normal leading-[30px]">000-000-000</span>
-    </li>
-  </ul>
+    <% end %>
+  </li>
+</ul>
 
 </div>
 
 <style>
-
-h1 {
-  color: var(--Black, #201F1F);
-
-  /* H1 */
-  font-family: Montserrat;
-  font-size: 70px;
-  font-style: normal;
-  font-weight: 900;
-  line-height: 81px;
-  letter-spacing: -1px;
-  text-transform: uppercase;
-}
 
 p {
   color: var(--Black, #201F1F);
