@@ -1,5 +1,5 @@
 <section id="faq">
-    <h2>FAQs</h2>
+    <h2 class="relative">FAQs</h2>
     <p>Find answers to frequently asked questions about GE.Motion.</p>
 
     <div class="faq-section">
@@ -123,6 +123,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
 #faq h2 {
     margin-bottom: 24px;
+}
+
+#faq h2::before {
+    content: "";
+    background-image: url('<%= asset_path("gemotion-faq-light.png") %>');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: absolute;
+    display: block;
+    width: 200px;
+    height: 200px;
+    right: -120px;
+    top: -70px;
 }
 
 #faq p {
