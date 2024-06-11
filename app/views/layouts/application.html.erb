@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <%= render "shared/seo/seo" %>
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-  <%= stylesheet_link_tag "tailwind", "inter-font", "application", "swiper-bundle.min.css", "data-turbo-track": "reload" %>
-  <%= javascript_importmap_tags %>
-</head>
+  <head>
+    <%= render "shared/seo/seo" %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
 
   <body>
 
@@ -24,6 +24,7 @@
     </main>
 
     <%= render "shared/footer" %>
+
   </body>
 
 </html>

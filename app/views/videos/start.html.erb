@@ -16,21 +16,23 @@
     </div>
 
     <div class="start-choices-choose">
-      <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px]">Je choisis:</h3>
+      <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[40px]">Je choisis:</h3>
 
-<%= form_with url: start_post_path, method: :post do |f| %>
-  <div class="flex space-x-4 max-w-[1006px] gap-[32px]">
-    <div class="flex items-center space-x-2 w-full">
-      <%= f.radio_button :video_type, "colab", id: "video_type_colab", class: "hidden" %>
-      <%= f.label :video_type_colab, "Je crée une vidéo collaborative à offrir", class: "custom-radio-label w-full text-center h-56" %>
-    </div>
-    <div class="flex items-center space-x-2 w-full">
-      <%= f.radio_button :video_type, "solo", id: "video_type_solo", class: "hidden" %>
-      <%= f.label :video_type_solo, "Je crée ma vidéo solo", class: "custom-radio-label w-full text-center h-56" %>
-    </div>
-  </div>
-  <%= f.submit "Étape suivante", class:"cta" %>
-<% end %>
+      <%= form_with url: start_post_path, method: :post do |f| %>
+        <div class="flex space-x-4 max-w-[1006px] gap-[32px] mx-auto">
+          <div class="flex items-center space-x-2 w-full">
+            <%= f.radio_button :video_type, "colab", id: "video_type_colab", class: "hidden" %>
+            <%= f.label :video_type_colab, "Je crée une vidéo collaborative à offrir", class: "custom-radio-label w-full text-center h-56" %>
+          </div>
+          <div class="flex items-center space-x-2 w-full">
+            <%= f.radio_button :video_type, "solo", id: "video_type_solo", class: "hidden" %>
+            <%= f.label :video_type_solo, "Je crée ma vidéo solo", class: "custom-radio-label w-full text-center h-56" %>
+          </div>
+        </div>
+        <div class="flex justify-center mt-8">
+          <%= f.submit "Étape suivante", class:"cta" %>
+        </div>
+      <% end %>
 
 
     </div>
@@ -40,25 +42,25 @@
 
 <style>
 
-  .custom-radio-label {
-    display: flex;
-    padding: 0 104px; /* Ajustez les valeurs de padding vertical si nécessaire */
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    border-radius: 20px;
-    border: 2px solid var(--linear-2-transparent-20, #C9E1FF);
-    background: var(--White, #FFF);
-    text-align: center;
-    width: 100%; /* Assure que la largeur est prise en compte */
-    height: 224px; /* Fixe la hauteur à 224px */
-  }
+.custom-radio-label {
+  display: flex;
+  padding: 0 104px; /* Ajustez les valeurs de padding vertical si nécessaire */
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 20px;
+  border: 2px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  text-align: center;
+  width: 100%; /* Assure que la largeur est prise en compte */
+  height: 224px; /* Fixe la hauteur à 224px */
+}
 
-  input[type="radio"]:checked + .custom-radio-label {
-    background-color: #0D6783;
-    color: white;
-    border-color: #0D6783;
-  }
+input[type="radio"]:checked + .custom-radio-label {
+  background-color: #0D6783;
+  color: white;
+  border-color: #0D6783;
+}
 
   .start-choices-text {
     display: flex;
