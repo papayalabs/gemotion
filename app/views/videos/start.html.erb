@@ -1,29 +1,117 @@
-<div>
-  <h1 class="font-bold text-4xl">Choisissez la méthode de création vidéo</h1>
+<div id="video_start" class="py-[56px]">
+  <section class="hero">
+    <h1 class="text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue">
+      Choisissez la méthode de création vidéo
+    </h1>
+  </section>
 
-  <div>
-    <%= image_tag "icons/image.svg" %>
-    <p>Plusieurs choix de vidéos :</p>
-    <ul>
-      <li>Pour un cadeau unique: Réalisez  à plusieurs une vidéo collaborative, personnalisée riche en émotions</li>
-      <li>Pour une vidéo à réaliser en solo:  Créez un film personnel facilement à partir de vos propres photos et vidéos .</li>
-    </ul>
+  <section>
+
+    <div class="start-choices-text relative mb-[72px]">
+      <p>Plusieurs choix de vidéos :</p>
+      <ul>
+        <li>Pour un cadeau unique: Réalisez  à plusieurs une vidéo collaborative, personnalisée riche en émotions</li>
+        <li>Pour une vidéo à réaliser en solo:  Créez un film personnel facilement à partir de vos propres photos et vidéos .</li>
+      </ul>
+    </div>
+
+    <div class="start-choices-choose">
+      <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px]">Je choisis:</h3>
+
+<%= form_with url: start_post_path, method: :post do |f| %>
+  <div class="flex space-x-4 max-w-[1006px] gap-[32px]">
+    <div class="flex items-center space-x-2 w-full">
+      <%= f.radio_button :video_type, "colab", id: "video_type_colab", class: "hidden" %>
+      <%= f.label :video_type_colab, "Je crée une vidéo collaborative à offrir", class: "custom-radio-label w-full text-center h-56" %>
+    </div>
+    <div class="flex items-center space-x-2 w-full">
+      <%= f.radio_button :video_type, "solo", id: "video_type_solo", class: "hidden" %>
+      <%= f.label :video_type_solo, "Je crée ma vidéo solo", class: "custom-radio-label w-full text-center h-56" %>
+    </div>
   </div>
+  <%= f.submit "Étape suivante", class:"cta" %>
+<% end %>
 
-  <div class="">
-    <p>Je choisis:</p>
 
-    <%= form_with url: start_post_path, method: :post do |f| %>
-      <div class="">
-        <%= f.radio_button :video_type, "colab" %>
-        <%= f.label :video_type_colab, "Je crée une vidéo collaborative à offrir" %>
-      </div>
+    </div>
 
-      <div class="">
-        <%= f.radio_button :video_type, "solo" %>
-        <%= f.label :video_type_solo, "Je crée ma vidéo solo" %>
-      </div>
-      <%= f.submit "Étape suivante" %>
-    <% end %>
-  </div>
+  </section>
 </div>
+
+<style>
+
+  .custom-radio-label {
+    display: flex;
+    padding: 0 104px; /* Ajustez les valeurs de padding vertical si nécessaire */
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 20px;
+    border: 2px solid var(--linear-2-transparent-20, #C9E1FF);
+    background: var(--White, #FFF);
+    text-align: center;
+    width: 100%; /* Assure que la largeur est prise en compte */
+    height: 224px; /* Fixe la hauteur à 224px */
+  }
+
+  input[type="radio"]:checked + .custom-radio-label {
+    background-color: #0D6783;
+    color: white;
+    border-color: #0D6783;
+  }
+
+  .start-choices-text {
+    display: flex;
+    flex-direction: column;
+    width: 1062px;
+    padding: 49px 118.5px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    border-radius: 10px;
+    border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+    background: var(--White, #FFF);
+
+    /* Style */
+    box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+
+  }
+
+  .start-choices-text p {
+    color: #000;
+    text-align: center;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 25px; /* 156.25% */
+  }
+
+  .start-choices-text ul {
+    color: #000;
+    text-align: center;
+
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 25px; /* 156.25% */
+    list-style-type: disc;
+  }
+
+
+  .start-choices-text::before {
+    position: absolute;
+    content: "";
+    background-image: url('<%= asset_path('icons/target.png') %>');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 137px;
+    height: 137px;
+    top: -75px;
+    left: 50%;
+    transform: translateX(-50%);
+
+  }
+</style>
+

@@ -58,6 +58,12 @@ module.exports = {
       letterSpacing: {
         "-1px": "-1px",
       },
+      textColor: {
+        transparent: "transparent",
+      },
+      backgroundImage: {
+        "linear-dark-blue": "linear-gradient(248deg, #0D6783 0%, #163F50 100%)",
+      },
     },
   },
   plugins: [
