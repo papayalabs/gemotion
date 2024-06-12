@@ -1,0 +1,236 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+section {
+  padding: 56px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  text-align: center;
+  font-family: Montserrat;
+  font-size: 70px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 81px; /* 115.714% */
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+h2 {
+  color: #000;
+  font-size: 40px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 56px;
+  word-wrap: break-word;
+  text-align: center;
+}
+
+.cta {
+  width: auto;
+  height: 100%;
+  padding-left: 56px;
+  padding-right: 56px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  background: #201f1f;
+  border-radius: 15px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  display: inline-flex;
+  color: white;
+  font-size: 18px;
+  font-family: Montserrat;
+  font-weight: 700;
+  line-height: 22.86px;
+  word-wrap: break-word;
+}
+
+/* HEADER */
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* HERO */
+
+#hero {
+  background-image: url('<%= asset_path("gemotion-hero-bg.svg") %>');
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 1037px;
+  padding-bottom: calc(18px + 183px);
+}
+
+.hero-p {
+  display: inline-flex;
+  padding: var(--is_16px, 16px);
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: var(--Black, #201F1F);
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 166.667% */
+  border-radius: 20px;
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+}
+
+/* how */
+
+.how-li {
+  display: flex;
+  width: 383px;
+  height: 124px;
+  padding: 38px 36.984px;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  border-radius: 15px;
+  border: 1px solid #C9E1FF;
+  background: #FFF;
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+}
+
+/* ABOUT */
+
+.custom-div {
+  display: flex;
+  width: 1062px;
+  padding: var(--is_40px, 40px);
+  align-items: center;
+  gap: 61px;
+  border-radius: 20px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+}
+
+.step {
+  padding: 20px 0;
+}
+
+/* DEDICATION */
+
+#dedication {
+  background-image: url('<%= asset_path("gemotion-dedication-bg.svg") %>');
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 1037px;
+  padding-bottom: 164px;
+}
+
+/* PRICING */
+
+.pricing-card {
+  /* width: 30%;
+  background-color: #ffffff;
+
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center; */
+
+
+  width: 100%;
+  height: 100%;
+  padding: 48px;
+  background: white;
+  border-radius: 20px;
+  border: 1px #C9E1FF solid;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  display: inline-flex";
+
+}
+
+.pricing-card img {
+  margin-bottom: 16px;
+  width: 134px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+.pricing-card .text-xl {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.pricing-card .price {
+  color: black;
+  font-size: 32px;
+  font-family: Montserrat;
+  font-weight: 700;
+  line-height: 37px;
+  word-wrap: break-word;
+  margin-bottom: 24px;
+}
+
+.pricing-card .duration .label {
+  color: #000;
+  text-align: center;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 120% */
+  margin-bottom: 12px;
+}
+
+.pricing-card .duration .value {
+  color: var(--Black, #000);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 166.667% */
+}
+
+/* TESTIMONIALS */
+
+#testimonials {
+  border-radius: 50px;
+  background: var(--Light-blue-linear, linear-gradient(180deg, #F1FBFF 38.29%, rgba(241, 251, 255, 0.00) 100%));
+}
+
+
+/* VIDEOS */
+
+.h1-video {
+  @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
+}

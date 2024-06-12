@@ -11,3 +11,7 @@
 }
 
 */
+
+.h1-video {
+  @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
+}
