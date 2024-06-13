@@ -289,37 +289,76 @@ class VideosController < ApplicationController
     skip_element(content_path)
   end
 
-  def content_dedicace
-    @video_1 = @video.dedicace.video
-    @music_1 = @video.music.music
+    def content_dedicace
+      @video_1 = @video.dedicace.video
+      @music_1 = @video.music.music
 
-    # Chemins des fichiers temporaires
-    video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
-    music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
-    final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
+      # Chemins des fichiers temporaires
+      video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
+      music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
+      final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
 
-    # Assurez-vous que le dossier uploads existe
-    FileUtils.mkdir_p(File.dirname(final_video_path))
+      # Assurez-vous que le dossier uploads existe
+      FileUtils.mkdir_p(File.dirname(final_video_path))
 
-    # Génération de la vidéo avec ffmpeg
-    command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
-    system(command)
+      # Génération de la vidéo avec ffmpeg
+      command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
+      system(command)
 
-    # Vérifiez si le fichier a été généré
-    if File.exist?(final_video_path)
-      # Attacher la vidéo générée à l'objet @video
-      @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
+      # Vérifiez si le fichier a été généré
+      if File.exist?(final_video_path)
+        # Attacher la vidéo générée à l'objet @video
+        @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
 
-      # Rendre l'URL de la vidéo générée accessible dans la vue
-      @final_video_url = url_for(@video.final_video)
-    else
-      # Gérez le cas où la génération de la vidéo a échoué
-      @final_video_url = nil
-      flash[:alert] = "La génération de la vidéo a échoué."
+        # Rendre l'URL de la vidéo générée accessible dans la vue
+        @final_video_url = url_for(@video.final_video)
+
+        # Générer le fichier FCPXML
+        fcpxml_content = generate_fcpxml(@final_video_url, url_for(@video_1), url_for(@music_1))
+        fcpxml_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.fcpxml")
+        File.open(fcpxml_path, 'w') { |file| file.write(fcpxml_content) }
+
+        # Rendre l'URL du fichier FCPXML accessible dans la vue
+        @fcpxml_url = url_for(fcpxml_path.to_s.gsub("#{Rails.root}/public", ''))
+      else
+        # Gérez le cas où la génération de la vidéo a échoué
+        @final_video_url = nil
+        @fcpxml_url = nil
+        flash[:alert] = "La génération de la vidéo a échoué."
+      end
+
+      render :content_dedicace
     end
 
-    render :content_dedicace
-  end
+    private
+
+    def generate_fcpxml(final_video_url, video_url, music_url)
+      <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE fcpxml>
+        <fcpxml version="1.8">
+          <resources>
+            <asset id="video" src="#{video_url}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
+            <asset id="music" src="#{music_url}" start="3600s" duration="3600s" hasAudio="1" hasVideo="0"/>
+            <asset id="final_video" src="#{final_video_url}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
+          </resources>
+          <library>
+            <event name="Event">
+              <project name="Project">
+                <sequence duration="3600s" format="r1">
+                  <spine>
+                    <asset-clip name="Final Video" offset="0s" ref="final_video" duration="3600s" start="3600s">
+                    </asset-clip>
+                    <asset-clip name="Music" offset="0s" ref="music" duration="3600s" start="3600s">
+                    </asset-clip>
+                  </spine>
+                </sequence>
+              </project>
+            </event>
+          </library>
+        </fcpxml>
+      XML
+    end
 
   def content_dedicace_post
 

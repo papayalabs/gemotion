@@ -23,25 +23,28 @@
             <%= f.submit "Mettre en ligne" %>
         <% end %>
 
-    <% if %>
-    <div>
-      <p>Voici votre video finale</p>
-      <%= video_tag url_for(@video_1), controls: true, autobuffer: true %>
-      <%= audio_tag url_for(@music_1), controls: true, autobuffer: true %>
+<% if @final_video_url %>
+  <div>
+    <h3>Final Video:</h3>
+    <video controls style="max-width: 100%; height: auto;">
+      <source src="<%= @final_video_url %>" type="video/mp4">
+      Your browser does not support the video element.
+    </video>
+    <br>
+    <a href="<%= @final_video_url %>" download>Download Final Video</a>
+  </div>
+<% else %>
+  <p>No final video generated.</p>
+<% end %>
 
-      <% if @final_video_url %>
-        <div>
-          <h3>Final Video:</h3>
-          <video controls style="max-width: 100%; height: auto;">
-            <source src="<%= @final_video_url %>" type="video/mp4">
-            Your browser does not support the video element.
-          </video>
-        </div>
-      <% else %>
-        <p>No final video generated.</p>
-      <% end %>
-    </div>
-    <% end %>
+<% if @fcpxml_url %>
+  <div>
+    <h3>Final Cut Pro Project:</h3>
+    <a href="<%= @fcpxml_url %>" download>Download FCPXML File</a>
+  </div>
+<% else %>
+  <p>No FCPXML file generated.</p>
+<% end %>
 
     <%= render "videos/shared/back_button" %>
 
