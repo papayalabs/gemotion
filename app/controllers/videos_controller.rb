@@ -153,11 +153,11 @@ class VideosController < ApplicationController
   def select_chapters_post
     # On authorize que certain parametre
     params_allow = params.permit(chapters: [:select, :text])['chapters']
-    
+
     chapter_to_create = [] # Un tableau a remplir de chapitre a créer
     chapter_to_updates = {} # Un hash a remplir de chapitre a modifier
-    
-    # Si le chapitre est déjà sélectionné, on doit le modifier 
+
+    # Si le chapitre est déjà sélectionné, on doit le modifier
     find_chapters = [] # On crée un tableau servant à la requete SQL IN pour ne récupérer que des chapitres déjà crée
     params_allow.each { |k, v| find_chapters.append(k) if v['select'] == 'true' }
     # On cherche avec la request SQL IN les video_chapters ayant déjà un chapitre lié à l'ancien
@@ -165,7 +165,7 @@ class VideosController < ApplicationController
     chapter_to_delete = @video.video_chapters.where.not(chapter_type_id: find_chapters)
     id_chapter_type = [] # L'id uniquement des chapitre_type en relation avec les chapitres video a modifier.
     chapter_to_updates_by_chapter_type = {} # Un hash permettant de faire une recherche par le chapitre_type
-    chapter_to_updates_model.each { |k| 
+    chapter_to_updates_model.each { |k|
       id_chapter_type.append(k.chapter_type_id.to_s)
       chapter_to_updates_by_chapter_type[k.chapter_type_id.to_s] = k
     }
@@ -173,7 +173,7 @@ class VideosController < ApplicationController
     # On ne se prépare à créer que les éléments qu'il faut.
     params_allow.each do |k,v|
       # Si un chapitre existe déjà avec ce type de chapitre, on ne le crée pas ...
-      unless id_chapter_type.include?(k) 
+      unless id_chapter_type.include?(k)
         # Si l'élément est bien séléctionné
         if v['select'] == 'true'
           # On l'ajoute dans la liste des éléments à supprimer
@@ -196,7 +196,7 @@ class VideosController < ApplicationController
       flash[:alert] = "Ne sélectionnez que 12 chapitres maximum"
       return render select_chapters_path, status: :unprocessable_entity
     end
-    
+
     # Création, Mise à jour et suppression
     if @video.video_chapters.create(chapter_to_create) && @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values) && chapter_to_delete.delete_all
       @video.update(stop_at: @video.next_step())
@@ -290,6 +290,35 @@ class VideosController < ApplicationController
   end
 
   def content_dedicace
+    @video_1 = @video.dedicace.video
+    @music_1 = @video.music.music
+
+    # Chemins des fichiers temporaires
+    video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
+    music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
+    final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
+
+    # Assurez-vous que le dossier uploads existe
+    FileUtils.mkdir_p(File.dirname(final_video_path))
+
+    # Génération de la vidéo avec ffmpeg
+    command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
+    system(command)
+
+    # Vérifiez si le fichier a été généré
+    if File.exist?(final_video_path)
+      # Attacher la vidéo générée à l'objet @video
+      @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
+
+      # Rendre l'URL de la vidéo générée accessible dans la vue
+      @final_video_url = url_for(@video.final_video)
+    else
+      # Gérez le cas où la génération de la vidéo a échoué
+      @final_video_url = nil
+      flash[:alert] = "La génération de la vidéo a échoué."
+    end
+
+    render :content_dedicace
   end
 
   def content_dedicace_post
@@ -324,11 +353,11 @@ class VideosController < ApplicationController
   def define_chapter_type
     # On va cherche la query directement dans SQL
     q_results = ActiveRecord::Base.connection.exec_query('
-      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "video_chapters".text 
-      FROM "chapter_types" 
-      LEFT OUTER JOIN "video_chapters" ON "video_chapters"."chapter_type_id" = "chapter_types"."id" AND video_chapters.video_id = $1 
-      ORDER BY "chapter_types".created_at ASC', 
-      'selectChapterWithData', 
+      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "video_chapters".text
+      FROM "chapter_types"
+      LEFT OUTER JOIN "video_chapters" ON "video_chapters"."chapter_type_id" = "chapter_types"."id" AND video_chapters.video_id = $1
+      ORDER BY "chapter_types".created_at ASC',
+      'selectChapterWithData',
       [@video.id])
     # On recupere le resultat est filtre pour n'avoir que les ID de chapters_types
     r_only_id = q_results.rows.map { |v| v[0] }

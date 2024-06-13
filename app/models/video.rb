@@ -6,6 +6,7 @@ class Video < ApplicationRecord
     has_many :video_destinataires
     has_many :video_chapters
     has_many :dedicace_contents
+    has_one_attached :final_video
 
     belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
@@ -21,7 +22,7 @@ class Video < ApplicationRecord
         self.token = SecureRandom.urlsafe_base64(20)
         generate_token if Video.exists?(token: self.token)
     end
-    
+
     def validate_start
         Video.video_types.keys.include?(self.video_type.downcase()) && self.way.include?(self.stop_at)
     end
@@ -39,7 +40,7 @@ class Video < ApplicationRecord
         return false if video_destinataire.age.nil? || !video_destinataire.age.is_a?(Numeric)
         return false if video_destinataire.more_info.empty?
         return false unless self.way.include?(self.stop_at)
-        return true 
+        return true
     end
 
     def validate_date_fin
@@ -82,7 +83,7 @@ class Video < ApplicationRecord
         return self.way[curr_step-1]
     end
 
-    def way 
+    def way
         return SOLO_WAY if self.video_type == 'solo'
         return COLAB_WAY
     end
