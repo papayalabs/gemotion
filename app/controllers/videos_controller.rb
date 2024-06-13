@@ -10,7 +10,9 @@ class VideosController < ApplicationController
     #TODO: with last user
     @video = Video.last
     unless @video.nil?
-      redirect_to send("#{@video.next_step()}_path"), notice: "Reprenez votre vidéo en cours."
+      if @video.current_step() != 'start'
+        redirect_to send("#{@video.current_step()}_path"), notice: "Reprenez votre vidéo en cours."
+      end
     end
     # TODO: delete current video if user confirmation
   end
