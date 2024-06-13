@@ -1,43 +1,51 @@
-<div data-controller="switchvideo">
-  <h1 class="font-bold text-4xl">L'introduction de votre vidéo</h1>
+<div id="video_intro" data-controller="switchvideo">
+  <section class="hero">
+    <h1 class="text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue max-w-[1062px] mb-[129px]">L'introduction de votre vidéo</h1>
+    <p class="text-[#201F1F] text-center font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[1062px] px-[197px] py-[49px] justify-center items-center gap-[10px] rounded-[10px] border border-[#C9E1FF] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)]">The purpose and deadlines dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
+  </section>
 
-  <div>
-    <%= image_tag "icons/image.svg" %>
-    <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
-  </div>
 
-  <div class="">
 
-    <%= form_with url: introduction_post_path, method: :post do |f| %>
-      <%= f.select :theme, options_for_select(Video.themes.map {|k, v| [k.humanize.capitalize, k]}), {}, {'data-action': 'change->switchvideo#video_switcher', 'data-switchvideo-target': 'select' } %>
+  <section>
 
-     <div class="">
+    <div class="form">
+
+      <%= form_with url: introduction_post_path, method: :post do |f| %>
+      <div class="form frame1">
+
+        <%= f.select :theme, options_for_select(Video.themes.map {|k, v| [k.humanize.capitalize, k]}), {}, {'data-action': 'change->switchvideo#video_switcher', 'data-switchvideo-target': 'select' } %>
         <p>Ou envoyez-nous une demande pour commander une vidéo avec votre thème spécial</p>
         <%= f.label :special_request %>
         <%= f.text_area :special_request, placeholder: "Décrivez votre théme", value: @video.theme_specific_request %>
-        <div class="">
-          <%= image_tag "icons/alert.svg" %>
+        <div class="flex items-center gap-[16px] mb-[16px]">
+          <%= image_tag "icons/attention.svg" %>
           <p>Veuillez noter qu'un frais supplémentaire sera appliqué pour une vidéo avec le thème que vous avez choisi</p>
         </div>
-        <div class="">
-          <%= image_tag "icons/alert.svg" %>
+        <div class="flex items-center gap-[16px]">
+          <%= image_tag "icons/attention.svg" %>
           <p>Bientôt disponible : de nouvelles occasions pour votre film</p>
         </div>
       </div>
-      <div class="">
-        <h2>Regardez l'aperçu</h2>
+
+
+      <div class="flex flex-col items-center gap-[48px] px-[40px] py-[40px] pb-[116px] rounded-[20px] border border-[#C9E1FF] bg-white shadow-custom mb-[48px]">
+        <h3>Regardez l'aperçu</h3>
         <p>Le début de la vidéo dépendra du genre (masculin, féminin ou neutre) que vous avez indiqué précédemment.</p>
 
         <% Video.themes.each do |el| %>
           <%= video_tag "previews/#{el[0]}.mp4", class: "hidden", 'data-switchvideo-target': 'video', 'data-switchvideo-info':el[0], controls: true %>
         <% end %>
       </div>
-    
-      <%= f.submit "Étape suivante" %>
-    <% end %>
+      <div class="flex justify-between items-center">
+        <%= render "videos/shared/back_button" %>
+        <%= f.submit "Étape suivante", class:"cta" %>
+        </div>
+      <% end %>
 
-    
 
-    <%= render "videos/shared/back_button" %>
-  </div>
+
+
+    </div>
+
+  </section>
 </div>

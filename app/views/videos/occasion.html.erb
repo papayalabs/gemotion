@@ -13,10 +13,15 @@
 
       <%= form_with url: occasion_post_path, method: :post do |f| %>
 
-        <div class="occasion mb-[48px]">
-          <%= f.select :occasion, options_for_select(Video.occasions.map {|k, v| [k.humanize.capitalize, k]}) %>
-          <div class="flex">
-              <%= image_tag "icons/alert.svg" %>
+        <div class="occasion mb-[48px] relative inline-block w-full">
+
+          <div class="relative inline-block w-full mb-[199px]">
+            <%= f.select :occasion, options_for_select(Video.occasions.map {|k, v| [k.humanize.capitalize, k]}), {}, class: "appearance-none w-full px-4 py-2 pr-10 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500" %>
+            <%= inline_svg_tag 'icons/select-down.svg', class: 'absolute right-[40px] top-1/2 transform -translate-y-1/2 w-[15px] h-[15px] object-contain object-center pointer-events-none' %>
+          </div>
+
+          <div class="flex items-center gap-[23px]">
+              <%= image_tag "icons/attention.svg" %>
               <p>Bientôt disponible : de nouvelles occasions pour votre film</p>
           </div>
         </div>
@@ -83,7 +88,7 @@
   border-radius: 8px;
   border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
   background: var(--Blue, #F2FCFF);
-  margin-bottom: 199px;
+
 }
 
 </style>

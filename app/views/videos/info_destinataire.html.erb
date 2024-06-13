@@ -1,43 +1,71 @@
-<div>
-  <h1 class="font-bold text-4xl">Qui va recevoir cette merveilleuse vidéo ?</h1>
+<div id="info_destinataire">
+  <section class="hero">
+    <h1 class="text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue max-w-[1062px] mb-[129px]">Dites nous en plus sur le, la, les destinataires du film</h1>
+    <p class="text-[#201F1F] text-center font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[1062px] px-[197px] py-[49px] justify-center items-center gap-[10px] rounded-[10px] border border-[#C9E1FF] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)]">
+      Dites nous en plus sur le ou les destinataires
+    </p>
+  </section>
 
-  <div>
-    <%= image_tag "icons/image.svg" %>
-    <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
-  </div>
-
-  <div class="">
+  <section>
 
     <%= form_with url: info_destinataire_post_path, method: :post do |f| %>
-      <div class="">
-        <%= f.label :age_destinataire, "1" %>
-        <%= f.number_field :age_destinataire, placeholder: "Indiquez l'âge du destinataire", value: @video.video_destinataire&.age %>
+
+      <div class="form step-1">
+
+        <div class="form step-1 row-1 flex gap-[23px] mb-[26px]">
+          <%= f.label :age_destinataire, "1", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+          <%= f.number_field :age_destinataire, placeholder: "Indiquez l'âge du destinataire", value: @video.video_destinataire&.age, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+        </div>
+
+        <div class="form step-1 row-2 flex gap-[23px] mb-[26px]">
+          <%= f.label :name_destinataire, "2", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+          <%= f.text_field :name_destinataire, placeholder: "Indiquez le nom du destinataire", value: @video.video_destinataire&.name, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+        </div>
+
+        <div class="form step-1 row-3 flex gap-[23px] mb-[26px]">
+          <%= f.label :more_info_destinataire, "3", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+          <%= f.text_area :more_info_destinataire, placeholder: "Indiquez le nombre d'enfants et les prénoms des enfants (facultatif)", value: @video.video_destinataire&.more_info, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+        </div>
+
       </div>
 
-      <div class="">
-        <%= f.label :name_destinataire, "2" %>
-        <%= f.text_field :name_destinataire, placeholder: "Indiquez le nom du destinataire", value: @video.video_destinataire&.name %>
+      <div class="form step-2">
+
+
       </div>
 
-      <div class="">
-        <%= f.label :more_info_destinataire, "3" %>
-        <%= f.text_area :more_info_destinataire, placeholder: "Indiquez le nombre d'enfants et les prénoms des enfants (facultatif)", value: @video.video_destinataire&.more_info %>
-      </div>
-
-      <div class="">
-        <h4>Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !</h4>
-        <p>*Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.</p>
-        <%= f.label :special_request_destinataire, "4" %>
-        <%= f.text_area :special_request_destinataire, placeholder: "Décrivez votre théme", value: @video.theme_specific_request %>
-        <div class="">
-          <%= image_tag "icons/alert.svg" %>
-          <p>Veuillez noter qu'un frais supplémentaire sera appliqué pour une vidéo avec le thème que vous avez choisi</p>
+      <div class="w-[1006px] h-[386px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
+        <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">
+          Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !
+        </h3>
+        <p class="text-black text-center font-red-hat-display text-[16px] font-normal leading-[25px] mb-[32px]">
+          * Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.
+        </p>
+        <%= f.label :special_request_destinataire, "4", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+        <%= f.text_area :special_request_destinataire, placeholder: "Décrivez votre théme", value: @video.theme_specific_request, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+        <div class="flex items-center gap-[16px]">
+          <%= image_tag "icons/attention.svg" %>
+          <p class="text-black font-red-hat-display text-[16px] font-normal leading-[25px]">
+            Veuillez noter que des frais supplémentaires seront appliqués pour une vidéo sur mesure.
+          </p>
         </div>
       </div>
 
-      <%= f.submit "Étape suivante" %>
+      <%= render "videos/shared/back_button" %>
+      <%= f.submit "Étape suivante", class:"cta" %>
+
     <% end %>
 
-    <%= render "videos/shared/back_button" %>
-  </div>
+
+
+  </section>
+
 </div>
+
+<style>
+
+#info_destinataire .hero {
+
+}
+
+</style>
