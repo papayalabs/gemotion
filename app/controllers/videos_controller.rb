@@ -1,3 +1,5 @@
+require 'fileutils'
+require 'zip'
 class VideosController < ApplicationController
   before_action :select_video, except: %i[ start start_post go_back join]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
@@ -310,20 +312,41 @@ class VideosController < ApplicationController
         # Attacher la vidéo générée à l'objet @video
         @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
 
-        # Rendre l'URL de la vidéo générée accessible dans la vue
-        @final_video_url = url_for(@video.final_video)
+        # Créer un dossier temporaire pour contenir les fichiers
+        temp_dir = Rails.root.join('public', 'uploads', SecureRandom.hex)
+        FileUtils.mkdir_p(temp_dir)
 
-        # Générer le fichier FCPXML
-        fcpxml_content = generate_fcpxml(@final_video_url, url_for(@video_1), url_for(@music_1))
-        fcpxml_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.fcpxml")
+        # Copier les fichiers nécessaires dans le dossier temporaire
+        local_video_path = File.join(temp_dir, 'video.mp4')
+        local_music_path = File.join(temp_dir, 'music.mp3')
+        local_final_video_path = File.join(temp_dir, 'final_video.mp4')
+        FileUtils.cp(video_path, local_video_path)
+        FileUtils.cp(music_path, local_music_path)
+        FileUtils.cp(final_video_path, local_final_video_path)
+
+        # Générer le fichier FCPXML dans le dossier temporaire
+        fcpxml_content = generate_fcpxml(local_final_video_path, local_video_path, local_music_path)
+        fcpxml_path = File.join(temp_dir, 'project.fcpxml')
         File.open(fcpxml_path, 'w') { |file| file.write(fcpxml_content) }
 
-        # Rendre l'URL du fichier FCPXML accessible dans la vue
-        @fcpxml_url = url_for(fcpxml_path.to_s.gsub("#{Rails.root}/public", ''))
+        # Créer un fichier ZIP du dossier temporaire
+        zip_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.zip")
+        Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+          Dir[File.join(temp_dir, '**', '**')].each do |file|
+            zipfile.add(file.sub(temp_dir.to_s + '/', ''), file)
+          end
+        end
+
+        # Nettoyer le dossier temporaire
+        FileUtils.rm_rf(temp_dir)
+
+        # Rendre l'URL du fichier ZIP accessible dans la vue
+        @zip_url = url_for(zip_path.to_s.gsub("#{Rails.root}/public", ''))
+        @final_video_url = url_for(@video.final_video)
       else
         # Gérez le cas où la génération de la vidéo a échoué
         @final_video_url = nil
-        @fcpxml_url = nil
+        @zip_url = nil
         flash[:alert] = "La génération de la vidéo a échoué."
       end
 
@@ -332,15 +355,16 @@ class VideosController < ApplicationController
 
     private
 
-    def generate_fcpxml(final_video_url, video_url, music_url)
+    def generate_fcpxml(final_video_path, video_path, music_path)
       <<~XML
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE fcpxml>
         <fcpxml version="1.8">
           <resources>
-            <asset id="video" src="#{video_url}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
-            <asset id="music" src="#{music_url}" start="3600s" duration="3600s" hasAudio="1" hasVideo="0"/>
-            <asset id="final_video" src="#{final_video_url}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
+            <format id="r1" name="FFVideoFormat1080p24" frameDuration="1001/24000s" width="1920" height="1080"/>
+            <asset id="video" src="#{video_path}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
+            <asset id="music" src="#{music_path}" start="3600s" duration="3600s" hasAudio="1" hasVideo="0"/>
+            <asset id="final_video" src="#{final_video_path}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
           </resources>
           <library>
             <event name="Event">

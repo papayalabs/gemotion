@@ -37,10 +37,10 @@
   <p>No final video generated.</p>
 <% end %>
 
-<% if @fcpxml_url %>
+<% if @zip_url %>
   <div>
     <h3>Final Cut Pro Project:</h3>
-    <a href="<%= @fcpxml_url %>" download>Download FCPXML File</a>
+    <a href="<%= @zip_url %>" download>Download FCPXML Project</a>
   </div>
 <% else %>
   <p>No FCPXML file generated.</p>
