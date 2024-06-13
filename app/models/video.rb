@@ -72,13 +72,13 @@ class Video < ApplicationRecord
 
     def current_step
         curr_step = self.way.find_index self.stop_at
-        return 0 if curr_step.nil?
+        return self.way[0] if curr_step.nil?
         return self.way[curr_step]
     end
 
     def previous_step
         curr_step = self.way.find_index self.stop_at
-        return 0 if curr_step.nil? || curr_step <= 0
+        return self.way[0] if curr_step.nil? || curr_step <= 0
         return self.way[curr_step-1]
     end
 
