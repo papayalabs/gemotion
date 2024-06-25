@@ -362,18 +362,18 @@ class VideosController < ApplicationController
         <fcpxml version="1.8">
           <resources>
             <format id="r1" name="FFVideoFormat1080p24" frameDuration="1001/24000s" width="1920" height="1080"/>
-            <asset id="video" src="#{video_path}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
-            <asset id="music" src="#{music_path}" start="3600s" duration="3600s" hasAudio="1" hasVideo="0"/>
-            <asset id="final_video" src="#{final_video_path}" start="3600s" duration="3600s" hasAudio="1" hasVideo="1"/>
+            <asset id="video" src="#{video_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="1"/>
+            <asset id="music" src="#{music_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="0"/>
+            <asset id="final_video" src="#{final_video_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="1"/>
           </resources>
           <library>
             <event name="Event">
               <project name="Project">
                 <sequence duration="3600s" format="r1">
                   <spine>
-                    <asset-clip name="Final Video" offset="0s" ref="final_video" duration="3600s" start="3600s">
+                    <asset-clip name="Final Video" offset="0s" ref="final_video" duration="3600s" start="0s">
                     </asset-clip>
-                    <asset-clip name="Music" offset="0s" ref="music" duration="3600s" start="3600s">
+                    <asset-clip name="Music" offset="0s" ref="music" duration="3600s" start="0s">
                     </asset-clip>
                   </spine>
                 </sequence>
