@@ -32,6 +32,8 @@ module.exports = {
         "48px": "48px",
         "8px": "8px",
         "10px": "10px",
+        "80px": "80px", // Add a custom spacing value of 80px,
+        "405px": "405px", // Add a custom spacing value of 405px for width
       },
       borderRadius: {
         "20px": "20px",

@@ -232,6 +232,30 @@ h2 {
   );
 }
 
+.testimonial-content {
+  @apply text-black font-red-hat-display text-base font-normal leading-[25px];
+}
+
+.testimonial-name {
+  @apply font-montserrat font-semibold leading-6 absolute bottom-[120px] right-0;
+}
+
+#testimonials .swiper-slide {
+  padding-top: 120px;
+}
+
+#testimonials .swiper {
+  position: relative;
+}
+
+#testimonials .swiper-pagination {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  max-width: max-content;
+  padding-bottom: 120px;
+}
+
 /* VIDEOS */
 
 .h1-video {
