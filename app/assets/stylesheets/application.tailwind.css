@@ -13,6 +13,11 @@
   @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
 }
 
+@layer components {
+  .texte-centre-rouge {
+    @apply text-center text-red-500 text-[50px];
+  }
+}
 
 section {
   padding: 56px 0;
