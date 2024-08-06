@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css';
+@import "https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css";
 
 @layer base {
   .font-montserrat {
@@ -13,11 +13,9 @@
   @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
 }
 
-
-  .texte-centre-rouge {
-    @apply text-center text-red-500 text-[50px];
-  }
-
+.texte-centre-rouge {
+  @apply text-center text-red-500 text-[50px];
+}
 
 section {
   padding: 56px 0;
@@ -95,15 +93,15 @@ h2 {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  color: var(--Black, #201F1F);
-  font-family: 'Red Hat Display', sans-serif;
+  color: var(--Black, #201f1f);
+  font-family: "Red Hat Display", sans-serif;
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
   line-height: 30px; /* 166.667% */
   border-radius: 20px;
-  background: var(--White, #FFF);
-  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  background: var(--White, #fff);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
 }
 
 /* how */
@@ -117,14 +115,14 @@ h2 {
   align-items: center;
   color: #000;
   text-align: center;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 24px;
   border-radius: 15px;
-  border: 1px solid #C9E1FF;
-  background: #FFF;
-  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  border: 1px solid #c9e1ff;
+  background: #fff;
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
 }
 
 /* ABOUT */
@@ -136,9 +134,9 @@ h2 {
   align-items: center;
   gap: 61px;
   border-radius: 20px;
-  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
-  background: var(--White, #FFF);
-  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  border: 1px solid var(--linear-2-transparent-20, #c9e1ff);
+  background: var(--White, #fff);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
 }
 
 .step {
@@ -169,18 +167,16 @@ h2 {
   align-items: center;
   text-align: center; */
 
-
   width: 100%;
   height: 100%;
   padding: 48px;
   background: white;
   border-radius: 20px;
-  border: 1px #C9E1FF solid;
+  border: 1px #c9e1ff solid;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  display: inline-flex";
-
+  display: inline-flex;
 }
 
 .pricing-card img {
@@ -230,13 +226,14 @@ h2 {
 
 #testimonials {
   border-radius: 50px;
-  background: var(--Light-blue-linear, linear-gradient(180deg, #F1FBFF 38.29%, rgba(241, 251, 255, 0.00) 100%));
+  background: var(
+    --Light-blue-linear,
+    linear-gradient(180deg, #f1fbff 38.29%, rgba(241, 251, 255, 0) 100%)
+  );
 }
-
 
 /* VIDEOS */
 
 .h1-video {
   @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
 }
-
