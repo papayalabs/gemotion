@@ -1,4 +1,17 @@
 <%= render "shared/seo/seocompletion", title: "Accueil", description: "" %>
+<div class="swiper">
+  <div class="swiper-wrapper">
+    <div class="swiper-slide">Slide 1</div>
+    <div class="swiper-slide">Slide 2</div>
+    <div class="swiper-slide">Slide 3</div>
+  </div>
+  <div class="swiper-pagination"></div>
+
+  <div class="swiper-button-prev"></div>
+  <div class="swiper-button-next"></div>
+
+  <div class="swiper-scrollbar"></div>
+</div>
 
 <div class="home">
 
@@ -44,7 +57,7 @@
   <%= link_to "Lire la suite", about_path, class: "cta" %>
 </section>
 
-<section id="dedication">
+<section id="dedication" style="background-image: url(<%= asset_path 'gemotion-dedication-bg.svg' %>)" >
   <h2 class="max-w-[740px] mb-[32px]">Choisissez la dédicace de fin qui rendra votre film unique</h2>
   <p class="mb-[48px]">Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
 
