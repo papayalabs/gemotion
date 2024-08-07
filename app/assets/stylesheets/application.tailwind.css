@@ -261,3 +261,26 @@ h2 {
 .h1-video {
   @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
 }
+
+.video-h3 {
+  @apply text-black text-center font-montserrat text-4xl font-bold leading-[37px];
+}
+
+.video-textarea {
+  @apply flex w-[677px] h-[99px] p-[15px] px-[27px] items-start gap-[10px];
+}
+
+.frame {
+  display: flex;
+  width: 1006px;
+  padding: 40px 116px;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+}

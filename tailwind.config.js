@@ -34,6 +34,10 @@ module.exports = {
         "10px": "10px",
         "80px": "80px", // Add a custom spacing value of 80px,
         "405px": "405px", // Add a custom spacing value of 405px for width
+        "677px": "677px",
+        "99px": "99px",
+        "15px": "15px",
+        "27px": "27px",
       },
       borderRadius: {
         "20px": "20px",
@@ -45,6 +49,7 @@ module.exports = {
       fontSize: {
         "18px": "18px",
         "20px": "20px",
+        "32px": "32px", // Custom font size for text-4xl if needed
         "40px": "40px",
         "70px": "70px",
       },
@@ -52,7 +57,7 @@ module.exports = {
         "24px": "24px",
         "25px": "25px",
         "30px": "30px",
-        "56px": "56px",
+        "37px": "37px", // Custom line height for leading-[37px]        "56px": "56px",
         "81px": "81px",
       },
       letterSpacing: {
