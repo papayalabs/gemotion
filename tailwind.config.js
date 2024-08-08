@@ -17,10 +17,13 @@ module.exports = {
       colors: {
         "shared-bg": "#201F1F",
         "title-color": "#0D6783",
-        "custom-black": "var(--Black, #000)",
-        "custom-white": "var(--White, #FFF)",
-        "custom-border": "var(--linear-2-transparent-20, #C9E1FF)",
+        "custom-black": "#000",
+        "custom-white": "#FFF",
+        "custom-border": "#C9E1FF",
         "custom-blue": "#F2FCFF",
+        "color-201F1F": "#201F1F",
+        "color-C9E1FF": "#C9E1FF",
+        "color-FFF": "#FFF",
       },
       spacing: {
         "14.43px": "14.43px",
@@ -45,6 +48,7 @@ module.exports = {
       },
       boxShadow: {
         custom: "4px 4px 20px 5px rgba(13, 103, 131, 0.10)",
+        "video-desc": "4px 4px 20px 5px rgba(13, 103, 131, 0.10)",
       },
       fontSize: {
         "18px": "18px",

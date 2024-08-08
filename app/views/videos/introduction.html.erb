@@ -1,7 +1,7 @@
 <div id="video_intro" data-controller="switchvideo">
   <section class="hero">
-    <h1 class="text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue max-w-[1062px] mb-[129px]">L'introduction de votre vidéo</h1>
-    <p class="text-[#201F1F] text-center font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[1062px] px-[197px] py-[49px] justify-center items-center gap-[10px] rounded-[10px] border border-[#C9E1FF] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)]">
+    <h1 class="video-h1">L'introduction de votre vidéo</h1>
+    <p class="video-desc">
       Choisissez l'introduction de votre vidéo parmi les modèles proposés ou décrivez le thème et le style de vidéo que vous voulez pour que nous personnalisions l'introduction de votre vidéo.
       </p>
   </section>
@@ -37,7 +37,7 @@
           <%= video_tag "previews/#{el[0]}.mp4", class: "hidden", 'data-switchvideo-target': 'video', 'data-switchvideo-info':el[0], controls: true %>
         <% end %>
       </div>
-      <div class="flex justify-between items-center">
+      <div class="video-steps">
         <%= render "videos/shared/back_button" %>
         <%= f.submit "Étape suivante", class:"cta" %>
         </div>
