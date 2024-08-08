@@ -1,35 +1,43 @@
 <div>
-  <h1 class="font-bold text-4xl">Invitez vos proches à participer à votre projet</h1>
+  <h1 class="video-h1">Invitez vos proches à participer à votre projet</h1>
 
-  <div>
-    <%= image_tag "icons/image.svg" %>
-    <p>Vos proches vont pouvoir ajouter leurs propres photos et/ou vidéos et participer à la dédicace de fin</p>
-  </div>
+  <p class="video-desc">Vos proches vont pouvoir ajouter leurs propres photos et/ou vidéos et participer à la dédicace de fin</p>
 
   <div class="">
 
-    <%= form_with url: share_post_path, method: :post do |f| %>      
-      <%= f.email_field :email, placeholder: "Email" %>
-      <%= f.submit "Inviter" %>
-    <% end %>
+    <div class="frame">
 
-    <p>Ou partagez le lien</p>
+      <h4 class="video-h4">Envoyez une invitation via un lien  whatsapp, facebook, instagram ou en envoyant un email</h4>
 
+      <%= form_with url: share_post_path, method: :post do |f| %>
+        <div class="share-wrapper">
+          <%= f.email_field :email, placeholder: "Email", class:"share-email" %>
+          <%= f.submit "Inviter", class:"share-submit" %>
+        </div>
+      <% end %>
 
-    <div class="" data-controller="clipboard">
-      <%= image_tag "icons/link.svg" %>
-      <p><%= join_url(@video.token) %></p>
-      <p data-action="click->clipboard#copy" data-clipboard-value-param="<%= join_url(@video.token) %>" class="cursor-pointer">Copier</p>
+      <p>Ou partagez le lien</p>
+
+      <div class="share-clipboard" data-controller="clipboard">
+        <div class="share-clipboard-wrapper">
+          <%= image_tag "icons/link.svg" %>
+          <span><%= join_url(@video.token) %></span>
+        </div>
+        <span data-action="click->clipboard#copy" data-clipboard-value-param="<%= join_url(@video.token) %>" class="share-clipboard-btn">Copier</span>
+      </div>
+
     </div>
 
-    <div class="">
+    <div class="video-alert">
       <%= image_tag "icons/alert.svg" %>
       <p>Vous pouvez sauter cette étape maintenant et ajouter des collaborateurs aux étapes suivantes.</p>
     </div>
 
-    <%= render "videos/shared/back_button" %>
-    
-    <%= link_to "Étape suivante", skip_share_path, data: {turbo: false} %>
+    <div class="video-steps">
+      <%= render "videos/shared/back_button" %>
+      <%= link_to "Étape suivante", skip_share_path, data: {turbo: false}, class: "cta" %>
+    </div>
 
   </div>
+
 </div>

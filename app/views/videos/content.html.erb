@@ -1,36 +1,41 @@
 <div>
-  <h1 class="font-bold text-4xl">Il est temps de remplir vos chapitres de merveilleux souvenirs !</h1>
+  <h1 class="video-h1">Il est temps de remplir vos chapitres de merveilleux souvenirs !</h1>
 
-  <div>
-    <%= image_tag "icons/image.svg" %>
-    <p>Faites glisser ou ajouter vos photos et/ou vidéos dans les chapitres ci-dessous</p>
-  </div>
+  <p class="video-desc">Faites glisser ou ajouter vos photos et/ou vidéos dans les chapitres ci-dessous</p>
 
-  <div class="">
+  <div class="frame">
 
-    <% @video_chapters.each do |video_chapter| %>
-        <%= form_with url: content_post_path(video_chapter), method: :post do |f| %>  
-            <% if video_chapter.chapter_type.image.attached? %>
-                <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
-            <% else %>
-                <p>Pas d'image</p>
-            <% end %>
-            <p><%= video_chapter.chapter_type.name %></p> 
+    <div class="video-memories">
+      <% @video_chapters.each do |video_chapter| %>
+      <div class="video-memory">
+          <%= form_with url: content_post_path(video_chapter), method: :post do |f| %>
+            <div class="video-memory-thumb-wrapper">
+              <% if video_chapter.chapter_type.image.attached? %>
+                  <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+              <% else %>
+                  <p>Pas d'image</p>
+              <% end %>
+              <span><%= video_chapter.chapter_type.name %></span>
+            </div>
 
             <% if video_chapter.element.attached? %>
-                <p>Vidéo actuel</p>
+                <p>Vidéo actuelle</p>
                 <%= video_tag video_chapter.element, controls: true, autobuffer: true%>
             <% end %>
 
-            <%= f.file_field :element %>
-            <p>*La vidéo ne devra pas excéder plus de 10 secondes</p>
-            <%= f.submit "Mettre en ligne" %>
-        <% end %>
-    <% end %>
+            <%= f.file_field :element, class:"video-memory-file" %>
 
-    <%= render "videos/shared/back_button" %>
-    
-    <%= link_to "Étape suivante", skip_content_path, data: {turbo: false} %>
-
+            <%= f.submit "Mettre en ligne", class:"video-memory-upload" %>
+            <p class="video-memory-alert">*La vidéo ne devra pas excéder plus de 10 secondes</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   </div>
+
+  <div class="video-steps">
+    <%= render "videos/shared/back_button" %>
+    <%= link_to "Étape suivante", skip_content_path, data: {turbo: false}, class:"cta" %>
+  </div>
+
 </div>
