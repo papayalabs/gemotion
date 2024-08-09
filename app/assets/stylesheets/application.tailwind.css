@@ -685,8 +685,6 @@ h2 {
 .video-memory-alert {
   color: #000;
 
-  /* Body 16 */
-
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -715,7 +713,6 @@ h2 {
   border-radius: 15px;
   background: #201f1f;
   text-align: center;
-
   font-size: 18px;
   font-style: normal;
   font-weight: 700;
@@ -723,4 +720,21 @@ h2 {
   letter-spacing: -0.198px;
   cursor: pointer;
   margin: 16px 0;
+}
+
+.dedication-content-medias,
+.dedication-content-theme,
+.dedication-content-form {
+  width: 100%;
+}
+
+.dedication-content-medias span,
+.dedication-content-theme span {
+  color: #201f1f;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 166.667% */
+  display: flex;
+  justify-content: flex-start;
 }
