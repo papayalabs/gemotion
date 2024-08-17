@@ -38,3 +38,10 @@
 !/app/assets/builds/.keep
 
 public/uploads
+
+.DS_Store
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
