@@ -1,14 +1,11 @@
 import { test, expect } from '@playwright/test'
 
-test('has title', async ({ page }) => {
+test('Video generation', async ({ page }) => {
   await page.goto('/')
-  await page.pause()
-
   await page
     .locator('#secondary_menu')
     .getByRole('link', { name: 'Démarrer' })
     .click()
-
   await page.getByText('Je crée ma vidéo solo').click()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
@@ -29,5 +26,13 @@ test('has title', async ({ page }) => {
   await page.getByPlaceholder('Décrivez votre théme').fill('Biengue')
   await page.getByRole('button', { name: 'Étape suivante' }).click()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
+  await page.getByRole('button', { name: 'Étape suivante' }).click()
+  await page.locator('div').filter({ hasText: "L'Ovni" }).nth(3).click()
+  await page.locator('#music_1').check()
+  await page.getByRole('button', { name: 'Étape suivante' }).click()
+  await page.locator('#dedicace_1').check()
+  await page.getByRole('button', { name: 'Étape suivante' }).click()
+  await page.getByRole('link', { name: 'Étape suivante' }).click()
+  await page.goto('http://127.0.0.1:3000/videos/content_dedicace')
   await page.pause()
 })
