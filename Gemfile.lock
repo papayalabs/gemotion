@@ -305,6 +305,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  base64 (= 0.2.0)
   bootsnap
   capistrano
   capistrano-passenger
