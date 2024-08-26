@@ -77,3 +77,7 @@ group :test do
 end
 
 gem 'inline_svg'
+
+gem "base64", "0.1.1"
+gem "ed25519", "~> 1.3"
+gem "bcrypt_pbkdf", "~> 1.1"
