@@ -77,6 +77,3 @@ group :test do
 end
 
 gem 'inline_svg'
-
-gem 'base64', '0.2.0'
-require 'base64'
