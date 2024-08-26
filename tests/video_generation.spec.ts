@@ -33,6 +33,5 @@ test('Video generation', async ({ page }) => {
   await page.locator('#dedicace_1').check()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
   await page.getByRole('link', { name: 'Étape suivante' }).click()
-  await page.goto('http://127.0.0.1:3000/videos/content_dedicace')
   await page.pause()
 })
