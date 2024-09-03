@@ -12,52 +12,97 @@
 
 family = ChapterType.create(name: 'Famille')
 family.image.attach(
-    io: File.open(Rails.root.join('app/assets/images/chapters/familiy.jpg')), 
+    io: File.open(Rails.root.join('app/assets/images/chapters/familiy.jpg')),
     filename: 'familiy.jpg')
 
 passion = ChapterType.create(name: 'Passion')
 passion.image.attach(
-        io: File.open(Rails.root.join('app/assets/images/chapters/passion.png')), 
+        io: File.open(Rails.root.join('app/assets/images/chapters/passion.png')),
         filename: 'passion.png')
 
 rencontre = ChapterType.create(name: 'Rencontre')
 rencontre.image.attach(
-            io: File.open(Rails.root.join('app/assets/images/chapters/rencontre.webp')), 
+            io: File.open(Rails.root.join('app/assets/images/chapters/rencontre.webp')),
             filename: 'rencontre.webp')
-        
+
 defi = ChapterType.create(name: 'Defi')
 defi.image.attach(
-                io: File.open(Rails.root.join('app/assets/images/chapters/challenge.jpeg')), 
+                io: File.open(Rails.root.join('app/assets/images/chapters/challenge.jpeg')),
                 filename: 'challenge.jpeg')
 
-ovni = Music.create(name: "L'Ovni")
-ovni.music.attach(
-    io: File.open(Rails.root.join('app/assets/musiques/ovni.mp3')), 
-    filename: 'ovni.mp3')
+ami_1 = Music.create(name: "Ami 1")
+ami_1.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/ami-1.mp3')),
+    filename: 'ami-1.mp3')
+
+ami_2 = Music.create(name: "Ami 2")
+ami_2.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/ami-2.mp3')),
+    filename: 'ami-2.mp3')
+
+amour_1 = Music.create(name: "Amour 1")
+amour_1.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/amour-1.mp3')),
+    filename: 'amour-1.mp3')
+
+amour_2 = Music.create(name: "Amour 2")
+amour_2.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/amour-2.mp3')),
+    filename: 'amour-2.mp3')
+
+amour_3 = Music.create(name: "Amour 3")
+amour_3.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/amour-3.mp3')),
+    filename: 'amour-3.mp3')
+
+amour_4 = Music.create(name: "Amour 4")
+amour_4.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/amour-4.mp3')),
+    filename: 'amour-4.mp3')
+
+amour_5 = Music.create(name: "Amour 5")
+amour_5.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/amour-5.mp3')),
+    filename: 'amour-5.mp3')
+
+amour_6 = Music.create(name: "Amour 6")
+amour_6.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/amour-6.mp3')),
+    filename: 'amour-6.mp3')
+
+voyage_1 = Music.create(name: "Voyage 1")
+voyage_1.music.attach(
+    io: File.open(Rails.root.join('app/assets/musiques/voyage-1.mp3')),
+    filename: 'voyage-1.mp3')
+
+# ovni = Music.create(name: "L'Ovni")
+# ovni.music.attach(
+#     io: File.open(Rails.root.join('app/assets/musiques/ovni.mp3')),
+#     filename: 'ovni.mp3')
 
 
-tchikita = Music.create(name: "Tchikita")
-tchikita.music.attach(
-    io: File.open(Rails.root.join('app/assets/musiques/tchikita.mp3')), 
-    filename: 'tchikita.mp3')
+# tchikita = Music.create(name: "Tchikita")
+# tchikita.music.attach(
+#     io: File.open(Rails.root.join('app/assets/musiques/tchikita.mp3')),
+#     filename: 'tchikita.mp3')
 
-    bande = Music.create(name: "Bande")
-bande.music.attach(
-    io: File.open(Rails.root.join('app/assets/musiques/bande.mp3')), 
-    filename: 'bande.mp3')
+# bande = Music.create(name: "Bande")
+# bande.music.attach(
+#     io: File.open(Rails.root.join('app/assets/musiques/bande.mp3')),
+#     filename: 'bande.mp3')
 
 
 carpool = Dedicace.create(name: 'Carpool', description: "Description du thème de la dédicace finale. Ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur.")
 carpool.video.attach(
-        io: File.open(Rails.root.join('app/assets/videos/previews/specific_request.mp4')), 
+        io: File.open(Rails.root.join('app/assets/videos/previews/specific_request.mp4')),
         filename: 'carpool.mp4')
 
 chanson = Dedicace.create(name: 'Chanson', description: "Description du thème de la dédicace finale. Ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur.")
 chanson.video.attach(
-            io: File.open(Rails.root.join('app/assets/videos/previews/theme_1.mp4')), 
+            io: File.open(Rails.root.join('app/assets/videos/previews/theme_1.mp4')),
             filename: 'chanson.mp4')
-        
+
 ondanse = Dedicace.create(name: 'On danse', description: "Description du thème de la dédicace finale. Ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet consectetur.")
 ondanse.video.attach(
-                io: File.open(Rails.root.join('app/assets/videos/previews/theme_2.mp4')), 
+                io: File.open(Rails.root.join('app/assets/videos/previews/theme_2.mp4')),
                 filename: 'ondanse.mp4')
