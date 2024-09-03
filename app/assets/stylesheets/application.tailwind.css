@@ -9,9 +9,7 @@
   }
 }
 
-.h1-video {
-  @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
-}
+
 
 .texte-centre-rouge {
   @apply text-center text-red-500 text-[50px];
@@ -262,6 +260,10 @@ h2 {
 /* .video-h1 {
   @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
 } */
+
+.h1-video {
+  @apply text-center font-montserrat text-[40px] font-bold leading-[56px] tracking-[-1px] uppercase bg-clip-text text-transparent bg-linear-dark-blue;
+}
 
 .video-h1 {
   text-align: center;
