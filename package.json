@@ -1,0 +1,23 @@
+{
+  "name": "gemotion",
+  "version": "1.0.0",
+  "description": "## Figma (MVP)",
+  "main": "postcss.config.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:codegen": "playwright codegen",
+    "e2e:headed": "playwright test --headed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.46.1",
+    "@types/node": "^22.4.0"
+  }
+}

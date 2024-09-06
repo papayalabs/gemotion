@@ -11,6 +11,7 @@ gem "sprockets-rails"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
+
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 
@@ -61,6 +62,12 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+
+  gem "capistrano"
+  gem "capistrano-rails"
+  gem "capistrano-passenger"
+  gem "capistrano-rbenv"
+  gem "capistrano-procfile"
 end
 
 group :test do
@@ -70,3 +77,8 @@ group :test do
 end
 
 gem 'inline_svg'
+
+gem "base64", "0.1.1"
+gem "ed25519", "~> 1.3"
+gem "bcrypt_pbkdf", "~> 1.1"
+gem 'zip'
