@@ -311,11 +311,11 @@ class VideosController < ApplicationController
       system(command)
 
 
+      return render(inline: 'yoyo3')
 
       # Vérifiez si le fichier a été généré
       if File.exist?(final_video_path)
         # Attacher la vidéo générée à l'objet @video
-      return render(inline: 'yoyo3')
 
         @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
 
