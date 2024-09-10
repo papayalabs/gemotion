@@ -295,23 +295,19 @@ class VideosController < ApplicationController
     @video_1 = @video.dedicace.video
     @music_1 = @video.music.music
 
-
     # Chemins des fichiers temporaires
     video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
     music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
     final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
 
-
     # Assurez-vous que le dossier uploads existe
     FileUtils.mkdir_p(File.dirname(final_video_path))
-
 
     # Génération de la vidéo avec ffmpeg
     command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
     system(command)
 
-
-    return render(inline: File.exist?(final_video_path))
+    return render(inline: final_video_path)
 
     # Vérifiez si le fichier a été généré
     if File.exist?(final_video_path)
