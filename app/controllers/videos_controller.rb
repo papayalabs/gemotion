@@ -315,8 +315,9 @@ class VideosController < ApplicationController
       # Vérifiez si le fichier a été généré
       if File.exist?(final_video_path)
         # Attacher la vidéo générée à l'objet @video
-        @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
       return render(inline: 'yoyo3')
+
+        @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
 
         # Créer un dossier temporaire pour contenir les fichiers
         temp_dir = Rails.root.join('public', 'uploads', SecureRandom.hex)
