@@ -310,7 +310,6 @@ class VideosController < ApplicationController
       command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
       system(command)
 
-      return render(inline: 'yoyo2')
 
 
       # Vérifiez si le fichier a été généré
@@ -321,6 +320,7 @@ class VideosController < ApplicationController
         # Créer un dossier temporaire pour contenir les fichiers
         temp_dir = Rails.root.join('public', 'uploads', SecureRandom.hex)
         FileUtils.mkdir_p(temp_dir)
+      return render(inline: 'yoyo3')
 
         # Copier les fichiers nécessaires dans le dossier temporaire
         local_video_path = File.join(temp_dir, 'video.mp4')
