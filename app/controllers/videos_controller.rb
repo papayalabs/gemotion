@@ -304,9 +304,10 @@ class VideosController < ApplicationController
     FileUtils.mkdir_p(File.dirname(final_video_path))
 
     # Génération de la vidéo avec ffmpeg
-    command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
+    command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path} > #{Rails.root.join('log', 'ffmpeg.log')} 2>&1"
+
     system(command)
-    return render(inline: final_video_path)
+
     return render(inline: "#{File.exist?(final_video_path)}")
 
     # Vérifiez si le fichier a été généré
