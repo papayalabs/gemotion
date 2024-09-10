@@ -311,7 +311,7 @@ class VideosController < ApplicationController
       system(command)
 
 
-      return render(inline: final_video_path)
+      return render(inline: File.exist?(final_video_path))
 
       # Vérifiez si le fichier a été généré
       if File.exist?(final_video_path)
