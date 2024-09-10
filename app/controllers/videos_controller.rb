@@ -294,6 +294,8 @@ class VideosController < ApplicationController
     def content_dedicace
       @video_1 = @video.dedicace.video
       @music_1 = @video.music.music
+      render inline: 'yoyo'
+      return
 
       # Chemins des fichiers temporaires
       video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
