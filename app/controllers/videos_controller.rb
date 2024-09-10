@@ -307,7 +307,7 @@ class VideosController < ApplicationController
     command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
     system(command)
 
-    return render(inline: final_video_path)
+    return render(inline: "#{File.exist?(final_video_path)}")
 
     # Vérifiez si le fichier a été généré
     if File.exist?(final_video_path)
