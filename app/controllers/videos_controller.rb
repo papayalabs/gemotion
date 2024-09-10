@@ -291,74 +291,74 @@ class VideosController < ApplicationController
     skip_element(content_path)
   end
 
-    def content_dedicace
-      @video_1 = @video.dedicace.video
-      @music_1 = @video.music.music
+  def content_dedicace
+    @video_1 = @video.dedicace.video
+    @music_1 = @video.music.music
 
 
-      # Chemins des fichiers temporaires
-      video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
-      music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
-      final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
+    # Chemins des fichiers temporaires
+    video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
+    music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
+    final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
 
 
-      # Assurez-vous que le dossier uploads existe
-      FileUtils.mkdir_p(File.dirname(final_video_path))
+    # Assurez-vous que le dossier uploads existe
+    FileUtils.mkdir_p(File.dirname(final_video_path))
 
 
-      # Génération de la vidéo avec ffmpeg
-      command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
-      system(command)
+    # Génération de la vidéo avec ffmpeg
+    command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
+    system(command)
 
 
-      return render(inline: File.exist?(final_video_path))
+    return render(inline: File.exist?(final_video_path))
 
-      # Vérifiez si le fichier a été généré
-      if File.exist?(final_video_path)
-        # Attacher la vidéo générée à l'objet @video
+    # Vérifiez si le fichier a été généré
+    if File.exist?(final_video_path)
+      # Attacher la vidéo générée à l'objet @video
 
-        @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
+      @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
 
-        # Créer un dossier temporaire pour contenir les fichiers
-        temp_dir = Rails.root.join('public', 'uploads', SecureRandom.hex)
-        FileUtils.mkdir_p(temp_dir)
+      # Créer un dossier temporaire pour contenir les fichiers
+      temp_dir = Rails.root.join('public', 'uploads', SecureRandom.hex)
+      FileUtils.mkdir_p(temp_dir)
 
-        # Copier les fichiers nécessaires dans le dossier temporaire
-        local_video_path = File.join(temp_dir, 'video.mp4')
-        local_music_path = File.join(temp_dir, 'music.mp3')
-        local_final_video_path = File.join(temp_dir, 'final_video.mp4')
-        FileUtils.cp(video_path, local_video_path)
-        FileUtils.cp(music_path, local_music_path)
-        FileUtils.cp(final_video_path, local_final_video_path)
+      # Copier les fichiers nécessaires dans le dossier temporaire
+      local_video_path = File.join(temp_dir, 'video.mp4')
+      local_music_path = File.join(temp_dir, 'music.mp3')
+      local_final_video_path = File.join(temp_dir, 'final_video.mp4')
+      FileUtils.cp(video_path, local_video_path)
+      FileUtils.cp(music_path, local_music_path)
+      FileUtils.cp(final_video_path, local_final_video_path)
 
-        # Générer le fichier FCPXML dans le dossier temporaire
-        fcpxml_content = generate_fcpxml(local_final_video_path, local_video_path, local_music_path)
-        fcpxml_path = File.join(temp_dir, 'project.fcpxml')
-        File.open(fcpxml_path, 'w') { |file| file.write(fcpxml_content) }
+      # Générer le fichier FCPXML dans le dossier temporaire
+      fcpxml_content = generate_fcpxml(local_final_video_path, local_video_path, local_music_path)
+      fcpxml_path = File.join(temp_dir, 'project.fcpxml')
+      File.open(fcpxml_path, 'w') { |file| file.write(fcpxml_content) }
 
-        # Créer un fichier ZIP du dossier temporaire
-        zip_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.zip")
-        Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
-          Dir[File.join(temp_dir, '**', '**')].each do |file|
-            zipfile.add(file.sub(temp_dir.to_s + '/', ''), file)
-          end
+      # Créer un fichier ZIP du dossier temporaire
+      zip_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.zip")
+      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+        Dir[File.join(temp_dir, '**', '**')].each do |file|
+          zipfile.add(file.sub(temp_dir.to_s + '/', ''), file)
         end
-
-        # Nettoyer le dossier temporaire
-        FileUtils.rm_rf(temp_dir)
-
-        # Rendre l'URL du fichier ZIP accessible dans la vue
-        @zip_url = url_for(zip_path.to_s.gsub("#{Rails.root}/public", ''))
-        @final_video_url = url_for(@video.final_video)
-      else
-        # Gérez le cas où la génération de la vidéo a échoué
-        @final_video_url = nil
-        @zip_url = nil
-        flash[:alert] = "La génération de la vidéo a échoué."
       end
 
-      render :content_dedicace
+      # Nettoyer le dossier temporaire
+      FileUtils.rm_rf(temp_dir)
+
+      # Rendre l'URL du fichier ZIP accessible dans la vue
+      @zip_url = url_for(zip_path.to_s.gsub("#{Rails.root}/public", ''))
+      @final_video_url = url_for(@video.final_video)
+    else
+      # Gérez le cas où la génération de la vidéo a échoué
+      @final_video_url = nil
+      @zip_url = nil
+      flash[:alert] = "La génération de la vidéo a échoué."
     end
+
+    render :content_dedicace
+  end
 
     private
 
