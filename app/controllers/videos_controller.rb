@@ -292,6 +292,7 @@ class VideosController < ApplicationController
   end
 
     def content_dedicace
+      return render 'yoyo'
       @video_1 = @video.dedicace.video
       @music_1 = @video.music.music
 
