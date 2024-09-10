@@ -305,11 +305,12 @@ class VideosController < ApplicationController
       # Assurez-vous que le dossier uploads existe
       FileUtils.mkdir_p(File.dirname(final_video_path))
 
-      return render(inline: 'yoyo2')
 
       # Génération de la vidéo avec ffmpeg
       command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path}"
       system(command)
+
+      return render(inline: 'yoyo2')
 
 
       # Vérifiez si le fichier a été généré
