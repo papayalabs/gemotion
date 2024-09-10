@@ -294,13 +294,14 @@ class VideosController < ApplicationController
     def content_dedicace
       @video_1 = @video.dedicace.video
       @music_1 = @video.music.music
-      render inline: 'yoyo'
-      return
+
 
       # Chemins des fichiers temporaires
       video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
       music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
       final_video_path = Rails.root.join('public', 'uploads', "#{SecureRandom.hex}.mp4")
+
+      return render(inline: 'yoyo')
 
       # Assurez-vous que le dossier uploads existe
       FileUtils.mkdir_p(File.dirname(final_video_path))
