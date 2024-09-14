@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+
+  post 'flush_and_reseed', to: 'static#flush_and_reseed'
   # resources :contacts, only: [:new, :create]
 
   resources :contacts, only: [:new, :create]
