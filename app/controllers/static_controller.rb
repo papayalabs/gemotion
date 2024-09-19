@@ -3,12 +3,9 @@ class StaticController < ApplicationController
   end
 
   def flush_and_reseed
-    DatabaseCleaner.allow_production = true
-    DatabaseCleaner.strategy = :truncation
-    DatabaseCleaner.clean
-    Rails.application.load_tasks
-    Rake::Task['db:seed'].invoke
-    redirect_to root_path, notice: 'La base de données a été réinitialisée avec succès.'
+    VideoDestinataire.destroy_all
+    Video.destroy_all
+    redirect_to root_path, notice: 'Reinitialisation effectuée.'
   end
 
   private
