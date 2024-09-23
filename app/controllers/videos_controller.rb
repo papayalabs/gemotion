@@ -353,8 +353,6 @@ class VideosController < ApplicationController
       @zip_url = nil
       flash[:alert] = "La génération de la vidéo a échoué."
     end
-
-    render content_dedicace
   end
 
   def content_dedicace_post
@@ -364,7 +362,7 @@ class VideosController < ApplicationController
     end
 
     flash[:notice] = "Contenu ajouté."
-    redirect_to content_dedicace
+    redirect_to content_dedicace_path
   end
 
   def skip_content_dedicace
