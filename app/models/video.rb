@@ -3,9 +3,9 @@ class Video < ApplicationRecord
     enum :occasion, { anniversaire: 0, mariage: 1 }
     enum :theme, {specific_request: 0, theme_1: 1, theme_2: 2}
 
-    has_many :video_destinataires
-    has_many :video_chapters
-    has_many :dedicace_contents
+    has_many :video_destinataires, dependent: :destroy
+    has_many :video_chapters, dependent: :destroy
+    has_many :dedicace_contents, dependent: :destroy
     has_one_attached :final_video
 
     belongs_to :music, optional: true
