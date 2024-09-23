@@ -354,49 +354,17 @@ class VideosController < ApplicationController
       flash[:alert] = "La génération de la vidéo a échoué."
     end
 
-    render :content_dedicace
+    render content_dedicace
   end
 
-    private
-
-    def generate_fcpxml(final_video_path, video_path, music_path)
-      <<~XML
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE fcpxml>
-        <fcpxml version="1.8">
-          <resources>
-            <format id="r1" name="FFVideoFormat1080p24" frameDuration="1001/24000s" width="1920" height="1080"/>
-            <asset id="video" src="#{video_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="1"/>
-            <asset id="music" src="#{music_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="0"/>
-            <asset id="final_video" src="#{final_video_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="1"/>
-          </resources>
-          <library>
-            <event name="Event">
-              <project name="Project">
-                <sequence duration="3600s" format="r1">
-                  <spine>
-                    <asset-clip name="Final Video" offset="0s" ref="final_video" duration="3600s" start="0s">
-                    </asset-clip>
-                    <asset-clip name="Music" offset="0s" ref="music" duration="3600s" start="0s">
-                    </asset-clip>
-                  </spine>
-                </sequence>
-              </project>
-            </event>
-          </library>
-        </fcpxml>
-      XML
-    end
-
   def content_dedicace_post
-
     params[:contents].each do |file|
       dc = @video.dedicace_contents.create(position: @video.dedicace_contents.count)
       dc.content.attach(file)
     end
 
     flash[:notice] = "Contenu ajouté."
-    redirect_to content_dedicace_path
+    redirect_to content_dedicace
   end
 
   def skip_content_dedicace
@@ -404,6 +372,35 @@ class VideosController < ApplicationController
   end
 
   private
+
+  def generate_fcpxml(final_video_path, video_path, music_path)
+    <<~XML
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE fcpxml>
+      <fcpxml version="1.8">
+        <resources>
+          <format id="r1" name="FFVideoFormat1080p24" frameDuration="1001/24000s" width="1920" height="1080"/>
+          <asset id="video" src="#{video_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="1"/>
+          <asset id="music" src="#{music_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="0"/>
+          <asset id="final_video" src="#{final_video_path}" start="0s" duration="3600s" hasAudio="1" hasVideo="1"/>
+        </resources>
+        <library>
+          <event name="Event">
+            <project name="Project">
+              <sequence duration="3600s" format="r1">
+                <spine>
+                  <asset-clip name="Final Video" offset="0s" ref="final_video" duration="3600s" start="0s">
+                  </asset-clip>
+                  <asset-clip name="Music" offset="0s" ref="music" duration="3600s" start="0s">
+                  </asset-clip>
+                </spine>
+              </sequence>
+            </project>
+          </event>
+        </library>
+      </fcpxml>
+    XML
+  end
 
   def select_video
     # TODO: change when user login to current_user.videos.last
