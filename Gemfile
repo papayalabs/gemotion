@@ -11,7 +11,6 @@ gem "sprockets-rails"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
-
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 
@@ -40,7 +39,7 @@ gem "redis", ">= 4.0.1"
 # gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem "tzinfo-data", platforms: %i[windows jruby]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -50,7 +49,7 @@ gem "image_processing", "~> 1.2"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ]
+  gem "debug", platforms: %i[mri windows]
 end
 
 group :development do
@@ -64,9 +63,7 @@ group :development do
   # gem "spring"
 
   gem "capistrano"
-  gem "capistrano-rails"
   gem "capistrano-passenger"
-  gem "capistrano-rbenv"
   gem "capistrano-procfile"
 end
 
@@ -76,11 +73,13 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem 'inline_svg'
+gem "inline_svg"
 
 gem "base64", "0.1.1"
-gem "ed25519", "~> 1.3"
 gem "bcrypt_pbkdf", "~> 1.1"
-gem 'rubyzip'
+gem "ed25519", "~> 1.3"
+gem "rubyzip"
 
-gem 'database_cleaner'
+gem "rubocop", require: false
+gem "rubocop-rails", require: false
+gem "ruby-lsp"

@@ -1,0 +1,10 @@
+require: rubocop-rails
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+  Description: 'Use double quotes for strings.'
+
+Layout/SpaceInsidePercentLiteralDelimiters:
+  EnforcedStyle: space
+  SupportedTypes: ['array', 'percent_literal']
+# Example: Forces RuboCop to format arrays like %i[ windows jruby ]
