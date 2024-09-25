@@ -65,6 +65,8 @@ group :development do
   gem "capistrano"
   gem "capistrano-passenger"
   gem "capistrano-procfile"
+  gem "capistrano-rails"
+  gem "capistrano-rbenv"
 end
 
 group :test do
