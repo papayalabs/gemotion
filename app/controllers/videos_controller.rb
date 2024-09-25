@@ -325,7 +325,7 @@ class VideosController < ApplicationController
     music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
     final_video_path = temp_dir.join("final_video_with_music.mp4")
     # Mixer l'audio des vidéos avec la musique
-    system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a][1:a]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
+    system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
 
     unless File.exist?(final_video_path)
       flash[:alert] = "L'ajout de la musique de fond a échoué."
@@ -333,13 +333,25 @@ class VideosController < ApplicationController
       return redirect_to content_dedicace_path
     end
 
-    # Attacher la vidéo finale avec musique
-    @video.final_video.attach(io: File.open(final_video_path), filename: "final_video_with_music.mp4")
+    # Ajouter la vidéo dédicace comme overlay avec opacité après avoir généré la vidéo finale
+    dedicace_video_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
+    video_with_overlay_path = temp_dir.join("final_video_with_overlay.mp4")
+    # Appliquer la vidéo overlay avec opacité 0.3 sur la vidéo finale, et limiter la durée de l'overlay à celle de la vidéo principale
+    system("ffmpeg -y -i \"#{final_video_path}\" -i \"#{dedicace_video_path}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{final_video_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{video_with_overlay_path}\"")
+
+    unless File.exist?(video_with_overlay_path)
+      flash[:alert] = "L'ajout de la vidéo dédicace en overlay a échoué."
+      FileUtils.rm_rf(temp_dir)
+      return redirect_to content_dedicace_path
+    end
+
+    # Attacher la vidéo finale avec musique et overlay
+    @video.final_video.attach(io: File.open(video_with_overlay_path), filename: "final_video_with_overlay.mp4")
     @final_video_url = url_for(@video.final_video)
 
     FileUtils.rm_rf(temp_dir)
 
-    flash[:notice] = "La vidéo finale avec musique a été générée avec succès."
+    flash[:notice] = "La vidéo finale avec musique et overlay a été générée avec succès."
   end
 
   def get_video_duration(video_path)
