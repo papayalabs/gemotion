@@ -67,6 +67,10 @@ group :development do
   gem "capistrano-procfile"
   gem "capistrano-rails"
   gem "capistrano-rbenv"
+
+  gem "rubocop", require: false
+  gem "rubocop-rails", require: false
+  gem "ruby-lsp"
 end
 
 group :test do
@@ -82,6 +86,4 @@ gem "bcrypt_pbkdf", "~> 1.1"
 gem "ed25519", "~> 1.3"
 gem "rubyzip"
 
-gem "rubocop", require: false
-gem "rubocop-rails", require: false
-gem "ruby-lsp"
+gem "streamio-ffmpeg"

@@ -37,7 +37,6 @@ test('Video generation', async ({ page }) => {
   await page.getByTestId('chapter_input_1').fill('Premier chapitre')
   await page.getByTestId('chapter_checkbox_2').check()
   await page.getByTestId('chapter_input_2').fill('Deuxieme chapitre')
-  await page.pause()
 
   await page.getByRole('button', { name: 'Étape suivante' }).click()
 

@@ -284,69 +284,73 @@ class VideosController < ApplicationController
   end
 
   def content_dedicace
-    @video_1 = @video.dedicace.video
-    @music_1 = @video.music.music
+    temp_dir = Rails.root.join("tmp", SecureRandom.hex)
+    FileUtils.mkdir_p(temp_dir)
 
-    # Chemins des fichiers temporaires
-    video_path = ActiveStorage::Blob.service.send(:path_for, @video_1.key)
-    music_path = ActiveStorage::Blob.service.send(:path_for, @music_1.key)
-    final_video_path = Rails.root.join("public", "uploads", "#{SecureRandom.hex}.mp4")
+    chapter_videos = @video.video_chapters.map { |vc| vc.element }
 
-    # Assurez-vous que le dossier uploads existe
-    FileUtils.mkdir_p(File.dirname(final_video_path))
-
-    # Génération de la vidéo avec ffmpeg
-    command = "ffmpeg -i #{video_path} -i #{music_path} -c:v libx264 -c:a aac -b:a 192k -map 0:v -map 1:a -shortest #{final_video_path} > #{Rails.root.join(
-      'log/ffmpeg.log'
-    )} 2>&1"
-
-    system(command)
-
-    # return render(inline: "Video path: #{video_path} - #{File.exist?(final_video_path)} - #{final_video_path}")
-
-    # Vérifiez si le fichier a été généré
-    if File.exist?(final_video_path)
-      # Attacher la vidéo générée à l'objet @video
-
-      @video.final_video.attach(io: File.open(final_video_path), filename: File.basename(final_video_path))
-
-      # Créer un dossier temporaire pour contenir les fichiers
-      temp_dir = Rails.root.join("public", "uploads", SecureRandom.hex)
-      FileUtils.mkdir_p(temp_dir)
-
-      # Copier les fichiers nécessaires dans le dossier temporaire
-      local_video_path = File.join(temp_dir, "video.mp4")
-      local_music_path = File.join(temp_dir, "music.mp3")
-      local_final_video_path = File.join(temp_dir, "final_video.mp4")
-      FileUtils.cp(video_path, local_video_path)
-      FileUtils.cp(music_path, local_music_path)
-      FileUtils.cp(final_video_path, local_final_video_path)
-
-      # Générer le fichier FCPXML dans le dossier temporaire
-      fcpxml_content = generate_fcpxml(local_final_video_path, local_video_path, local_music_path)
-      fcpxml_path = File.join(temp_dir, "project.fcpxml")
-      File.open(fcpxml_path, "w") { |file| file.write(fcpxml_content) }
-
-      # Créer un fichier ZIP du dossier temporaire
-      zip_path = Rails.root.join("public", "uploads", "#{SecureRandom.hex}.zip")
-      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
-        Dir[File.join(temp_dir, "**", "**")].each do |file|
-          zipfile.add(file.sub(temp_dir.to_s + "/", ""), file)
-        end
-      end
-
-      # Nettoyer le dossier temporaire
+    if chapter_videos.empty?
+      flash[:alert] = "Aucune vidéo de chapitre disponible pour la concaténation."
       FileUtils.rm_rf(temp_dir)
-
-      # Rendre l'URL du fichier ZIP accessible dans la vue
-      @zip_url = url_for(zip_path.to_s.gsub("#{Rails.root.join('public')}", ""))
-      @final_video_url = url_for(@video.final_video)
-    else
-      # Gérez le cas où la génération de la vidéo a échoué
-      @final_video_url = nil
-      @zip_url = nil
-      flash[:alert] = "La génération de la vidéo a échoué."
+      return redirect_to content_dedicace_path
     end
+
+    # Transcoder les vidéos des chapitres pour les uniformiser
+    transcoded_videos = chapter_videos.map.with_index do |video, index|
+      input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
+      output_path = temp_dir.join("video_#{index}.mp4")
+      # Transcodage en H.264 avec audio AAC
+      system("ffmpeg -i #{input_path} -c:v libx264 -c:a aac -strict experimental -b:a 192k #{output_path} > /dev/null 2>&1")
+      output_path.to_s
+    end
+
+    # Générer le fichier de liste pour FFmpeg
+    concatenation_list = temp_dir.join("concatenation_list.txt")
+    File.open(concatenation_list, "w") do |file|
+      transcoded_videos.each do |video_path|
+        file.puts("file '#{video_path}'")
+      end
+    end
+
+    concatenated_video_path = temp_dir.join("concatenated_video.mp4")
+    # Concaténer les vidéos en réencodant pour s'assurer que l'audio est inclus
+    system("ffmpeg -f concat -safe 0 -i #{concatenation_list} -c:v libx264 -c:a aac #{concatenated_video_path} > /dev/null 2>&1")
+
+    unless File.exist?(concatenated_video_path)
+      flash[:alert] = "La concaténation des vidéos a échoué."
+      FileUtils.rm_rf(temp_dir)
+      return redirect_to content_dedicace_path
+    end
+
+    # Ajouter la musique de fond
+    music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
+    final_video_with_music_path = temp_dir.join("final_video_with_music.mp4")
+
+    # Boucler la musique pour couvrir la durée de la vidéo
+    video_duration = get_video_duration(concatenated_video_path)
+    looped_music_path = temp_dir.join("looped_music.mp3")
+    system("ffmpeg -stream_loop -1 -i #{music_path} -t #{video_duration} -c copy #{looped_music_path} > /dev/null 2>&1")
+
+    # Mélanger l'audio de la vidéo avec la musique
+    system("ffmpeg -i #{concatenated_video_path} -i #{looped_music_path} -filter_complex \"[0:a][1:a]amix=inputs=2:duration=first[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac #{final_video_with_music_path} > /dev/null 2>&1")
+
+    unless File.exist?(final_video_with_music_path)
+      flash[:alert] = "L'ajout de la musique a échoué."
+      FileUtils.rm_rf(temp_dir)
+      return redirect_to content_dedicace_path
+    end
+
+    @video.final_video.attach(io: File.open(final_video_with_music_path), filename: "final_video.mp4")
+    @final_video_url = url_for(@video.final_video)
+
+    FileUtils.rm_rf(temp_dir)
+
+    flash[:notice] = "La vidéo finale a été générée avec succès."
+  end
+
+  def get_video_duration(video_path)
+    output = `ffprobe -i #{video_path} -show_entries format=duration -v quiet -of csv="p=0"`
+    output.strip
   end
 
   def content_dedicace_post
