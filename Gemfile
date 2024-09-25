@@ -85,5 +85,3 @@ gem "base64", "0.1.1"
 gem "bcrypt_pbkdf", "~> 1.1"
 gem "ed25519", "~> 1.3"
 gem "rubyzip"
-
-gem "streamio-ffmpeg"
