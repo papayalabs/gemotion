@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 
 test('Video generation', async ({ page }) => {
   await page.goto('/')
+  await page.getByTestId('app_reset_button').click()
+  expect(await page.getByText('Reinitialisation effectuée.')).toBeVisible()
   await page
     .locator('#secondary_menu')
     .getByRole('link', { name: 'Démarrer' })
@@ -22,12 +24,23 @@ test('Video generation', async ({ page }) => {
   await page.locator('#end_date').fill('2024-08-31')
   await page.getByRole('button', { name: 'Étape suivante' }).click()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
+
+  // Thémes
   await page.getByPlaceholder('Décrivez votre théme').click()
-  await page.getByPlaceholder('Décrivez votre théme').fill('Biengue')
+  await page.getByPlaceholder('Décrivez votre théme').fill('Mon petit theme')
+
   await page.getByRole('button', { name: 'Étape suivante' }).click()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
+
+  // Chapters
+  await page.getByTestId('chapter_checkbox_1').check()
+  await page.getByTestId('chapter_input_1').fill('Premier chapitre')
+  await page.getByTestId('chapter_checkbox_2').check()
+  await page.getByTestId('chapter_input_2').fill('Deuxieme chapitre')
+  await page.pause()
+
   await page.getByRole('button', { name: 'Étape suivante' }).click()
-  await page.locator('div').filter({ hasText: "L'Ovni" }).nth(3).click()
+
   await page.locator('#music_1').check()
   await page.getByRole('button', { name: 'Étape suivante' }).click()
   await page.locator('#dedicace_1').check()

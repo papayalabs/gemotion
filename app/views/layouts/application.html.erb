@@ -7,12 +7,18 @@
     <%= stylesheet_link_tag "tailwind", "inter-font", "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-
   <body>
-
     <%= render "shared/header" %>
     <div class='flex justify-end p-2'>
-      <%= button_to 'Reset', flush_and_reseed_path, method: :post, data: { confirm: 'Es-tu sûr de vouloir réinitialiser la base de données ?' }, class: 'p-2 rounded bg-red-500 text-white' %>
+      <%= button_to 'Reset',
+                    flush_and_reseed_path,
+                    method: :post,
+                    class: 'p-2 rounded bg-red-500 text-white',
+                    data: {
+                      confirm: 'Es-tu sûr de vouloir réinitialiser la base de données ?',
+                      testid: 'app_reset_button'
+                    }
+      %>
     </div>
     <% unless notice.nil? %>
       <p class="notice w-full text-success text-center p-3 bg-green-50 "><%= notice %></p>
@@ -20,11 +26,9 @@
     <% unless alert.nil? %>
       <p class="alert w-full text-red-500 text-center p-3 bg-red-50"><%= alert %></p>
     <% end %>
-
     <main>
       <%= yield %>
     </main>
-
     <%= render "shared/footer" %>
   </body>
 </html>

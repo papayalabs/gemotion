@@ -81,8 +81,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'bin/rails db:drop db:create db:migrate db:seed && bin/dev',
     url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI,
+    // command: 'bin/rails db:drop db:create db:migrate db:seed && bin/dev',
+    // reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
   },
 })
