@@ -295,26 +295,25 @@ class VideosController < ApplicationController
       return redirect_to content_dedicace_path
     end
 
-    # Transcoder les vidéos des chapitres pour les uniformiser
-    transcoded_videos = chapter_videos.map.with_index do |video, index|
+    # Convertir les vidéos en MPEG-TS sans réencodage
+    ts_videos = chapter_videos.map.with_index do |video, index|
       input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
-      output_path = temp_dir.join("video_#{index}.mp4")
-      # Transcodage en H.264 avec audio AAC
-      system("ffmpeg -i #{input_path} -c:v libx264 -c:a aac -strict experimental -b:a 192k #{output_path} > /dev/null 2>&1")
+      output_path = temp_dir.join("video_#{index}.ts")
+      # Conversion en MPEG-TS
+      system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
       output_path.to_s
     end
 
-    # Générer le fichier de liste pour FFmpeg
-    concatenation_list = temp_dir.join("concatenation_list.txt")
-    File.open(concatenation_list, "w") do |file|
-      transcoded_videos.each do |video_path|
-        file.puts("file '#{video_path}'")
-      end
-    end
+    # Créer la liste des fichiers TS à concaténer
+    ts_files = ts_videos.join("|")
 
+    concatenated_ts_path = temp_dir.join("concatenated.ts")
+    # Concaténer les fichiers TS sans réencodage
+    system("ffmpeg -y -i \"concat:#{ts_files}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
+
+    # Convertir le fichier TS concaténé en MP4
     concatenated_video_path = temp_dir.join("concatenated_video.mp4")
-    # Concaténer les vidéos en réencodant pour s'assurer que l'audio est inclus
-    system("ffmpeg -f concat -safe 0 -i #{concatenation_list} -c:v libx264 -c:a aac #{concatenated_video_path} > /dev/null 2>&1")
+    system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{concatenated_video_path}\"")
 
     unless File.exist?(concatenated_video_path)
       flash[:alert] = "La concaténation des vidéos a échoué."
@@ -322,30 +321,25 @@ class VideosController < ApplicationController
       return redirect_to content_dedicace_path
     end
 
-    # Ajouter la musique de fond
+    # Ajouter la musique de fond tout en conservant le son original des vidéos
     music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
-    final_video_with_music_path = temp_dir.join("final_video_with_music.mp4")
+    final_video_path = temp_dir.join("final_video_with_music.mp4")
+    # Mixer l'audio des vidéos avec la musique
+    system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a][1:a]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
 
-    # Boucler la musique pour couvrir la durée de la vidéo
-    video_duration = get_video_duration(concatenated_video_path)
-    looped_music_path = temp_dir.join("looped_music.mp3")
-    system("ffmpeg -stream_loop -1 -i #{music_path} -t #{video_duration} -c copy #{looped_music_path} > /dev/null 2>&1")
-
-    # Mélanger l'audio de la vidéo avec la musique
-    system("ffmpeg -i #{concatenated_video_path} -i #{looped_music_path} -filter_complex \"[0:a][1:a]amix=inputs=2:duration=first[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac #{final_video_with_music_path} > /dev/null 2>&1")
-
-    unless File.exist?(final_video_with_music_path)
-      flash[:alert] = "L'ajout de la musique a échoué."
+    unless File.exist?(final_video_path)
+      flash[:alert] = "L'ajout de la musique de fond a échoué."
       FileUtils.rm_rf(temp_dir)
       return redirect_to content_dedicace_path
     end
 
-    @video.final_video.attach(io: File.open(final_video_with_music_path), filename: "final_video.mp4")
+    # Attacher la vidéo finale avec musique
+    @video.final_video.attach(io: File.open(final_video_path), filename: "final_video_with_music.mp4")
     @final_video_url = url_for(@video.final_video)
 
     FileUtils.rm_rf(temp_dir)
 
-    flash[:notice] = "La vidéo finale a été générée avec succès."
+    flash[:notice] = "La vidéo finale avec musique a été générée avec succès."
   end
 
   def get_video_duration(video_path)
