@@ -334,10 +334,10 @@ class VideosController < ApplicationController
     end
 
     # Ajouter la vidéo dédicace comme overlay avec opacité après avoir généré la vidéo finale
-    dedicace_video_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
+    theme_video = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
     video_with_overlay_path = temp_dir.join("final_video_with_overlay.mp4")
     # Appliquer la vidéo overlay avec opacité 0.3 sur la vidéo finale, et limiter la durée de l'overlay à celle de la vidéo principale
-    system("ffmpeg -y -i \"#{final_video_path}\" -i \"#{dedicace_video_path}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{final_video_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{video_with_overlay_path}\"")
+    system("ffmpeg -y -i \"#{final_video_path}\" -i \"#{theme_video}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{final_video_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{video_with_overlay_path}\"")
 
     unless File.exist?(video_with_overlay_path)
       flash[:alert] = "L'ajout de la vidéo dédicace en overlay a échoué."
