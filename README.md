@@ -1,5 +1,7 @@
-# Gemotion
+Git: https://github.com/Maxime-Potier/gemotion
 
-## Figma (MVP)
+V1: https://www.figma.com/design/jbjqYggXQE9sfcARvV4jMN/GE.motion-(V1)?node-id=17-268
 
-(https://www.figma.com/file/ME2zLN3ohSOVdtNTTMqmRT/GE.motion-(MVP)?type=design&node-id=17-268&mode=design&t=utngsSRn4Em9h8yy-0)[Figma]
+MVP: https://www.figma.com/design/ME2zLN3ohSOVdtNTTMqmRT/GE.motion-(MVP)?node-id=17-268 
+
+Translations: https://docs.google.com/spreadsheets/d/1jHDoZdavTQnwkXQkzY9lEaY78rENtSLdHrtYYbhStAo/edit?usp=sharing
