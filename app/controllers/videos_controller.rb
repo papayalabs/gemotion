@@ -1,7 +1,7 @@
 require "fileutils"
 require "zip"
 class VideosController < ApplicationController
-  before_action :select_video, except: %i[start start_post go_back join]
+  before_action :select_video, except: %i[start start_post go_back join update_video_music_type]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -212,23 +212,19 @@ class VideosController < ApplicationController
   end
 
   def music_post
-    if params[:music_ids].nil? || params[:music_ids].empty?
+    if params[:music].nil?
       flash[:alert] = "Vous devez sélectionner au moins une musique"
       return render music_path, status: :unprocessable_entity
     end
 
-    selected_musics = Music.where(id: params[:music_ids])
-
-    if selected_musics.empty?
-      flash[:alert] = "Sélection incorrecte. Aucune musique valide trouvée."
+    # Utilisation de find_by pour avoir un objet nil si pas trouvé.
+    music = Music.find_by(id: params[:music])
+    if music.nil?
+      flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
       return render music_path, status: :unprocessable_entity
     end
 
-    @video.video_musics.destroy_all
-
-    selected_musics.each do |music|
-      @video.video_musics.create(music: music)
-    end
+    @video.music = music
 
     @video.stop_at = @video.next_step
 
@@ -385,6 +381,15 @@ class VideosController < ApplicationController
 
   def skip_content_dedicace
     skip_element(content_dedicace_path)
+  end
+
+  def update_video_music_type
+    @video = Video.find(params[:id])
+    if @video.update(music_type: params[:video][:music_type])
+      head :no_content # Respond with a 204 No Content status to avoid template rendering
+    else
+      render plain: "Failed to update music type", status: :unprocessable_entity
+    end
   end
 
   private

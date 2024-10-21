@@ -6,30 +6,92 @@
 
   <div class="">
 
-    <%= form_with url: music_post_path, method: :post do |f| %>
-      <div class="frame">
-        <div class="video-musics">
-          <% @musics.each do |music| %>
-            <div class="video-music">
-              <div class="music-name"><%= music.name %></div>
-              <div class="music-audio">
-                <%= f.check_box "music_ids[]", { checked: @video.musics.include?(music) }, music.id, nil %>
-
-                <% if music.music.attached? %>
-                  <%= audio_tag music.music, controls: true %>
-                <% else %>
-                  <p>Pas d'audio</p>
-                <% end %>
-              </div>
+    <div class="frame">
+      <div class='w-full'>
+        <%= form_with model: @video, url: update_video_music_type_path(id: @video.id), method: :patch, remote: true, html: { id: 'music-type-form', class: 'w-full' } do |f| %>
+          <div class='flex justify-between items-center'>
+            <div>
+              <%= f.radio_button :music_type, 'whole_video', checked: @video.whole_video?, onchange: 'this.form.submit();' %>
+              <%= f.label :music_type_whole_video, "Whole Video", for: 'video_music_type_whole_video' %>
             </div>
-          <% end %>
-        </div>
-      </div>
 
-      <div class="video-steps">
-        <%= render "videos/shared/back_button" %>
-        <%= f.submit "Étape suivante", class:"cta" %>
+            <div>
+              <%= f.radio_button :music_type, 'by_chapters', checked: @video.by_chapters?, onchange: 'this.form.submit();' %>
+              <%= f.label :music_type_by_chapters, "By Chapters", for: 'video_music_type_by_chapters' %>
+            </div>
+          </div>
+        <% end %>
       </div>
-    <% end %>
+    </div>
+    <br>
+
+    <div id="whole-video-form" style="<%= @video.whole_video? ? '' : 'display: none;' %>">
+      <%= form_with url: music_post_path, method: :post do |f| %>
+        <div class="frame">
+          <div class="video-musics">
+            <% @musics.each do |music| %>
+              <div class="video-music">
+                <div class="music-name"><%= music.name %></div>
+                <div class="music-audio">
+                  <%= f.radio_button "music", music.id, {checked: music == @video.music}%>
+                  <% if music.music.attached? %>
+                    <%= audio_tag music.music, controls: true %>
+                  <% else %>
+                    <p>Pas d'audio</p>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="video-steps">
+          <%= render "videos/shared/back_button" %>
+          <%= f.submit "Étape suivante", class:"cta" %>
+        </div>
+      <% end %>
+    </div>
+
+
+    <div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
+      <%= form_with url: music_post_path, method: :post do |f| %>
+        <div class="frame">
+          <div class="video-musics">
+            <p>Form for by chapters content here...</p>
+          </div>
+        </div>
+
+        <div class="video-steps">
+          <%= render "videos/shared/back_button" %>
+          <%= f.submit "Étape suivante", class: "cta" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
+<script>
+  document.addEventListener("turbo:load", () => {
+    const radioButtons = document.querySelectorAll('input[name="video[music_type]"]');
+    const wholeVideoForm = document.getElementById('whole-video-form');
+    const byChaptersForm = document.getElementById('by-chapters-form');
+
+    radioButtons.forEach(radio => {
+      radio.addEventListener('change', () => {
+        // Show or hide forms based on selected radio button
+        if (radio.value === 'whole_video') {
+          wholeVideoForm.style.display = 'block';
+          byChaptersForm.style.display = 'none';
+        } else {
+          wholeVideoForm.style.display = 'none';
+          byChaptersForm.style.display = 'block';
+        }
+      });
+    });
+
+    // Trigger the change event for the currently selected radio button
+    const checkedRadio = document.querySelector('input[name="video[music_type]"]:checked');
+    if (checkedRadio) {
+      checkedRadio.dispatchEvent(new Event('change'));
+    }
+  });
+</script>

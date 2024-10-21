@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   get 'videos/music', to: "videos#music", as: "music"
   post 'videos/music', to: "videos#music_post", as: "music_post"
+  patch 'videos/update_video_music_type', to: "videos#update_video_music_type", as: "update_video_music_type"
 
   get 'videos/dedicace', to: "videos#dedicace", as: "dedicace"
   post 'videos/dedicace', to: "videos#dedicace_post", as: "dedicace_post"
