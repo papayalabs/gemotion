@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_09_064048) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_21_061425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -106,6 +106,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_09_064048) do
     t.index ["video_id"], name: "index_video_destinataires_on_video_id"
   end
 
+  create_table "video_musics", force: :cascade do |t|
+    t.bigint "music_id", null: false
+    t.bigint "video_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["music_id"], name: "index_video_musics_on_music_id"
+    t.index ["video_id"], name: "index_video_musics_on_video_id"
+  end
+
   create_table "videos", force: :cascade do |t|
     t.integer "video_type", null: false
     t.string "stop_at", default: "start", null: false
@@ -130,6 +139,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_09_064048) do
   add_foreign_key "video_chapters", "chapter_types"
   add_foreign_key "video_chapters", "videos"
   add_foreign_key "video_destinataires", "videos"
+  add_foreign_key "video_musics", "musics"
+  add_foreign_key "video_musics", "videos"
   add_foreign_key "videos", "dedicaces"
   add_foreign_key "videos", "musics"
 end

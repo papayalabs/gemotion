@@ -6,9 +6,11 @@ class Video < ApplicationRecord
     has_many :video_destinataires, dependent: :destroy
     has_many :video_chapters, dependent: :destroy
     has_many :dedicace_contents, dependent: :destroy
+    has_many :video_musics, dependent: :destroy
+    has_many :musics, through: :video_musics
     has_one_attached :final_video
 
-    belongs_to :music, optional: true
+    # belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
 
     SOLO_WAY = ['start', 'occasion', 'destinataire', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'content_dedicace', 'deadline', 'render']

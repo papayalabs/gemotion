@@ -7,32 +7,29 @@
   <div class="">
 
     <%= form_with url: music_post_path, method: :post do |f| %>
-        <div class="frame">
-          <div class="video-musics">
-            <% @musics.each do |music| %>
-                <div class="video-music">
-                    <div class="music-name"><%= music.name %></div>
-                    <div class="music-audio">
-                      <%= f.radio_button "music", music.id, {checked: music == @video.music}%>
+      <div class="frame">
+        <div class="video-musics">
+          <% @musics.each do |music| %>
+            <div class="video-music">
+              <div class="music-name"><%= music.name %></div>
+              <div class="music-audio">
+                <%= f.check_box "music_ids[]", { checked: @video.musics.include?(music) }, music.id, nil %>
 
-                      <% if music.music.attached? %>
-                          <%= audio_tag music.music, controls: true%>
-                      <% else %>
-                          <p>Pas d'audio</p>
-                      <% end %>
-                    </div>
-
-                </div>
-            <% end %>
-          </div>
+                <% if music.music.attached? %>
+                  <%= audio_tag music.music, controls: true %>
+                <% else %>
+                  <p>Pas d'audio</p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         </div>
+      </div>
 
-        <div class="video-steps">
-          <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class:"cta" %>
-        </div>
-
+      <div class="video-steps">
+        <%= render "videos/shared/back_button" %>
+        <%= f.submit "Étape suivante", class:"cta" %>
+      </div>
     <% end %>
-
   </div>
 </div>

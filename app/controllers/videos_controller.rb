@@ -203,19 +203,24 @@ class VideosController < ApplicationController
   end
 
   def music_post
-    if params[:music].nil?
-      flash[:alert] = "Vous devez séléctionnez une musique"
+    if params[:music_ids].nil? || params[:music_ids].empty?
+      flash[:alert] = "Vous devez sélectionner au moins une musique"
       return render music_path, status: :unprocessable_entity
     end
 
-    # Utilisation de find_by pour avoir un objet nil si pas trouvé.
-    music = Music.find_by(id: params[:music])
-    if music.nil?
-      flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
+    selected_musics = Music.where(id: params[:music_ids])
+
+    if selected_musics.empty?
+      flash[:alert] = "Sélection incorrecte. Aucune musique valide trouvée."
       return render music_path, status: :unprocessable_entity
     end
 
-    @video.music = music
+    @video.video_musics.destroy_all
+
+    selected_musics.each do |music|
+      @video.video_musics.create(music: music)
+    end
+
     @video.stop_at = @video.next_step
 
     if @video.save
