@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_21_061425) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_21_072549) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -85,6 +85,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_061425) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "previews", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "video_chapters", force: :cascade do |t|
     t.bigint "chapter_type_id", null: false
     t.bigint "video_id", null: false
@@ -115,6 +120,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_061425) do
     t.index ["video_id"], name: "index_video_musics_on_video_id"
   end
 
+  create_table "video_previews", force: :cascade do |t|
+    t.bigint "preview_id", null: false
+    t.bigint "video_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["preview_id"], name: "index_video_previews_on_preview_id"
+    t.index ["video_id"], name: "index_video_previews_on_video_id"
+  end
+
   create_table "videos", force: :cascade do |t|
     t.integer "video_type", null: false
     t.string "stop_at", default: "start", null: false
@@ -141,6 +155,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_061425) do
   add_foreign_key "video_destinataires", "videos"
   add_foreign_key "video_musics", "musics"
   add_foreign_key "video_musics", "videos"
+  add_foreign_key "video_previews", "previews"
+  add_foreign_key "video_previews", "videos"
   add_foreign_key "videos", "dedicaces"
   add_foreign_key "videos", "musics"
 end

@@ -1,15 +1,24 @@
 <div>
   <h1 class="video-h1">Ajoutez 3 photos du destinataire pour l'introduction de votre vidéo</h1>
-
-  <p class="video-desc">
-    Expliquer cette étape
-  </p>
-
   <div class="">
 
-    <%= form_with url: photo_intro_post_path, method: :post, html: { class: "video-form" } do |f| %>
-      <div class="frame">
-        Lorem ipsum
+    <%= form_with url: photo_intro_post_path, method: :post, html: { class: "video-form", data: { turbo: false } } do |f| %>
+      <div class="frame" id="drop-area">
+        <div class="drop-area" id="drop-area">
+          <p class='text-center'>Faites glisser et déposez les fichiers ici ou cliquez pour télécharger</p>
+          <%= f.file_field :previews, multiple: true,
+                          style: "display: none;",
+                          id: "fileElem",
+                          accept: "image/*" %>
+        </div>
+      </div>
+      <br>
+      <div class='frame'>
+        <div id="gallery" class="gallery flex flex-row items-center space-x-8">
+          <%@video.previews.each do |preview|%>
+            <%= image_tag preview.image, class: "preview-image prev-image" %>
+          <%end%>
+        </div>
       </div>
       <div class="video-steps">
         <%= render "videos/shared/back_button" %>
@@ -18,3 +27,143 @@
     <% end %>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dropArea = document.getElementById("drop-area");
+  const fileInput = document.getElementById("fileElem");
+  const gallery = document.getElementById("gallery");
+  let dataTransfer = new DataTransfer();
+
+  // Ensure files are added when input changes
+  fileInput.addEventListener("change", (event) => handleFiles(event.target.files));
+
+  // Handle click on drop area to open file input
+  dropArea.addEventListener("click", () => fileInput.click());
+
+  // Dragover to highlight drop area
+  dropArea.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    dropArea.classList.add("highlight");
+  });
+
+  // Remove highlight when drag leaves
+  dropArea.addEventListener("dragleave", () => dropArea.classList.remove("highlight"));
+
+  // Handle drop event
+  dropArea.addEventListener("drop", (event) => {
+    event.preventDefault();
+    dropArea.classList.remove("highlight");
+    handleFiles(event.dataTransfer.files);
+  });
+
+  // Handle selected files
+  function handleFiles(files) {
+
+
+    // Validate number of files
+    if (dataTransfer.items.length + files.length > 3) {
+      alert("You can only upload a maximum of 3 images.");
+      return;
+    }
+
+    const gallery = document.getElementById("gallery");
+    const images = gallery.getElementsByClassName("prev-image");
+
+    while (images.length > 0) {
+      images[0].parentNode.removeChild(images[0]);
+    }
+
+    files = Array.from(files);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imgContainer = document.createElement("div");
+        imgContainer.classList.add("image-container");
+
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.classList.add("preview-image");
+
+        const removeBtn = document.createElement("button");
+        removeBtn.innerText = "Remove";
+        removeBtn.classList.add("remove-btn");
+        removeBtn.addEventListener("click", () => removeImage(file, imgContainer));
+
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(removeBtn);
+        gallery.appendChild(imgContainer);
+      };
+      reader.readAsDataURL(file);
+
+      dataTransfer.items.add(file);
+    });
+
+    fileInput.files = dataTransfer.files; // Sync input files
+  }
+
+  // Remove image from gallery and dataTransfer
+  function removeImage(file, imgContainer) {
+    for (let i = 0; i < dataTransfer.items.length; i++) {
+      if (dataTransfer.items[i].getAsFile() === file) {
+        dataTransfer.items.remove(i);
+        break;
+      }
+    }
+
+    gallery.removeChild(imgContainer);
+    fileInput.files = dataTransfer.files;
+  }
+
+  // Ensure input has correct files on form submission
+  document.querySelector('form').addEventListener('submit', (event) => {
+    if (dataTransfer.files.length === 0) {
+      alert("Please select at least one image.");
+      event.preventDefault(); // Prevent form submission if no files
+    }
+    fileInput.files = dataTransfer.files; // Sync files before submit
+  });
+});
+</script>
+<style>
+.upload-btn {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.gallery {
+  display: flex;
+  gap: 50px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.preview-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+</style>

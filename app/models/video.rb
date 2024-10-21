@@ -6,8 +6,13 @@ class Video < ApplicationRecord
     has_many :video_destinataires, dependent: :destroy
     has_many :video_chapters, dependent: :destroy
     has_many :dedicace_contents, dependent: :destroy
+
     has_many :video_musics, dependent: :destroy
     has_many :musics, through: :video_musics
+
+    has_many :video_previews, dependent: :destroy
+    has_many :previews, through: :video_previews
+
     has_one_attached :final_video
 
     # belongs_to :music, optional: true
@@ -59,6 +64,7 @@ class Video < ApplicationRecord
     end
 
     def validate_photo_intro
+        return false if previews.count > 3 || previews.count == 0
         return true
     end
 

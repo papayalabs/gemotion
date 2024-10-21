@@ -132,13 +132,22 @@ class VideosController < ApplicationController
   end
 
   def photo_intro_post
-    @video.stop_at = @video.next_step
+    @video.previews.destroy_all unless params[:previews] == [""] && @video.previews.count > 0
 
+    params[:previews].each do |preview|
+      unless preview.blank?
+        p = Preview.create(image: preview)
+        @video.video_previews.create(preview: p)
+      end
+    end
+
+    @video.stop_at = @video.next_step if @video.validate_photo_intro
     if @video.validate_photo_intro && @video.save
       redirect_to send("#{@video.next_step}_path")
     else
+      flash[:alert] = "Vous devez sélectionner au moins une photo"
       @video.update(stop_at: @video.current_step)
-      render photo_intro_path, status: :unprocessable_entity
+      redirect_to photo_intro_path
     end
   end
 
