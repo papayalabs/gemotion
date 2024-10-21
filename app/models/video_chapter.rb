@@ -5,4 +5,11 @@ class VideoChapter < ApplicationRecord
   has_one :video_music, dependent: :destroy
 
   validates :text, presence: true
+
+  before_destroy :remove_video_music
+  private
+
+  def remove_video_music
+    video_music&.destroy
+  end
 end

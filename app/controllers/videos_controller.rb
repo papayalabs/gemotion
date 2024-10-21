@@ -200,8 +200,16 @@ class VideosController < ApplicationController
     end
 
     # Création, Mise à jour et suppression
-    if @video.video_chapters.create(chapter_to_create) && @video.video_chapters.update(chapter_to_updates.keys,
-                                                                                       chapter_to_updates.values) && chapter_to_delete.delete_all
+
+    if @video.video_chapters.create(chapter_to_create) &&
+      @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
+
+      @video.video_chapters.each do |chapter|
+        chapter.video_music.destroy if chapter.video_music
+      end
+
+      chapter_to_delete.destroy_all
+
       @video.update(stop_at: @video.next_step)
       redirect_to send("#{@video.next_step}_path")
     else
@@ -211,20 +219,70 @@ class VideosController < ApplicationController
     end
   end
 
+  # def music_post
+  #   if params[:music].nil?
+  #     flash[:alert] = "Vous devez sélectionner au moins une musique"
+  #     return render music_path, status: :unprocessable_entity
+  #   end
+
+  #   # Utilisation de find_by pour avoir un objet nil si pas trouvé.
+  #   music = Music.find_by(id: params[:music])
+  #   if music.nil?
+  #     flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
+  #     return render music_path, status: :unprocessable_entity
+  #   end
+
+  #   @video.music = music
+
+  #   @video.stop_at = @video.next_step
+
+  #   if @video.save
+  #     redirect_to send("#{@video.next_step}_path")
+  #   else
+  #     @video.update(stop_at: @video.current_step)
+  #     render music_path, status: :unprocessable_entity
+  #   end
+  # end
+
   def music_post
-    if params[:music].nil?
+    # Check for params indicating the whole video or chapters
+    if params[:music].nil? && params.keys.none? { |key| key.start_with?('music_') }
       flash[:alert] = "Vous devez sélectionner au moins une musique"
       return render music_path, status: :unprocessable_entity
     end
 
-    # Utilisation de find_by pour avoir un objet nil si pas trouvé.
-    music = Music.find_by(id: params[:music])
-    if music.nil?
-      flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
-      return render music_path, status: :unprocessable_entity
+    # Handle the "whole video" case
+    if params[:music]
+      music = Music.find_by(id: params[:music])
+      if music.nil?
+        flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
+        return render music_path, status: :unprocessable_entity
+      end
+      @video.music = music
     end
 
-    @video.music = music
+    # Handle the "by chapters" case
+    params.each do |key, value|
+      if key.start_with?('music_')
+        chapter_id = key.split('_').last.to_i
+        music_id = value.to_i
+
+        video_chapter = @video.video_chapters.find_by(id: chapter_id)
+        if video_chapter
+          music = Music.find_by(id: music_id)
+          if music
+            # Delete the old VideoMusic object if it exists
+            video_chapter.video_music&.destroy
+
+            # Create a new VideoMusic object
+            VideoMusic.create(music: music, video_chapter: video_chapter)
+          else
+            flash[:alert] = "Musique non trouvée pour le chapitre #{chapter_id}."
+            return render music_path, status: :unprocessable_entity
+          end
+        end
+      end
+    end
 
     @video.stop_at = @video.next_step
 

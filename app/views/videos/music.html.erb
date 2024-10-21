@@ -56,8 +56,24 @@
     <div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
       <%= form_with url: music_post_path, method: :post do |f| %>
         <div class="frame">
-          <div class="video-musics">
-            <p>Form for by chapters content here...</p>
+          <div class="video-memories">
+            <% @video.video_chapters.each do |video_chapter| %>
+              <div class="video-memory">
+                <div class="video-memory-thumb-wrapper">
+                  <% if video_chapter.chapter_type.image.attached? %>
+                      <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+                  <% else %>
+                      <p>Pas d'image</p>
+                  <% end %>
+                  <span><%= video_chapter.chapter_type.name %></span>
+                </div>
+                <p class="video-memory-alert"><%=video_chapter.text%></p>
+                <div class="music-selection">
+                  <% selected_music_id = video_chapter.video_music&.music_id %>
+                  <%= f.select "music_#{video_chapter.id}", @musics.map { |music| [music.name, music.id] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select' } %>
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
 
