@@ -236,31 +236,6 @@ class VideosController < ApplicationController
     end
   end
 
-  # def music_post
-  #   if params[:music].nil?
-  #     flash[:alert] = "Vous devez sélectionner au moins une musique"
-  #     return render music_path, status: :unprocessable_entity
-  #   end
-
-  #   # Utilisation de find_by pour avoir un objet nil si pas trouvé.
-  #   music = Music.find_by(id: params[:music])
-  #   if music.nil?
-  #     flash[:alert] = "Sélection incorrecte. La musique n'existe pas."
-  #     return render music_path, status: :unprocessable_entity
-  #   end
-
-  #   @video.music = music
-
-  #   @video.stop_at = @video.next_step
-
-  #   if @video.save
-  #     redirect_to send("#{@video.next_step}_path")
-  #   else
-  #     @video.update(stop_at: @video.current_step)
-  #     render music_path, status: :unprocessable_entity
-  #   end
-  # end
-
   def music_post
     # Check for params indicating the whole video or chapters
     if params[:music].nil? && params.keys.none? { |key| key.start_with?('music_') }
@@ -358,7 +333,22 @@ class VideosController < ApplicationController
 
   def content_post
     @video_chapter = @video.video_chapters.find(params[:id])
-    @video_chapter.element.attach params[:element]
+
+    # Attach videos
+    if params[:videos].present? && params[:videos] != [""]
+      @video_chapter.videos.purge
+      params[:videos].reject(&:blank?).each do |video|
+        @video_chapter.videos.attach(video)
+      end
+    end
+
+    # Attach photos
+    if params[:photos].present? && params[:photos] != [""]
+      @video_chapter.photos.purge
+      params[:photos].reject(&:blank?).each do |photo|
+        @video_chapter.photos.attach(photo)
+      end
+    end
 
     flash[:notice] = "Contenu ajouté."
     redirect_to content_path
@@ -444,29 +434,65 @@ class VideosController < ApplicationController
     temp_dir = Rails.root.join("tmp", SecureRandom.hex)
     FileUtils.mkdir_p(temp_dir)
 
-    # Assuming @video.video_chapters returns the chapters with associated videos and photos
-    chapter_assets = @video.video_chapters.map do |vc|
+    # Retrieve previews sorted by order
+    preview_assets = @video.video_previews.includes(:preview).sort_by(&:order)
+
+    # Get chapter assets
+    chapter_assets = @video.video_chapters.includes(:chapter_type).map do |vc|
       {
-        videos: vc.videos,   # Assuming vc.videos returns the two video assets
-        photos: vc.photos,    # Assuming vc.photos returns the two photo assets
-        music: vc.video_music.music # Assuming video_music has a method to retrieve the music
+        videos: vc.videos,
+        photos: vc.photos,
+        music: vc.video_music.music,
+        chapter_type_image: vc.chapter_type.image, # Assuming chapter_type has an image
+        text: vc.text # Get the text for this chapter
       }
     end
 
-    if chapter_assets.empty?
-      flash[:alert] = "Aucune vidéo ou photo de chapitre disponible pour la concaténation."
+    if chapter_assets.empty? || preview_assets.empty?
+      flash[:alert] = "Aucune vidéo, photo ou aperçu de chapitre disponible."
       FileUtils.rm_rf(temp_dir)
       return redirect_to content_dedicace_path
     end
 
     ts_videos = []
 
+    # Process the previews
+    preview_assets.each_with_index do |preview, index|
+      preview_path = ActiveStorage::Blob.service.send(:path_for, preview.preview.image.key)
+      output_path = temp_dir.join("preview_#{index}.ts")
+      system("ffmpeg -y -loop 1 -i \"#{preview_path}\" -c:v libx264 -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p \"#{output_path}\"")
+      ts_videos << output_path.to_s
+    end
+
+    # Prepare to hold the final music path based on music type
+    final_music_path = nil
+
+    if @video.music_type == "whole_video"
+      final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
+    end
+
     chapter_assets.each_with_index do |assets, chapter_index|
+      chapter_music_path = ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if @video.music_type == "by_chapters"
+
+      # Create a video segment with chapter image and text
+      chapter_image_path = ActiveStorage::Blob.service.send(:path_for, assets[:chapter_type_image].key) if assets[:chapter_type_image]
+      chapter_text = assets[:text]
+      text_output_path = temp_dir.join("chapter_intro_#{chapter_index}.ts")
+
+      # Create a video for the chapter's intro with the image and text
+      if chapter_image_path && chapter_text.present?
+        system("ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" -vf drawtext=\"text='#{chapter_text}':fontcolor=white:fontsize=24:x=(W-w)/2:y=(H-h)/2\" -t 3 -c:v libx264 -pix_fmt yuv420p \"#{text_output_path}\"")
+        ts_videos << text_output_path.to_s
+      else
+        flash[:alert] = "L'image ou le texte du chapitre #{chapter_index + 1} est manquant."
+        FileUtils.rm_rf(temp_dir)
+        return redirect_to content_dedicace_path
+      end
+
       # Process videos
       assets[:videos].each_with_index do |video, video_index|
         input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
         output_path = temp_dir.join("video_#{chapter_index}_#{video_index}.ts")
-        # Convertir les vidéos en MPEG-TS sans réencodage
         system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
         ts_videos << output_path.to_s
       end
@@ -475,17 +501,12 @@ class VideosController < ApplicationController
       assets[:photos].each_with_index do |photo, photo_index|
         input_path = ActiveStorage::Blob.service.send(:path_for, photo.key)
         output_path = temp_dir.join("photo_#{chapter_index}_#{photo_index}.ts")
-        # Convertir les photos en vidéo (par exemple, en 3 secondes) pour les ajouter
         system("ffmpeg -y -loop 1 -i \"#{input_path}\" -c:v libx264 -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p \"#{output_path}\"")
         ts_videos << output_path.to_s
       end
 
-      # Add music for the current chapter
-      music_path = ActiveStorage::Blob.service.send(:path_for, assets[:music].key)
-      chapter_final_video_path = temp_dir.join("chapter_#{chapter_index}_final_video.mp4")
-
-      # Concatenate the current chapter's videos and photos into one video
-      chapter_ts_files = ts_videos.last((assets[:videos].count + assets[:photos].count))
+      # Concatenate chapter's videos and photos into one video
+      chapter_ts_files = ts_videos.last((assets[:videos].count + assets[:photos].count + 1)) # +1 for the intro
       chapter_ts_file_list = chapter_ts_files.join("|")
 
       concatenated_ts_path = temp_dir.join("chapter_#{chapter_index}_concatenated.ts")
@@ -495,17 +516,27 @@ class VideosController < ApplicationController
       chapter_concatenated_video_path = temp_dir.join("chapter_#{chapter_index}_concatenated_video.mp4")
       system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{chapter_concatenated_video_path}\"")
 
-      # Mix in the chapter's music
-      final_chapter_video_path = temp_dir.join("final_chapter_video_with_music.mp4")
-      system("ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_chapter_video_path}\"")
+      # Handle music mixing
+      if @video.music_type == "by_chapters"
+        if File.exist?(chapter_music_path)
+          final_chapter_video_path = temp_dir.join("final_chapter_video_with_music.mp4")
+          system("ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{chapter_music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_chapter_video_path}\"")
 
-      unless File.exist?(final_chapter_video_path)
-        flash[:alert] = "L'ajout de la musique de chapitre a échoué pour le chapitre #{chapter_index + 1}."
-        FileUtils.rm_rf(temp_dir)
-        return redirect_to content_dedicace_path
+          unless File.exist?(final_chapter_video_path)
+            flash[:alert] = "L'ajout de la musique de chapitre a échoué pour le chapitre #{chapter_index + 1}."
+            FileUtils.rm_rf(temp_dir)
+            return redirect_to content_dedicace_path
+          end
+
+          ts_videos << final_chapter_video_path.to_s
+        else
+          flash[:alert] = "Musique manquante pour le chapitre #{chapter_index + 1}."
+          FileUtils.rm_rf(temp_dir)
+          return redirect_to content_dedicace_path
+        end
+      else
+        ts_videos << chapter_concatenated_video_path.to_s
       end
-
-      ts_videos << final_chapter_video_path.to_s
     end
 
     # Now concatenate all final chapter videos into one final video
@@ -515,7 +546,12 @@ class VideosController < ApplicationController
 
     # Convert the final TS to MP4
     final_video_path = temp_dir.join("final_video.mp4")
-    system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
+    if @video.music_type == "whole_video" && final_music_path
+      # Mix the final music into the whole video
+      system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
+    else
+      system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
+    end
 
     unless File.exist?(final_video_path)
       flash[:alert] = "La concaténation des vidéos finales a échoué."

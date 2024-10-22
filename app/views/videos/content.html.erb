@@ -49,24 +49,36 @@
 <div>
   <h1 class="video-h1">Ajoutez 2 vidéos et 2 photos pour chaque chapitre</h1>
 
-  <div class="video-memories">
+  <div class="">
     <% @video_chapters.each do |video_chapter| %>
       <%= form_with url: content_post_path(video_chapter), method: :post, html: { class: "video-form", data: { turbo: false } } do |f| %>
         <div class="frame" id="drop-area-<%= video_chapter.id %>">
+          <div class="video-memory-thumb-wrapper">
+            <% if video_chapter.chapter_type.image.attached? %>
+              <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+            <% else %>
+              <p>Pas d'image</p>
+            <% end %>
+            <span><%= video_chapter.chapter_type.name %></span>
+          </div>
+
+          <!-- Separate Buttons for Video and Photo Upload -->
           <div class="drop-area">
-            <p class='text-center'>Faites glisser et déposez les fichiers ici ou cliquez pour télécharger</p>
-            <%= f.file_field :videos, multiple: true,
-                            style: "display: none;",
-                            id: "videoElem-#{video_chapter.id}",
-                            accept: "video/*" %>
-            <%= f.file_field :photos, multiple: true,
-                            style: "display: none;",
-                            id: "photoElem-#{video_chapter.id}",
-                            accept: "image/*" %>
+            <button type="button" class="cta" id="video-upload-<%= video_chapter.id %>">
+              Upload Video
+            </button>
+            <%= f.file_field :videos, multiple: true, style: "display: none;",
+                             id: "videoElem-#{video_chapter.id}", accept: "video/*" %>
+
+            <button type="button" class="cta" id="photo-upload-<%= video_chapter.id %>">
+              Upload Photo
+            </button>
+            <%= f.file_field :photos, multiple: true, style: "display: none;",
+                             id: "photoElem-#{video_chapter.id}", accept: "image/*" %>
           </div>
         </div>
-        <br>
 
+        <br>
         <div class='frame'>
           <div id="video-gallery-<%= video_chapter.id %>" class="gallery flex flex-row items-center space-x-8">
             <% video_chapter.videos.each_with_index do |video, index| %>
@@ -77,24 +89,24 @@
           </div>
 
           <div id="photo-gallery-<%= video_chapter.id %>" class="gallery flex flex-row items-center space-x-8">
-            <% video_chapter.photos.each_with_index do |photo, index| %>
-              <div class="image-container" data-id="<%= index %>">
-                <%= image_tag photo.image, class: "preview-image prev-image" %>
-              </div>
-            <% end %>
+          <% video_chapter.photos.each_with_index do |photo, index| %>
+            <div class="image-container" data-id="<%= index %>">
+                <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "preview-image prev-image" %>
+            </div>
+          <% end %>
           </div>
         </div>
 
-        <div class="video-steps">
-          <%= render "videos/shared/back_button" %>
-          <%= f.submit "Mettre en ligne", class:"cta" %>
-        </div>
+        <br>
+        <%= f.submit "Mettre en ligne", class:"cta" %>
       <% end %>
+      <br>
     <% end %>
   </div>
+
   <div class="video-steps">
     <%= render "videos/shared/back_button" %>
-    <%= link_to "Étape suivante", skip_content_path, data: {turbo: false}, class:"cta" %>
+    <%= link_to "Étape suivante", skip_content_path, data: { turbo: false }, class: "cta" %>
   </div>
 </div>
 
@@ -104,63 +116,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoChapters = <%= raw @video_chapters.map(&:id).to_json %>;
 
   videoChapters.forEach(id => {
-    const dropArea = document.getElementById(`drop-area-${id}`);
     const videoInput = document.getElementById(`videoElem-${id}`);
     const photoInput = document.getElementById(`photoElem-${id}`);
+
+    const videoUploadBtn = document.getElementById(`video-upload-${id}`);
+    const photoUploadBtn = document.getElementById(`photo-upload-${id}`);
+
+    // Click event for video upload button
+    videoUploadBtn.addEventListener("click", () => videoInput.click());
+
+    // Click event for photo upload button
+    photoUploadBtn.addEventListener("click", () => photoInput.click());
+
     const videoGallery = document.getElementById(`video-gallery-${id}`);
     const photoGallery = document.getElementById(`photo-gallery-${id}`);
 
     let videoDataTransfer = new DataTransfer();
     let photoDataTransfer = new DataTransfer();
 
-    // Initialize Sortable.js for video and photo galleries
     new Sortable(videoGallery, { animation: 150 });
     new Sortable(photoGallery, { animation: 150 });
 
-    dropArea.addEventListener("click", () => {
-      videoInput.click();
-      photoInput.click();
-    });
-
-    dropArea.addEventListener("dragover", (event) => {
-      event.preventDefault();
-      dropArea.classList.add("highlight");
-    });
-
-    dropArea.addEventListener("dragleave", () => dropArea.classList.remove("highlight"));
-
-    dropArea.addEventListener("drop", (event) => {
-      event.preventDefault();
-      dropArea.classList.remove("highlight");
-      handleFiles(event.dataTransfer.files);
-    });
-
-    function handleFiles(files) {
-      for (const file of files) {
-        if (file.type.startsWith("video/")) {
-          if (videoDataTransfer.items.length >= 2) {
-            alert("Vous pouvez seulement télécharger un maximum de 2 vidéos.");
-            continue;
-          }
-          videoDataTransfer.items.add(file);
-          addVideoToGallery(file, videoGallery);
-        } else if (file.type.startsWith("image/")) {
-          if (photoDataTransfer.items.length >= 2) {
-            alert("Vous pouvez seulement télécharger un maximum de 2 photos.");
-            continue;
-          }
-          photoDataTransfer.items.add(file);
-          addPhotoToGallery(file, photoGallery);
+    // Handle file uploads
+    function handleFiles(input, gallery, dataTransfer, type) {
+      [...input.files].forEach((file, index) => {
+        if (dataTransfer.items.length >= 2) {
+          alert(`Vous pouvez seulement télécharger un maximum de 2 ${type}s.`);
+          return;
         }
-      }
+        dataTransfer.items.add(file);
+        if (type === 'video') addVideoToGallery(file, gallery);
+        else addPhotoToGallery(file, gallery);
+      });
 
-      videoInput.files = videoDataTransfer.files;
-      photoInput.files = photoDataTransfer.files;
+      input.files = dataTransfer.files; // Sync files with input
     }
+
+    videoInput.addEventListener("change", () => handleFiles(videoInput, videoGallery, videoDataTransfer, 'video'));
+    photoInput.addEventListener("change", () => handleFiles(photoInput, photoGallery, photoDataTransfer, 'photo'));
 
     function addVideoToGallery(file, gallery) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         const videoContainer = document.createElement("div");
         videoContainer.classList.add("video-container");
 
@@ -169,10 +166,10 @@ document.addEventListener("DOMContentLoaded", () => {
         video.controls = true;
 
         const removeBtn = document.createElement("button");
-        removeBtn.innerText = "Remove";
+        removeBtn.textContent = "Remove";
         removeBtn.addEventListener("click", () => {
           videoContainer.remove();
-          videoDataTransfer.items.remove(videoDataTransfer.items.length - 1);
+          videoDataTransfer.items.remove([...videoDataTransfer.files].indexOf(file));
           videoInput.files = videoDataTransfer.files;
         });
 
@@ -185,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addPhotoToGallery(file, gallery) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         const imgContainer = document.createElement("div");
         imgContainer.classList.add("image-container");
 
@@ -194,10 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
         img.classList.add("preview-image");
 
         const removeBtn = document.createElement("button");
-        removeBtn.innerText = "Remove";
+        removeBtn.textContent = "Remove";
         removeBtn.addEventListener("click", () => {
           imgContainer.remove();
-          photoDataTransfer.items.remove(photoDataTransfer.items.length - 1);
+          photoDataTransfer.items.remove([...photoDataTransfer.files].indexOf(file));
           photoInput.files = photoDataTransfer.files;
         });
 
@@ -207,15 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       reader.readAsDataURL(file);
     }
-
-    document.querySelector(`form`).addEventListener('submit', (event) => {
-      if (videoDataTransfer.files.length === 0 && photoDataTransfer.files.length === 0) {
-        alert("Veuillez sélectionner au moins une vidéo ou une image.");
-        event.preventDefault();
-      }
-      videoInput.files = videoDataTransfer.files; // Sync files before submit
-      photoInput.files = photoDataTransfer.files; // Sync files before submit
-    });
   });
 });
 </script>
