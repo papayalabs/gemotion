@@ -442,7 +442,7 @@ class VideosController < ApplicationController
       {
         videos: vc.videos,
         photos: vc.photos,
-        music: vc.video_music.music,
+        music: vc.video_music.nil? ? nil : vc.video_music.music,
         chapter_type_image: vc.chapter_type.image, # Assuming chapter_type has an image
         text: vc.text # Get the text for this chapter
       }
@@ -467,9 +467,7 @@ class VideosController < ApplicationController
     # Prepare to hold the final music path based on music type
     final_music_path = nil
 
-    if @video.music_type == "whole_video"
-      final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
-    end
+    final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key) if @video.music_type == "whole_video"
 
     chapter_assets.each_with_index do |assets, chapter_index|
       chapter_music_path = ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if @video.music_type == "by_chapters"
@@ -481,7 +479,11 @@ class VideosController < ApplicationController
 
       # Create a video for the chapter's intro with the image and text
       if chapter_image_path && chapter_text.present?
-        system("ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" -vf drawtext=\"text='#{chapter_text}':fontcolor=white:fontsize=24:x=(W-w)/2:y=(H-h)/2\" -t 3 -c:v libx264 -pix_fmt yuv420p \"#{text_output_path}\"")
+        system(
+          "ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" " \
+          "-vf \"scale=iw:-2, drawtext=text='#{chapter_text}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2\" " \
+          "-t 3 -c:v libx264 -pix_fmt yuv420p \"#{text_output_path}\""
+        )
         ts_videos << text_output_path.to_s
       else
         flash[:alert] = "L'image ou le texte du chapitre #{chapter_index + 1} est manquant."
@@ -547,8 +549,14 @@ class VideosController < ApplicationController
     # Convert the final TS to MP4
     final_video_path = temp_dir.join("final_video.mp4")
     if @video.music_type == "whole_video" && final_music_path
-      # Mix the final music into the whole video
-      system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
+
+      # system(
+      #   "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
+      #   "-filter_complex \"[0:a:0]volume=1.0[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
+      #   "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\" 2>&1"
+      # )
+      system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
+
     else
       system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
     end
