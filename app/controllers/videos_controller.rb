@@ -368,75 +368,168 @@ class VideosController < ApplicationController
     skip_element(content_path)
   end
 
+  # def content_dedicace
+  #   temp_dir = Rails.root.join("tmp", SecureRandom.hex)
+  #   FileUtils.mkdir_p(temp_dir)
+
+  #   chapter_videos = @video.video_chapters.map { |vc| vc.element }
+
+  #   if chapter_videos.empty?
+  #     flash[:alert] = "Aucune vidéo de chapitre disponible pour la concaténation."
+  #     FileUtils.rm_rf(temp_dir)
+  #     return redirect_to content_dedicace_path
+  #   end
+
+  #   # Convertir les vidéos en MPEG-TS sans réencodage
+  #   ts_videos = chapter_videos.map.with_index do |video, index|
+  #     input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
+  #     output_path = temp_dir.join("video_#{index}.ts")
+  #     # Conversion en MPEG-TS
+  #     system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
+  #     output_path.to_s
+  #   end
+
+  #   # Créer la liste des fichiers TS à concaténer
+  #   ts_files = ts_videos.join("|")
+
+  #   concatenated_ts_path = temp_dir.join("concatenated.ts")
+  #   # Concaténer les fichiers TS sans réencodage
+  #   system("ffmpeg -y -i \"concat:#{ts_files}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
+
+  #   # Convertir le fichier TS concaténé en MP4
+  #   concatenated_video_path = temp_dir.join("concatenated_video.mp4")
+  #   system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{concatenated_video_path}\"")
+
+  #   unless File.exist?(concatenated_video_path)
+  #     flash[:alert] = "La concaténation des vidéos a échoué."
+  #     FileUtils.rm_rf(temp_dir)
+  #     return redirect_to content_dedicace_path
+  #   end
+
+  #   # Ajouter la musique de fond tout en conservant le son original des vidéos
+  #   # music_path = ActiveStorage::Blob.service.send(:path_for, @video.whole_video? ? @video.music.music.key : Music.first.music.key)
+  #   music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
+  #   final_video_path = temp_dir.join("final_video_with_music.mp4")
+  #   # Mixer l'audio des vidéos avec la musique
+  #   system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
+
+  #   unless File.exist?(final_video_path)
+  #     flash[:alert] = "L'ajout de la musique de fond a échoué."
+  #     FileUtils.rm_rf(temp_dir)
+  #     return redirect_to content_dedicace_path
+  #   end
+
+  #   # Ajouter la vidéo dédicace comme overlay avec opacité après avoir généré la vidéo finale
+  #   theme_video = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
+  #   video_with_overlay_path = temp_dir.join("final_video_with_overlay.mp4")
+  #   # Appliquer la vidéo overlay avec opacité 0.3 sur la vidéo finale, et limiter la durée de l'overlay à celle de la vidéo principale
+  #   system("ffmpeg -y -i \"#{final_video_path}\" -i \"#{theme_video}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{final_video_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{video_with_overlay_path}\"")
+
+  #   unless File.exist?(video_with_overlay_path)
+  #     flash[:alert] = "L'ajout de la vidéo dédicace en overlay a échoué."
+  #     FileUtils.rm_rf(temp_dir)
+  #     return redirect_to content_dedicace_path
+  #   end
+
+  #   # Attacher la vidéo finale avec musique et overlay
+  #   @video.final_video.attach(io: File.open(video_with_overlay_path), filename: "final_video_with_overlay.mp4")
+  #   @final_video_url = url_for(@video.final_video)
+
+  #   FileUtils.rm_rf(temp_dir)
+
+  #   flash[:notice] = "La vidéo finale avec musique et overlay a été générée avec succès."
+  # end
+
   def content_dedicace
     temp_dir = Rails.root.join("tmp", SecureRandom.hex)
     FileUtils.mkdir_p(temp_dir)
 
-    chapter_videos = @video.video_chapters.map { |vc| vc.element }
+    # Assuming @video.video_chapters returns the chapters with associated videos and photos
+    chapter_assets = @video.video_chapters.map do |vc|
+      {
+        videos: vc.videos,   # Assuming vc.videos returns the two video assets
+        photos: vc.photos,    # Assuming vc.photos returns the two photo assets
+        music: vc.video_music.music # Assuming video_music has a method to retrieve the music
+      }
+    end
 
-    if chapter_videos.empty?
-      flash[:alert] = "Aucune vidéo de chapitre disponible pour la concaténation."
+    if chapter_assets.empty?
+      flash[:alert] = "Aucune vidéo ou photo de chapitre disponible pour la concaténation."
       FileUtils.rm_rf(temp_dir)
       return redirect_to content_dedicace_path
     end
 
-    # Convertir les vidéos en MPEG-TS sans réencodage
-    ts_videos = chapter_videos.map.with_index do |video, index|
-      input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
-      output_path = temp_dir.join("video_#{index}.ts")
-      # Conversion en MPEG-TS
-      system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
-      output_path.to_s
+    ts_videos = []
+
+    chapter_assets.each_with_index do |assets, chapter_index|
+      # Process videos
+      assets[:videos].each_with_index do |video, video_index|
+        input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
+        output_path = temp_dir.join("video_#{chapter_index}_#{video_index}.ts")
+        # Convertir les vidéos en MPEG-TS sans réencodage
+        system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
+        ts_videos << output_path.to_s
+      end
+
+      # Process photos
+      assets[:photos].each_with_index do |photo, photo_index|
+        input_path = ActiveStorage::Blob.service.send(:path_for, photo.key)
+        output_path = temp_dir.join("photo_#{chapter_index}_#{photo_index}.ts")
+        # Convertir les photos en vidéo (par exemple, en 3 secondes) pour les ajouter
+        system("ffmpeg -y -loop 1 -i \"#{input_path}\" -c:v libx264 -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p \"#{output_path}\"")
+        ts_videos << output_path.to_s
+      end
+
+      # Add music for the current chapter
+      music_path = ActiveStorage::Blob.service.send(:path_for, assets[:music].key)
+      chapter_final_video_path = temp_dir.join("chapter_#{chapter_index}_final_video.mp4")
+
+      # Concatenate the current chapter's videos and photos into one video
+      chapter_ts_files = ts_videos.last((assets[:videos].count + assets[:photos].count))
+      chapter_ts_file_list = chapter_ts_files.join("|")
+
+      concatenated_ts_path = temp_dir.join("chapter_#{chapter_index}_concatenated.ts")
+      system("ffmpeg -y -i \"concat:#{chapter_ts_file_list}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
+
+      # Convert the chapter TS to MP4
+      chapter_concatenated_video_path = temp_dir.join("chapter_#{chapter_index}_concatenated_video.mp4")
+      system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{chapter_concatenated_video_path}\"")
+
+      # Mix in the chapter's music
+      final_chapter_video_path = temp_dir.join("final_chapter_video_with_music.mp4")
+      system("ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_chapter_video_path}\"")
+
+      unless File.exist?(final_chapter_video_path)
+        flash[:alert] = "L'ajout de la musique de chapitre a échoué pour le chapitre #{chapter_index + 1}."
+        FileUtils.rm_rf(temp_dir)
+        return redirect_to content_dedicace_path
+      end
+
+      ts_videos << final_chapter_video_path.to_s
     end
 
-    # Créer la liste des fichiers TS à concaténer
-    ts_files = ts_videos.join("|")
+    # Now concatenate all final chapter videos into one final video
+    final_video_ts_file_list = ts_videos.join("|")
+    final_concatenated_ts_path = temp_dir.join("final_concatenated.ts")
+    system("ffmpeg -y -i \"concat:#{final_video_ts_file_list}\" -c copy -f mpegts \"#{final_concatenated_ts_path}\"")
 
-    concatenated_ts_path = temp_dir.join("concatenated.ts")
-    # Concaténer les fichiers TS sans réencodage
-    system("ffmpeg -y -i \"concat:#{ts_files}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
-
-    # Convertir le fichier TS concaténé en MP4
-    concatenated_video_path = temp_dir.join("concatenated_video.mp4")
-    system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{concatenated_video_path}\"")
-
-    unless File.exist?(concatenated_video_path)
-      flash[:alert] = "La concaténation des vidéos a échoué."
-      FileUtils.rm_rf(temp_dir)
-      return redirect_to content_dedicace_path
-    end
-
-    # Ajouter la musique de fond tout en conservant le son original des vidéos
-    music_path = ActiveStorage::Blob.service.send(:path_for, @video.whole_video? ? @video.music.music.key : Music.first.music.key)
-    final_video_path = temp_dir.join("final_video_with_music.mp4")
-    # Mixer l'audio des vidéos avec la musique
-    system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
+    # Convert the final TS to MP4
+    final_video_path = temp_dir.join("final_video.mp4")
+    system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
 
     unless File.exist?(final_video_path)
-      flash[:alert] = "L'ajout de la musique de fond a échoué."
+      flash[:alert] = "La concaténation des vidéos finales a échoué."
       FileUtils.rm_rf(temp_dir)
       return redirect_to content_dedicace_path
     end
 
-    # Ajouter la vidéo dédicace comme overlay avec opacité après avoir généré la vidéo finale
-    theme_video = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
-    video_with_overlay_path = temp_dir.join("final_video_with_overlay.mp4")
-    # Appliquer la vidéo overlay avec opacité 0.3 sur la vidéo finale, et limiter la durée de l'overlay à celle de la vidéo principale
-    system("ffmpeg -y -i \"#{final_video_path}\" -i \"#{theme_video}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{final_video_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{video_with_overlay_path}\"")
-
-    unless File.exist?(video_with_overlay_path)
-      flash[:alert] = "L'ajout de la vidéo dédicace en overlay a échoué."
-      FileUtils.rm_rf(temp_dir)
-      return redirect_to content_dedicace_path
-    end
-
-    # Attacher la vidéo finale avec musique et overlay
-    @video.final_video.attach(io: File.open(video_with_overlay_path), filename: "final_video_with_overlay.mp4")
+    # Attach the final video
+    @video.final_video.attach(io: File.open(final_video_path), filename: "final_video.mp4")
     @final_video_url = url_for(@video.final_video)
 
     FileUtils.rm_rf(temp_dir)
 
-    flash[:notice] = "La vidéo finale avec musique et overlay a été générée avec succès."
+    flash[:notice] = "La vidéo finale avec musique par chapitre a été générée avec succès."
   end
 
   def get_video_duration(video_path)
