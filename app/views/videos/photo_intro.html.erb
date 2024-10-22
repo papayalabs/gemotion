@@ -1,34 +1,141 @@
 <div>
   <h1 class="video-h1">Ajoutez 3 photos du destinataire pour l'introduction de votre vidéo</h1>
-  <div class="">
 
-    <%= form_with url: photo_intro_post_path, method: :post, html: { class: "video-form", data: { turbo: false } } do |f| %>
-      <div class="frame" id="drop-area">
-        <div class="drop-area" id="drop-area">
-          <p class='text-center'>Faites glisser et déposez les fichiers ici ou cliquez pour télécharger</p>
-          <%= f.file_field :previews, multiple: true,
-                          style: "display: none;",
-                          id: "fileElem",
-                          accept: "image/*" %>
-        </div>
+  <%= form_with url: photo_intro_post_path, method: :post, html: { class: "video-form", data: { turbo: false } } do |f| %>
+    <div class="frame" id="drop-area">
+      <div class="drop-area" id="drop-area">
+        <p class='text-center'>Faites glisser et déposez les fichiers ici ou cliquez pour télécharger</p>
+        <%= f.file_field :previews, multiple: true,
+                        style: "display: none;",
+                        id: "fileElem",
+                        accept: "image/*" %>
       </div>
-      <br>
-      <div class='frame'>
-        <div id="gallery" class="gallery flex flex-row items-center space-x-8">
-          <%@video.previews.each do |preview|%>
+    </div>
+    <br>
+
+    <div class='frame'>
+      <div id="gallery" class="gallery flex flex-row items-center space-x-8" data-sortable="true">
+        <% @video.previews.each_with_index do |preview, index| %>
+          <div class="image-container" data-id="<%= index %>">
             <%= image_tag preview.image, class: "preview-image prev-image" %>
-          <%end%>
-        </div>
+          </div>
+        <% end %>
       </div>
-      <div class="video-steps">
-        <%= render "videos/shared/back_button" %>
-        <%= f.submit "Étape suivante", class:"cta" %>
-      </div>
-    <% end %>
-  </div>
+    </div>
+    <%= f.hidden_field :image_order, id: 'image_order' %>
+
+    <div class="video-steps">
+      <%= render "videos/shared/back_button" %>
+      <%= f.submit "Étape suivante", class:"cta" %>
+    </div>
+  <% end %>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dropArea = document.getElementById("drop-area");
+  const fileInput = document.getElementById("fileElem");
+  const gallery = document.getElementById("gallery");
+  const imageOrderInput = document.getElementById('image_order');
+  let dataTransfer = new DataTransfer();
+
+  // Initialize Sortable.js for gallery reordering
+  new Sortable(gallery, {
+    animation: 150,
+    onEnd: updateOrder
+  });
+
+  function updateOrder() {
+    const orderedImages = Array.from(gallery.children).map((container) => {
+      return container.getAttribute("data-id");
+    });
+
+    // Update the hidden input field with the new order
+    imageOrderInput.value = orderedImages.join(',');
+    console.log("New Order: ", orderedImages); // This can be removed later
+  }
+
+  // Handle file input changes
+  fileInput.addEventListener("change", (event) => handleFiles(event.target.files));
+  dropArea.addEventListener("click", () => fileInput.click());
+
+  dropArea.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    dropArea.classList.add("highlight");
+  });
+
+  dropArea.addEventListener("dragleave", () => dropArea.classList.remove("highlight"));
+
+  dropArea.addEventListener("drop", (event) => {
+    event.preventDefault();
+    dropArea.classList.remove("highlight");
+    handleFiles(event.dataTransfer.files);
+  });
+
+  function handleFiles(files) {
+    if (dataTransfer.items.length + files.length > 3) {
+      alert("You can only upload a maximum of 3 images.");
+      return;
+    }
+    const images = gallery.getElementsByClassName("image-container");
+
+    while (images.length > 0) {
+      images[0].parentNode.removeChild(images[0]);
+    }
+
+    Array.from(files).forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imgContainer = document.createElement("div");
+        imgContainer.classList.add("image-container");
+        imgContainer.setAttribute("data-id", dataTransfer.items.length + index);
+
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.classList.add("preview-image");
+
+        const removeBtn = document.createElement("button");
+        removeBtn.innerText = "Remove";
+        removeBtn.classList.add("remove-btn");
+        removeBtn.addEventListener("click", () => removeImage(file, imgContainer));
+
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(removeBtn);
+        gallery.appendChild(imgContainer);
+      };
+      reader.readAsDataURL(file);
+
+      dataTransfer.items.add(file);
+    });
+
+    fileInput.files = dataTransfer.files;
+  }
+
+  function removeImage(file, imgContainer) {
+    for (let i = 0; i < dataTransfer.items.length; i++) {
+      if (dataTransfer.items[i].getAsFile() === file) {
+        dataTransfer.items.remove(i);
+        break;
+      }
+    }
+    gallery.removeChild(imgContainer);
+    fileInput.files = dataTransfer.files;
+    updateOrder(); // Update the order after removing an image
+  }
+
+  document.querySelector('form').addEventListener('submit', (event) => {
+    if (dataTransfer.files.length === 0) {
+      alert("Please select at least one image.");
+      event.preventDefault();
+    }
+    fileInput.files = dataTransfer.files; // Sync files before submit
+  });
+});
+</script>
+<%
+=begin%>
+ <script>
 document.addEventListener("DOMContentLoaded", () => {
   const dropArea = document.getElementById("drop-area");
   const fileInput = document.getElementById("fileElem");
@@ -125,6 +232,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
+<%
+=end%>
 <style>
 .upload-btn {
   display: inline-block;

@@ -12,7 +12,7 @@
 
     <div class="form">
 
-      <%= form_with url: introduction_post_path, method: :post do |f| %>
+      <%= form_with url: introduction_post_path, method: :post, html: {data: { turbo: false }} do |f| %>
       <div class="form frame">
         <h3 class="video-h3">Choisissez le style de l'introduction de votre vidéo</h3>
         <%= f.select :theme, options_for_select(Video.themes.map {|k, v| [k.humanize.capitalize, k]}), {}, {'data-action': 'change->switchvideo#video_switcher', 'data-switchvideo-target': 'select' } %>
@@ -40,7 +40,7 @@
       <div class="video-steps">
         <%= render "videos/shared/back_button" %>
         <%= f.submit "Étape suivante", class:"cta" %>
-        </div>
+      </div>
       <% end %>
 
 

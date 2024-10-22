@@ -12,12 +12,12 @@
           <div class='flex justify-between items-center'>
             <div>
               <%= f.radio_button :music_type, 'whole_video', checked: @video.whole_video?, onchange: 'this.form.submit();' %>
-              <%= f.label :music_type_whole_video, "Whole Video", for: 'video_music_type_whole_video' %>
+              <%= f.label :music_type_whole_video, "Vidéo complète", for: 'video_music_type_whole_video' %>
             </div>
 
             <div>
               <%= f.radio_button :music_type, 'by_chapters', checked: @video.by_chapters?, onchange: 'this.form.submit();' %>
-              <%= f.label :music_type_by_chapters, "By Chapters", for: 'video_music_type_by_chapters' %>
+              <%= f.label :music_type_by_chapters, "Par chapitres", for: 'video_music_type_by_chapters' %>
             </div>
           </div>
         <% end %>

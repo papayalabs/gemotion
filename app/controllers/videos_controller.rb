@@ -83,6 +83,9 @@ class VideosController < ApplicationController
   end
 
   def info_destinataire_post
+    # for skip destinataire page
+    @vd = @video.video_destinataires.create(genre: 2)
+    ##############################
     @vd = @video.video_destinataires.last
     @vd.age = params[:age_destinataire]
     @vd.name = params[:name_destinataire]
@@ -134,11 +137,25 @@ class VideosController < ApplicationController
   def photo_intro_post
     @video.previews.destroy_all unless params[:previews] == [""] && @video.previews.count > 0
 
-    params[:previews].each do |preview|
-      unless preview.blank?
-        p = Preview.create(image: preview)
-        @video.video_previews.create(preview: p)
-      end
+    ordered_previews = params[:image_order]&.split(',') || []
+    previews_to_create = []
+
+    params[:previews].each_with_index do |preview, index|
+      next if preview.blank?
+
+      p = Preview.create(image: preview)
+
+      # Adjusted Order Index Logic
+      order_index = ordered_previews.index(index.to_s) # Still using index from params
+      order_index = order_index.nil? ? index : ordered_previews[order_index].to_i # Correctly assigning based on ordered_previews
+
+      previews_to_create << { preview: p, order: order_index }
+    end
+
+    previews_to_create.sort_by! { |h| h[:order] }
+
+    previews_to_create.each do |preview_hash|
+      @video.video_previews.create(preview: preview_hash[:preview], order: preview_hash[:order])
     end
 
     @video.stop_at = @video.next_step if @video.validate_photo_intro
@@ -390,7 +407,7 @@ class VideosController < ApplicationController
     end
 
     # Ajouter la musique de fond tout en conservant le son original des vidéos
-    music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
+    music_path = ActiveStorage::Blob.service.send(:path_for, @video.whole_video? ? @video.music.music.key : Music.first.music.key)
     final_video_path = temp_dir.join("final_video_with_music.mp4")
     # Mixer l'audio des vidéos avec la musique
     system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
