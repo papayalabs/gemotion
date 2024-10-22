@@ -549,14 +549,11 @@ class VideosController < ApplicationController
     # Convert the final TS to MP4
     final_video_path = temp_dir.join("final_video.mp4")
     if @video.music_type == "whole_video" && final_music_path
-
-      # system(
-      #   "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
-      #   "-filter_complex \"[0:a:0]volume=1.0[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
-      #   "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\" 2>&1"
-      # )
-      system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
-
+      system(
+        "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
+        "-filter_complex \"anullsrc=channel_layout=stereo:sample_rate=44100[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
+        "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -movflags +faststart -shortest \"#{final_video_path}\" 2>&1"
+      )
     else
       system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
     end
