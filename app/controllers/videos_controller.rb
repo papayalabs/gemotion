@@ -541,6 +541,14 @@ class VideosController < ApplicationController
       end
     end
 
+    # Check if the video type is 'colab' to add dedicace video
+    if @video.video_type == "colab" && @video.dedicace.present?
+      dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
+      dedicace_output_path = temp_dir.join("dedicace.ts")
+      system("ffmpeg -y -i \"#{dedicace_input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dedicace_output_path}\"")
+      ts_videos << dedicace_output_path.to_s
+    end
+
     # Now concatenate all final chapter videos into one final video
     final_video_ts_file_list = ts_videos.join("|")
     final_concatenated_ts_path = temp_dir.join("final_concatenated.ts")
@@ -557,6 +565,7 @@ class VideosController < ApplicationController
     else
       system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
     end
+
 
     unless File.exist?(final_video_path)
       flash[:alert] = "La concaténation des vidéos finales a échoué."
