@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_22_072424) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_23_074257) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -96,6 +96,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_22_072424) do
     t.text "text", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "ordered_videos_ids", default: []
+    t.json "ordered_images_ids", default: []
     t.index ["chapter_type_id"], name: "index_video_chapters_on_chapter_type_id"
     t.index ["video_id"], name: "index_video_chapters_on_video_id"
   end

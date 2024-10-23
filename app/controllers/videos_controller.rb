@@ -350,85 +350,26 @@ class VideosController < ApplicationController
       end
     end
 
-    flash[:notice] = "Contenu ajouté."
+    # Handle ordering for photos
+    if params[:images_order].present?
+      image_ids = parse_order(params[:images_order], @video_chapter.photos)
+      @video_chapter.ordered_images_ids = image_ids
+    end
+
+    # Handle ordering for videos
+    if params[:videos_order].present?
+
+      video_ids = parse_order(params[:videos_order], @video_chapter.videos)
+      @video_chapter.ordered_videos_ids = video_ids
+    end
+
+    flash[:notice] = "Content added."
     redirect_to content_path
   end
 
   def skip_content
     skip_element(content_path)
   end
-
-  # def content_dedicace
-  #   temp_dir = Rails.root.join("tmp", SecureRandom.hex)
-  #   FileUtils.mkdir_p(temp_dir)
-
-  #   chapter_videos = @video.video_chapters.map { |vc| vc.element }
-
-  #   if chapter_videos.empty?
-  #     flash[:alert] = "Aucune vidéo de chapitre disponible pour la concaténation."
-  #     FileUtils.rm_rf(temp_dir)
-  #     return redirect_to content_dedicace_path
-  #   end
-
-  #   # Convertir les vidéos en MPEG-TS sans réencodage
-  #   ts_videos = chapter_videos.map.with_index do |video, index|
-  #     input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
-  #     output_path = temp_dir.join("video_#{index}.ts")
-  #     # Conversion en MPEG-TS
-  #     system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
-  #     output_path.to_s
-  #   end
-
-  #   # Créer la liste des fichiers TS à concaténer
-  #   ts_files = ts_videos.join("|")
-
-  #   concatenated_ts_path = temp_dir.join("concatenated.ts")
-  #   # Concaténer les fichiers TS sans réencodage
-  #   system("ffmpeg -y -i \"concat:#{ts_files}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
-
-  #   # Convertir le fichier TS concaténé en MP4
-  #   concatenated_video_path = temp_dir.join("concatenated_video.mp4")
-  #   system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{concatenated_video_path}\"")
-
-  #   unless File.exist?(concatenated_video_path)
-  #     flash[:alert] = "La concaténation des vidéos a échoué."
-  #     FileUtils.rm_rf(temp_dir)
-  #     return redirect_to content_dedicace_path
-  #   end
-
-  #   # Ajouter la musique de fond tout en conservant le son original des vidéos
-  #   # music_path = ActiveStorage::Blob.service.send(:path_for, @video.whole_video? ? @video.music.music.key : Music.first.music.key)
-  #   music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key)
-  #   final_video_path = temp_dir.join("final_video_with_music.mp4")
-  #   # Mixer l'audio des vidéos avec la musique
-  #   system("ffmpeg -y -i \"#{concatenated_video_path}\" -i \"#{music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_video_path}\"")
-
-  #   unless File.exist?(final_video_path)
-  #     flash[:alert] = "L'ajout de la musique de fond a échoué."
-  #     FileUtils.rm_rf(temp_dir)
-  #     return redirect_to content_dedicace_path
-  #   end
-
-  #   # Ajouter la vidéo dédicace comme overlay avec opacité après avoir généré la vidéo finale
-  #   theme_video = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
-  #   video_with_overlay_path = temp_dir.join("final_video_with_overlay.mp4")
-  #   # Appliquer la vidéo overlay avec opacité 0.3 sur la vidéo finale, et limiter la durée de l'overlay à celle de la vidéo principale
-  #   system("ffmpeg -y -i \"#{final_video_path}\" -i \"#{theme_video}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{final_video_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{video_with_overlay_path}\"")
-
-  #   unless File.exist?(video_with_overlay_path)
-  #     flash[:alert] = "L'ajout de la vidéo dédicace en overlay a échoué."
-  #     FileUtils.rm_rf(temp_dir)
-  #     return redirect_to content_dedicace_path
-  #   end
-
-  #   # Attacher la vidéo finale avec musique et overlay
-  #   @video.final_video.attach(io: File.open(video_with_overlay_path), filename: "final_video_with_overlay.mp4")
-  #   @final_video_url = url_for(@video.final_video)
-
-  #   FileUtils.rm_rf(temp_dir)
-
-  #   flash[:notice] = "La vidéo finale avec musique et overlay a été générée avec succès."
-  # end
 
   def content_dedicace
     temp_dir = Rails.root.join("tmp", SecureRandom.hex)
@@ -440,8 +381,8 @@ class VideosController < ApplicationController
     # Get chapter assets
     chapter_assets = @video.video_chapters.includes(:chapter_type).map do |vc|
       {
-        videos: vc.videos,
-        photos: vc.photos,
+        videos: vc.ordered_videos,
+        photos: vc.ordered_photos,
         music: vc.video_music.nil? ? nil : vc.video_music.music,
         chapter_type_image: vc.chapter_type.image, # Assuming chapter_type has an image
         text: vc.text # Get the text for this chapter
@@ -702,4 +643,16 @@ class VideosController < ApplicationController
       render error_path, status: :unprocessable_entity
     end
   end
+
+  # Helper method to parse order and ensure matching with attachment IDs
+  def parse_order(order_param, attachments)
+    ordered_file_names = order_param.split(',')
+
+    # Extracting the blobs that match the file names
+    valid_blobs = attachments.select { |attachment| ordered_file_names.include?(attachment.filename.to_s) }
+
+    # Return the IDs of the valid blobs
+    valid_blobs.map(&:id).map(&:to_s)
+  end
 end
+
