@@ -567,7 +567,7 @@ class VideosController < ApplicationController
     @video.final_video.attach(io: File.open(final_video_path), filename: "final_video.mp4")
     @final_video_url = url_for(@video.final_video)
 
-    # FileUtils.rm_rf(temp_dir)
+    FileUtils.rm_rf(temp_dir)
 
     flash[:notice] = "La vidéo finale avec musique par chapitre a été générée avec succès."
   end
