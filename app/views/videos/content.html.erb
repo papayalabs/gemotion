@@ -35,7 +35,7 @@
         <div class='frame'>
           <div id="video-gallery-<%= video_chapter.id %>" class="gallery flex flex-row items-center space-x-8">
             <% video_chapter.ordered_videos.each_with_index do |video, index| %>
-              <div class="video-container old-container" data-id="<%= index %>">
+              <div class="video-container old-video-container" data-file-name="<%= video.filename.to_s %>">
                 <%= video_tag video, controls: true, autobuffer: true %>
               </div>
             <% end %>
@@ -43,7 +43,7 @@
 
           <div id="photo-gallery-<%= video_chapter.id %>" class="gallery flex flex-row items-center space-x-8">
           <% video_chapter.ordered_photos.each_with_index do |photo, index| %>
-            <div class="image-container old-container" data-id="<%= index %>">
+            <div class="image-container old-image-container"  data-file-name="<%= photo.filename.to_s %>">
                 <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "preview-image prev-image" %>
             </div>
           <% end %>
@@ -83,6 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const videoGallery = document.getElementById(`video-gallery-${id}`);
     const photoGallery = document.getElementById(`photo-gallery-${id}`);
 
+
+
     let videoDataTransfer = new DataTransfer();
     let photoDataTransfer = new DataTransfer();
 
@@ -104,34 +106,36 @@ document.addEventListener("DOMContentLoaded", () => {
     photoInput.addEventListener("change", () => handleFiles(photoInput, photoGallery, photoDataTransfer, 'photo'));
 
     function handleFiles(input, gallery, dataTransfer, type) {
-        [...input.files].forEach(file => {
-            if (dataTransfer.items.length >= 2) {
-                alert(`You can only upload a maximum of 2 ${type}s.`);
-                return;
-            }
+      [...input.files].forEach(file => {
+          const sanitizedFilename = file.name.replace(/,/g, ""); // Sanitize filename
 
-            // Add a data attribute to the file to keep track of its UUID
-            const fileContainer = document.createElement("div");
+          if (dataTransfer.items.length >= 2) {
+              alert(`You can only upload a maximum of 2 ${type}s.`);
+              return;
+          }
 
-            dataTransfer.items.add(file);
+          // Create a new File object with the sanitized filename
+          const sanitizedFile = new File([file], sanitizedFilename, { type: file.type });
 
-            // Your existing code to add files to the gallery
-            if (type === 'video') {
-                const videos = gallery.getElementsByClassName("video-container");
-                while (videos.length > 0) {
-                    videos[0].parentNode.removeChild(videos[0]);
-                }
-                addVideoToGallery(file, gallery);
-            } else {
-                const images = gallery.getElementsByClassName("image-container");
-                while (images.length > 0) {
-                    images[0].parentNode.removeChild(images[0]);
-                }
-                addPhotoToGallery(file, gallery);
-            }
-        });
+          dataTransfer.items.add(sanitizedFile); // Add sanitized file to DataTransfer
 
-        input.files = dataTransfer.files; // Sync files with input
+          // Your existing logic to handle videos or photos
+          if (type === 'video') {
+              const videos = gallery.getElementsByClassName("old-video-container");
+              while (videos.length > 0) {
+                  videos[0].parentNode.removeChild(videos[0]);
+              }
+              addVideoToGallery(sanitizedFile, gallery); // Use sanitizedFile here
+          } else {
+              const images = gallery.getElementsByClassName("old-image-container");
+              while (images.length > 0) {
+                  images[0].parentNode.removeChild(images[0]);
+              }
+              addPhotoToGallery(sanitizedFile, gallery); // Use sanitizedFile here
+          }
+      });
+
+      input.files = dataTransfer.files; // Sync sanitized files with input
     }
 
     function addVideoToGallery(file, gallery) {

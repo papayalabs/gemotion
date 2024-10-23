@@ -354,13 +354,14 @@ class VideosController < ApplicationController
     if params[:images_order].present?
       image_ids = parse_order(params[:images_order], @video_chapter.photos)
       @video_chapter.ordered_images_ids = image_ids
+      @video_chapter.save
     end
 
     # Handle ordering for videos
     if params[:videos_order].present?
-
       video_ids = parse_order(params[:videos_order], @video_chapter.videos)
       @video_chapter.ordered_videos_ids = video_ids
+      @video_chapter.save
     end
 
     flash[:notice] = "Content added."
@@ -695,13 +696,9 @@ class VideosController < ApplicationController
 
   # Helper method to parse order and ensure matching with attachment IDs
   def parse_order(order_param, attachments)
-    ordered_file_names = order_param.split(',')
-
-    # Extracting the blobs that match the file names
-    valid_blobs = attachments.select { |attachment| ordered_file_names.include?(attachment.filename.to_s) }
-
-    # Return the IDs of the valid blobs
-    valid_blobs.map(&:id).map(&:to_s)
+    order_param.split(',').map do |filename|
+      attachments.find { |attachment| attachment.blob.filename.to_s == filename }&.blob_id
+    end.compact
   end
 end
 
