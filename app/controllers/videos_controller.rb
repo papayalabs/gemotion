@@ -401,7 +401,17 @@ class VideosController < ApplicationController
     preview_assets.each_with_index do |preview, index|
       preview_path = ActiveStorage::Blob.service.send(:path_for, preview.preview.image.key)
       output_path = temp_dir.join("preview_#{index}.ts")
-      system("ffmpeg -y -loop 1 -i \"#{preview_path}\" -c:v libx264 -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p \"#{output_path}\"")
+      p "+"*1000
+      p "*"*1000
+      p '3 previews'
+      p "*"*1000
+      system(
+        "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
+        "-f lavfi -i anullsrc=r=44100:cl=stereo " \
+        "-c:v libx264 -c:a aac -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p " \
+        "\"#{output_path}\""
+      )
+      p "-"*1000
       ts_videos << output_path.to_s
     end
 
@@ -411,8 +421,8 @@ class VideosController < ApplicationController
     final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key) if @video.music_type == "whole_video"
 
     chapter_assets.each_with_index do |assets, chapter_index|
-      chapter_music_path = ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if @video.music_type == "by_chapters"
 
+      chapter_music_path = ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if @video.music_type == "by_chapters"
       # Create a video segment with chapter image and text
       chapter_image_path = ActiveStorage::Blob.service.send(:path_for, assets[:chapter_type_image].key) if assets[:chapter_type_image]
       chapter_text = assets[:text]
@@ -420,11 +430,18 @@ class VideosController < ApplicationController
 
       # Create a video for the chapter's intro with the image and text
       if chapter_image_path && chapter_text.present?
+        p "+"*1000
+        p "*"*1000
+        p 'First image with text of chapter'
+        p "*"*1000
         system(
           "ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" " \
+          "-f lavfi -i anullsrc=r=44100:cl=stereo " \
           "-vf \"scale=iw:-2, drawtext=text='#{chapter_text}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2\" " \
-          "-t 3 -c:v libx264 -pix_fmt yuv420p \"#{text_output_path}\""
+          "-t 3 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest \"#{text_output_path}\""
         )
+        p "-"*1000
+
         ts_videos << text_output_path.to_s
       else
         flash[:alert] = "L'image ou le texte du chapitre #{chapter_index + 1} est manquant."
@@ -436,7 +453,12 @@ class VideosController < ApplicationController
       assets[:videos].each_with_index do |video, video_index|
         input_path = ActiveStorage::Blob.service.send(:path_for, video.key)
         output_path = temp_dir.join("video_#{chapter_index}_#{video_index}.ts")
+        p "+"*1000
+        p "*"*1000
+        p 'Video of chapter'
+        p "*"*1000
         system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
+        p "-"*1000
         ts_videos << output_path.to_s
       end
 
@@ -444,7 +466,16 @@ class VideosController < ApplicationController
       assets[:photos].each_with_index do |photo, photo_index|
         input_path = ActiveStorage::Blob.service.send(:path_for, photo.key)
         output_path = temp_dir.join("photo_#{chapter_index}_#{photo_index}.ts")
-        system("ffmpeg -y -loop 1 -i \"#{input_path}\" -c:v libx264 -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p \"#{output_path}\"")
+        p "+"*1000
+        p "*"*1000
+        p 'Photo of chapter'
+        p "*"*1000
+        system(
+          "ffmpeg -y -loop 1 -i \"#{input_path}\" -f lavfi -i anullsrc=r=44100:cl=stereo " \
+          "-c:v libx264 -t 3 -vf \"scale=1280:720\" -map 0:v -map 1:a -c:a aac -pix_fmt yuv420p \"#{output_path}\""
+        )
+
+        p "-"*1000
         ts_videos << output_path.to_s
       end
 
@@ -453,17 +484,39 @@ class VideosController < ApplicationController
       chapter_ts_file_list = chapter_ts_files.join("|")
 
       concatenated_ts_path = temp_dir.join("chapter_#{chapter_index}_concatenated.ts")
+      p "+"*1000
+      p "*"*1000
+      p 'Combine Photos and Videos of chapter'
+      p "*"*1000
       system("ffmpeg -y -i \"concat:#{chapter_ts_file_list}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
+      p "-"*1000
 
       # Convert the chapter TS to MP4
       chapter_concatenated_video_path = temp_dir.join("chapter_#{chapter_index}_concatenated_video.mp4")
+      p "+"*1000
+      p "*"*1000
+      p 'Convert the chapter TS to MP4'
+      p "*"*1000
       system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{chapter_concatenated_video_path}\"")
+      p "-"*1000
+
 
       # Handle music mixing
       if @video.music_type == "by_chapters"
         if File.exist?(chapter_music_path)
-          final_chapter_video_path = temp_dir.join("final_chapter_video_with_music.mp4")
-          system("ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{chapter_music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_chapter_video_path}\"")
+          final_chapter_video_path = temp_dir.join("final_chapter_#{chapter_index}_video_with_music.mp4")
+          # system("ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{chapter_music_path}\" -filter_complex \"[0:a]volume=1.0[a0];[1:a]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest \"#{final_chapter_video_path}\"")
+          p "+"*1000
+          p "*"*1000
+          p 'Full chapter with music'
+          p "*"*1000
+          system(
+            "ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{chapter_music_path}\" " \
+            "-filter_complex \"anullsrc=channel_layout=stereo:sample_rate=44100[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
+            "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -movflags +faststart -shortest \"#{final_chapter_video_path}\" 2>&1"
+          )
+          p "-"*1000
+
 
           unless File.exist?(final_chapter_video_path)
             flash[:alert] = "L'ajout de la musique de chapitre a échoué pour le chapitre #{chapter_index + 1}."
@@ -482,29 +535,59 @@ class VideosController < ApplicationController
       end
     end
 
-    # Check if the video type is 'colab' to add dedicace video
-    if @video.video_type == "colab" && @video.dedicace.present?
-      dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
-      dedicace_output_path = temp_dir.join("dedicace.ts")
-      system("ffmpeg -y -i \"#{dedicace_input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dedicace_output_path}\"")
-      ts_videos << dedicace_output_path.to_s
-    end
+    # # Check if the video type is 'colab' to add dedicace video
+    # if @video.video_type == "colab" && @video.dedicace.present?
+    #   dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
+    #   dedicace_output_path = temp_dir.join("dedicace.ts")
+    #   p "+"*1000
+    #   p "*"*1000
+    #   p 'Dedicace in the end'
+    #   p "*"*1000
+    #   system("ffmpeg -y -i \"#{dedicace_input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dedicace_output_path}\"")
+    #   p "-"*1000
+    #   ts_videos << dedicace_output_path.to_s
+    # end
+
+    p "t"*1000
+    p "*"*1000
+    p 'All final chapters into one final video'
+    p "t"*1000
 
     # Now concatenate all final chapter videos into one final video
     final_video_ts_file_list = ts_videos.join("|")
     final_concatenated_ts_path = temp_dir.join("final_concatenated.ts")
-    system("ffmpeg -y -i \"concat:#{final_video_ts_file_list}\" -c copy -f mpegts \"#{final_concatenated_ts_path}\"")
+    p "+"*1000
+    p "*"*1000
+    p 'All final chapters into one final video'
+    p "*"*1000
+    # system("ffmpeg -y -analyzeduration 100M -probesize 50M -f concat -safe 0 -i \"#{final_video_ts_file_list}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{final_concatenated_ts_path}\"")
+
+    system("ffmpeg -y -i \"concat:#{final_video_ts_file_list}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{final_concatenated_ts_path}\"")
+    p "-"*1000
 
     # Convert the final TS to MP4
     final_video_path = temp_dir.join("final_video.mp4")
     if @video.music_type == "whole_video" && final_music_path
-      system(
-        "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
-        "-filter_complex \"anullsrc=channel_layout=stereo:sample_rate=44100[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
-        "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -movflags +faststart -shortest \"#{final_video_path}\" 2>&1"
-      )
+      p "+"*1000
+      p "*"*1000
+      p 'Whole video with music'
+      p "*"*1000
+      # system(
+      #   "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
+      #   "-filter_complex \"anullsrc=channel_layout=stereo:sample_rate=44100[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
+      #   "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -movflags +faststart -shortest \"#{final_video_path}\" 2>&1"
+      # )
+      system("ffmpeg -y -i \"concat:#{final_video_ts_file_list}\" -c:v libx264 -c:a aac -bsf:v h264_mp4toannexb -f mpegts \"#{final_concatenated_ts_path}\"")
+
+      p "-"*1000
+
     else
+      p "+"*1000
+      p "*"*1000
+      p 'Final Video with music by chapter'
+      p "*"*1000
       system("ffmpeg -y -i \"#{final_concatenated_ts_path}\" -c copy \"#{final_video_path}\"")
+      p "-"*1000
     end
 
 
@@ -518,7 +601,7 @@ class VideosController < ApplicationController
     @video.final_video.attach(io: File.open(final_video_path), filename: "final_video.mp4")
     @final_video_url = url_for(@video.final_video)
 
-    FileUtils.rm_rf(temp_dir)
+    # FileUtils.rm_rf(temp_dir)
 
     flash[:notice] = "La vidéo finale avec musique par chapitre a été générée avec succès."
   end
