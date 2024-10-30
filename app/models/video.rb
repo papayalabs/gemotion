@@ -16,6 +16,7 @@ class Video < ApplicationRecord
 
     has_one_attached :final_video
 
+    belongs_to :user
     belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
 

@@ -1,29 +1,70 @@
-<h2>Sign up</h2>
+<div class='mb-45'>
+  <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 mt-65 mb-45">
+    Inscrivez-vous
+  </h2>
+  <p class="mt-2 text-center text-sm text-gray-600">
+    Pour commencer à créer vos souvenirs vidéo
+  </p>
+</div>
+<div class="flex items-center justify-center mb-150">
+  <div class="flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 sign-in-section">
+    <div class="w-full max-w-md space-y-8 flex items-center justify-center">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6 flex flex-col items-center justify-center w-full" }) do |f| %>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+        <!-- Nom et prénom field -->
+        <div class='mb-2 w-full'>
+          <%= f.text_field :full_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Nom et prénom*" %>
+        </div>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+        <!-- Email field -->
+        <div class='mb-2 w-full'>
+          <%= f.email_field :email, autofocus: true, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Email*" %>
+        </div>
+
+        <!-- Téléphone field -->
+        <div class='mb-2 w-full'>
+          <%= f.telephone_field :phone, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Téléphone*" %>
+        </div>
+
+        <!-- Mot de passe field -->
+        <div class="mt-2 w-full">
+          <%= f.password_field :password, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Mot de passe*" %>
+        </div>
+
+        <!-- Confirmer le mot de passe field -->
+        <div class="mt-2 w-full">
+          <%= f.password_field :password_confirmation, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Confirmer le mot de passe*" %>
+        </div>
+
+        <!-- Submit and Create Account links -->
+        <div class='w-full flex items-center justify-center'>
+          <%= f.submit "S'inscrire", class: "cta" %>
+        </div>
+
+        <hr class='hr-divider-gray mb-2'/>
+
+        <div class="mt-4 text-sm text-center">
+          <p class="text-black">
+            <a href="<%= new_session_path(resource_name) %>" class="font-medium text-black text-decoration-underline"> Vous avez déjà un compte ? Connectez-vous</a>
+          </p>
+        </div>
+
+      <% end %>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+<style>
+.sign-in-section{
+    width: 600px;
+    /* height: 100%; */
+    padding: 48px;
+    background: white;
+    box-shadow: 4px 4px 20px 5px rgba(12.69, 102.84, 131.31, 0.1);
+    border-radius: 20px;
+    border: 1px #c9e1ff solid;
+    gap: 24px;
+    max-width: 1062px;
+    background-color: rgba(217, 217, 217, 1);
+}
+</style>

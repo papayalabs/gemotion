@@ -19,6 +19,9 @@
                       testid: 'app_reset_button'
                     }
       %>
+      <% if user_signed_in? %>
+        <%= button_to 'Logout', destroy_user_session_path, method: :delete, class: 'ml-2 p-2 rounded bg-red-500 text-white' %>
+      <%end%>
     </div>
     <% unless notice.nil? %>
       <p class="notice w-full text-success text-center p-3 bg-green-50 "><%= notice %></p>

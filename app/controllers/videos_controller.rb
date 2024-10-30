@@ -50,6 +50,8 @@ class VideosController < ApplicationController
     @video.stop_at = @video.way.first
     # Generate the unique identifier of the video
     @video.generate_token
+    # Set current user
+    @video.user = current_user
 
     # Validate and create the video
     if @video.validate_start && @video.save

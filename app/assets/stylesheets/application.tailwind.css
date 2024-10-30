@@ -38,6 +38,16 @@
 .texte-centre-rouge {
   @apply text-center text-red-500 text-[50px];
 }
+.text-decoration-underline{
+  text-decoration: underline!important;
+}
+.hr-divider-gray{
+  height: 1px;
+  color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  border: 1px;
+}
 
 section {
   padding: 56px 0;
