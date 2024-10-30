@@ -1,0 +1,66 @@
+<div class='mb-45'>
+  <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 mt-65 mb-45">
+    Connectez-vous
+  </h2>
+  <p class="mt-2 text-center text-sm text-gray-600">
+    Pour commencer à créer vos souvenirs vidéo
+  </p>
+</div>
+<div class="flex items-center justify-center mb-150">
+  <div class="flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 sign-in-section">
+    <div class="w-full max-w-md space-y-8 flex items-center justify-center">
+      <%= form_with scope: :user, url: new_user_session_path, local: true, class: "space-y-6 flex flex-col items-center justify-center w-full" do |f| %>
+        <div class="flex flex-col items-center justify-between w-full mt-0">
+          <div class='mb-2 w-full'>
+            <%= f.email_field :email, autofocus: true, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Email" %>
+          </div>
+          <div class="mt-2 w-full">
+            <%= f.password_field :password, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Mot de passe" %>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <%
+=begin%>
+ <div class="flex items-center">
+            <%= f.check_box :remember_me, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+            <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+              Remember me
+            </label>
+          </div>
+<%
+=end%>
+
+          <div class="text-sm">
+            <a href="<%= new_password_path(resource_name) %>" class="font-medium text-black underline">
+              Mot de passe oublié ?
+            </a>
+          </div>
+        </div>
+
+        <div class='w-full flex items-center justify-between'>
+          <%= f.submit "Se connecter", class: "cta" %>
+          <a href="<%= new_user_registration_path %>" class="cta-transparent">
+            Créer un compte
+          </a>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>
+
+<style>
+.sign-in-section{
+    width: 100%;
+    /* height: 100%; */
+    padding: 48px;
+    background: white;
+    box-shadow: 4px 4px 20px 5px rgba(12.69, 102.84, 131.31, 0.1);
+    border-radius: 20px;
+    border: 1px #c9e1ff solid;
+    gap: 24px;
+    max-width: 1062px;
+    background-color: rgba(217, 217, 217, 1);
+}
+</style>

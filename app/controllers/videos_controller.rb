@@ -1,6 +1,7 @@
 require "fileutils"
 require "zip"
 class VideosController < ApplicationController
+  before_action :authenticate_user!
   before_action :select_video, except: %i[start start_post go_back join update_video_music_type]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]

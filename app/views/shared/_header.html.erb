@@ -21,8 +21,14 @@
     <nav id="secondary_menu" class="flex space-x-8">
       <ul class="flex items-center gap-2">
         <li>
-          <%= link_to "#" do %>
-            <%= image_tag "icons/profile.svg" %>
+          <% if user_signed_in? %>
+            <%= link_to profile_path do %>
+              <%= image_tag "icons/profile.svg", alt: "Profile"%>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_session_path do %>
+              <%= image_tag "icons/profile.svg", alt: "Login"%>
+            <% end %>
           <% end %>
         </li>
         <li class="flex items-center h-full">

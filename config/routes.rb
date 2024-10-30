@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :users
 
   post 'flush_and_reseed', to: 'static#flush_and_reseed'
   # resources :contacts, only: [:new, :create]
@@ -56,6 +57,9 @@ Rails.application.routes.draw do
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'pricing', to: 'static#pricing', as: "pricing"
+
+  # Users profile pages
+  get 'profile', to: 'users#show', as: :profile
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
