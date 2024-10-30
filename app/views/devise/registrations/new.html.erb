@@ -13,7 +13,11 @@
 
         <!-- Nom et prénom field -->
         <div class='mb-2 w-full'>
-          <%= f.text_field :full_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Nom et prénom*" %>
+          <%= f.text_field :first_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Prénom*" %>
+        </div>
+
+        <div class='mb-2 w-full'>
+          <%= f.text_field :last_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Nom de famille*" %>
         </div>
 
         <!-- Email field -->

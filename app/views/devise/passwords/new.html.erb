@@ -1,16 +1,58 @@
-<h2>Forgot your password?</h2>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+
+
+<div class='mb-45'>
+  <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 mt-65 mb-45">
+    Vous avez oublié votre mot de passe ?
+  </h2>
+  <p class="mt-2 text-center text-sm text-gray-600">
+    Si vous avez oublié votre mot de passe, vous pouvez le réinitialiser sur cette page
+  </p>
+</div>
+<div class="flex items-center justify-center mb-150">
+  <div class="flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 sign-in-section">
+    <div class="w-full max-w-md space-y-8 flex items-center justify-center">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-6 flex flex-col items-center justify-center w-full" }) do |f| %>
+
+        <!-- Email field -->
+        <div class='mb-2 w-full'>
+          <%= f.email_field :email, autofocus: true, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-black", placeholder: "Email*" %>
+        </div>
+        <br>
+
+        <!-- Submit and Create Account links -->
+        <div class='w-full flex items-center justify-center'>
+          <%= f.submit "Envoyez-moi les instructions de réinitialisation du mot de passe", class: "cta" %>
+        </div>
+
+        <hr class='hr-divider-gray mb-2'/>
+
+        <div class='w-full flex items-center justify-between'>
+          <a href="<%= new_user_session_path %>" class="cta-transparent">
+            Se connecter
+          </a>
+          <a href="<%= new_user_registration_path %>" class="cta-transparent">
+            Créer un compte
+          </a>
+        </div>
+
+      <% end %>
+    </div>
   </div>
+</div>
 
-  <div class="actions">
-    <%= f.submit "Send me reset password instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+<style>
+.sign-in-section{
+    width: 600px;
+    /* height: 100%; */
+    padding: 48px;
+    background: white;
+    box-shadow: 4px 4px 20px 5px rgba(12.69, 102.84, 131.31, 0.1);
+    border-radius: 20px;
+    border: 1px #c9e1ff solid;
+    gap: 24px;
+    max-width: 1062px;
+    background-color: rgba(217, 217, 217, 1);
+}
+</style>

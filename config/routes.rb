@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   devise_for :users
+  resources :users, only: [:show, :edit, :update] # Add other actions if needed
 
   post 'flush_and_reseed', to: 'static#flush_and_reseed'
   # resources :contacts, only: [:new, :create]
