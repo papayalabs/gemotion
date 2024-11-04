@@ -59,6 +59,7 @@ Rails.application.routes.draw do
   get 'projects/as_collaborator', to: 'projects#as_collaborator_projects', as: 'as_collaborator_projects'
   get 'projects/participants_progress', to: 'projects#participants_progress', as: 'participants_progress'
   patch 'projects/:id/creator_update_date', to: 'projects#creator_update_date', as: 'creator_update_date'
+  delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
 
   # Static pages
   get 'about', to: 'static#about', as: "about"
