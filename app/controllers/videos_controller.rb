@@ -1,7 +1,7 @@
 require "fileutils"
 require "zip"
 class VideosController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: :join
   before_action :select_video, except: %i[start start_post go_back join update_video_music_type]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]
@@ -321,13 +321,40 @@ class VideosController < ApplicationController
       return render share_path, status: :unprocessable_entity
     end
 
+    # create Collab obj
+    collab_user = User.find_by_email(params[:email])
+    collaboration = Collaboration.create!(
+      video: @video,
+      inviting_user: current_user,
+      invited_email: params[:email],
+      invited_user: collab_user # may be nil if user doesn't exist yet
+    )
+
     InvitationMailer.with(url: join_url(@video.token), email:).send_invitation.deliver_later
     flash[:notice] = "Invitation envoyé."
     redirect_to share_path
   end
 
   def join
-    # Cette étape nécessite l'authentification car pour l'instant nous ne faisons pas d'identifiant de vidéo par utilisateur.
+    if current_user.present? && @video.user != current_user
+      @existing_collaboration = Collaboration.find_by(
+        video: @video,
+        invited_user: current_user
+      )
+      if @existing_collaboration.nil?
+        collaboration = Collaboration.create!(
+          video: @video,
+          inviting_user: @video.user,
+          invited_email: current_user.email,
+          invited_user: current_user
+        )
+      end
+    else
+      session[:collab_video_id] = @video.id # Store the video ID for later redirection
+      p "*"*1000
+      p session[:collab_video_id]
+      redirect_to new_user_session_path
+    end
   end
 
   def skip_share
@@ -558,6 +585,8 @@ class VideosController < ApplicationController
 
       # Execute the system command
       system(ffmpeg_command)
+
+
     end
 
 
@@ -567,9 +596,18 @@ class VideosController < ApplicationController
       return redirect_to content_dedicace_path
     end
 
-    # Attach the final video
+    # Attach the final video and xml file
     @video.final_video.attach(io: File.open(final_video_path), filename: "final_video.mp4")
+
     @final_video_url = url_for(@video.final_video)
+
+    final_video_xml_path = temp_dir.join("final_video_project.mlt")
+
+    system("melt #{final_video_path} -consumer xml:#{final_video_xml_path}")
+
+    @video.final_video_xml.attach(io: File.open(final_video_xml_path), filename: "final_video_project.mlt")
+
+    @zip_url = url_for(@video.final_video_xml)
 
     FileUtils.rm_rf(temp_dir)
 

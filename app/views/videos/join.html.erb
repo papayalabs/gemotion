@@ -1,2 +1,5 @@
-<p>La page Join</p>
-<p>Nécessite l'authentification utilisateur</p>
+<%if @existing_collaboration.present?%>
+  <h1 class="video-h1 mb-150 mt-65">Votre invitation à projeter une vidéo est acceptée</h1>
+<%else%>
+  <h1 class="video-h1 mb-150 mt-65">Veuillez vous connecter ou créer un compte pour poursuivre le processus de collaboration sur cette vidéo de projet</h1>
+<%end%>

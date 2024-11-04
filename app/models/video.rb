@@ -13,8 +13,10 @@ class Video < ApplicationRecord
 
     has_many :video_previews, dependent: :destroy
     has_many :previews, through: :video_previews
+    has_many :collaborations
 
     has_one_attached :final_video
+    has_one_attached :final_video_xml
 
     belongs_to :user
     belongs_to :music, optional: true
