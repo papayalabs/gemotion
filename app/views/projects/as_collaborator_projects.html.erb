@@ -1,0 +1,29 @@
+<div class="flex flex-col items-center mb-45">
+
+  <%= render "shared/hello_block"%>
+
+  <%= render "shared/profile_tabs", page_count: 1 %>
+</div>
+<div class='spaces-on-sides'>
+
+  <%= render "shared/creator_participant_block", creator: false %>
+
+  <div class='mt-4'>
+    <div class="project-invitation">
+      <div class="flex flex-row items-start mb-2">
+        <span>Ici s'affichent les films auxquels on vous a demandé de participer. Appuyez sur</span>
+        <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px;" %>
+        <span>pour :</span>
+      </div>
+
+      <ul>
+        <li>Ajouter du contenu vidéo ou photo pour illustrer chaque chapitre.</li>
+        <li>Contribuer à la dédicace finale. S'il s'agit de musique, vous pouvez sélectionner la partie qui leur est accessible.</li>
+        <li>Inviter un ami à collaborer sur le projet (l'administrateur doit approuver le nouveau participant).</li>
+      </ul>
+    </div>
+  </div>
+  <hr class='hr-divider-gray mt-65 '/>
+
+
+</div>

@@ -1,0 +1,26 @@
+<div class="flex flex-col items-center mb-45">
+
+  <%= render "shared/hello_block"%>
+
+  <%= render "shared/profile_tabs", page_count: 1 %>
+</div>
+<div class='spaces-on-sides'>
+
+  <%= render "shared/creator_participant_block", creator: true %>
+
+  <div class='mt-4'>
+    Ici, vous pouvez éditer le film, consulter les progrès de tous les participants au film, arrêter la préparation du film ou modifier la date limite pour le film terminé.
+  </div>
+  <hr class='hr-divider-gray mt-65 mb-4'/>
+
+  <p class="font-bold mb-4">Films en cours</p>
+
+  <div class="projects-grid">
+    <% @creator_projects.each do |video| %>
+      <div class="project-main-block flex flex-col justify-between">
+        <div class="project-block">Item 1</div>
+        <a href="<%= participants_progress_path(video_id: video.id) %>" class="cta-button">Voir la progression</a>
+      </div>
+    <%end%>
+  </div>
+</div>

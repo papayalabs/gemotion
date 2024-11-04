@@ -55,6 +55,11 @@ Rails.application.routes.draw do
 
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 
+  get 'projects/as_creator', to: 'projects#as_creator_projects', as: 'as_creator_projects'
+  get 'projects/as_collaborator', to: 'projects#as_collaborator_projects', as: 'as_collaborator_projects'
+  get 'projects/participants_progress', to: 'projects#participants_progress', as: 'participants_progress'
+  patch 'projects/:id/creator_update_date', to: 'projects#creator_update_date', as: 'creator_update_date'
+
   # Static pages
   get 'about', to: 'static#about', as: "about"
   get 'pricing', to: 'static#pricing', as: "pricing"

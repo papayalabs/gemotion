@@ -1,0 +1,16 @@
+<div class="flex flex-col items-center mb-45">
+  <%= render "shared/hello_block"%>
+  <%= render "shared/profile_tabs", page_count: 1 %>
+</div>
+
+<div class="spaces-on-sides">
+  <div class="flex flex-row align-center justify-between">
+    <div><%= @video.end_date.strftime("%m/%d/%Y") %></div>
+    <div>
+      <!-- Button to open the "edit date" modal -->
+      <button onclick="toggleEditDateModal()" class="cta-transparent">
+        Modifier la date limite
+      </button>
+    </div>
+  </div>
+</div>

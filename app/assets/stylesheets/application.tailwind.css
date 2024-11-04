@@ -34,9 +34,57 @@
   font-weight: 400;
 }
 
+.spaces-on-sides{
+  margin-left: 81px!important;
+  margin-right: 81px!important;
+}
+
+.link-projects{
+  border-bottom: 1px solid black;
+  text-decoration: none;
+  a{
+    padding-bottom: 5px;
+  }
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 21px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+.active-link-projects{
+  border-bottom: 2px solid black;
+  text-decoration: none;
+  a{
+    padding-bottom: 5px;
+  }
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 21px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
 .choose-prof-block-child-highlight{
   background-color: rgba(107, 107, 107, 1);
   color: rgba(255, 255, 255, 1)!important;
+}
+
+.project-invitation {
+  font-size: 16px;
+}
+
+.project-invitation p {
+  margin-bottom: 10px; /* Space below the paragraph */
+}
+
+.project-invitation ul {
+  list-style-type: disc; /* Bullets for the list */
+  padding-left: 20px; /* Indentation for the list */
+}
+
+.project-invitation li {
+  margin-bottom: 5px; /* Space between list items */
 }
 
 .mt-0{
@@ -720,6 +768,23 @@ h2 {
   line-height: 127%; /* 22.86px */
   letter-spacing: -0.198px;
 }
+.cta-button{
+  cursor: pointer;
+  width: 312px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background: #201f1f;
+  border-radius: 15px;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+  color: white;
+  font-size: 16px;
+  font-family: Montserrat;
+  font-weight: 400;
+  line-height: 22.86px;
+  word-wrap: break-word;
+}
 
 .video-memories {
   width: 100%;
@@ -727,6 +792,24 @@ h2 {
   grid-template-columns: repeat(2, 1fr);
   grid-column-gap: 32px;
   grid-row-gap: 32px;
+}
+
+.projects-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 30px;
+}
+
+.project-block{
+  width: 312px;
+  height: 241px;
+  border-radius: 12.82px;
+  border: 0.85px solid rgba(0, 0, 0, 1);
+}
+.project-main-block{
+  height: 299px;
 }
 
 .video-memory {
