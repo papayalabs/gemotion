@@ -49,6 +49,8 @@ gem "image_processing", "~> 1.2"
 
 gem 'devise'
 
+gem 'sidekiq'
+
 gem "letter_opener", group: :development
 
 group :development, :test do

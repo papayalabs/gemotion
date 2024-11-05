@@ -1,4 +1,6 @@
+require 'sidekiq/web'
 Rails.application.routes.draw do
+  mount Sidekiq::Web => '/sidekiq'
   devise_for :users
   resources :users, only: [:show, :edit, :update] # Add other actions if needed
 
@@ -53,6 +55,10 @@ Rails.application.routes.draw do
   post 'videos/content_dedicace', to: "videos#content_dedicace_post", as: "content_dedicace_post"
   get 'videos/skip_content_dedicace', to: "videos#skip_content_dedicace", as: "skip_content_dedicace"
 
+  get 'videos/deadline', to: "videos#deadline", as: "deadline"
+  post 'videos/deadline', to: "videos#deadline_post", as: "deadline_post"
+  get 'videos/skip_deadline', to: "videos#skip_deadline", as: "skip_deadline"
+
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 
   get 'projects/as_creator', to: 'projects#as_creator_projects', as: 'as_creator_projects'
@@ -60,6 +66,8 @@ Rails.application.routes.draw do
   get 'projects/participants_progress', to: 'projects#participants_progress', as: 'participants_progress'
   patch 'projects/:id/creator_update_date', to: 'projects#creator_update_date', as: 'creator_update_date'
   delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
+
+  get 'videos/:id/concat_status', to: 'videos#concat_status', as: 'video_concat_status'
 
   # Static pages
   get 'about', to: 'static#about', as: "about"

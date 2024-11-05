@@ -1,61 +1,86 @@
 <div>
   <h1 class="video-h1">Ajoutez votre partie vidéo à la dédicace finale</h1>
-
   <p class="video-desc">Filmez vous directement sur notre plateforme (via votre tablette, téléphone, ordinateur)</p>
-
 
   <div class="frame">
     <div class="dedication-content-medias"><span>Vos médias</span></div>
-
-
-
     <div class="dedication-content-theme"><span><strong>Thème&nbsp;:&nbsp;</strong><%= @video.dedicace.name %></span></div>
 
     <%= form_with url: content_dedicace_post_path, method: :post, html: { class: "dedication-content-form" } do |f| %>
-
-        <% @video.dedicace_contents.order(position: :asc)&.each do |dc| %>
-            <% if dc.content.attached? %>
-                <%= video_tag dc.content, controls: true, autobuffer: true%>
-            <% end %>
+      <% @video.dedicace_contents.order(position: :asc)&.each do |dc| %>
+        <% if dc.content.attached? %>
+          <%= video_tag dc.content, controls: true, autobuffer: true %>
         <% end %>
+      <% end %>
 
-        <%= f.file_field :contents, multiple: true %>
-
-        <%= f.submit "Mettre en ligne", class:"cta" %>
+      <%= f.file_field :contents, multiple: true %>
+      <%= f.submit "Mettre en ligne", class:"cta" %>
     <% end %>
 
-    <% if @final_video_url %>
+    <% if @video.completed? %>
       <div>
         <h3>Final Video:</h3>
         <video controls style="max-width: 100%; height: auto;">
-          <source src="<%= @final_video_url %>" type="video/mp4">
+          <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
           Your browser does not support the video element.
         </video>
-        test
         <br>
-        <a href="<%= @final_video_url %>" download>Download Final Video</a>
+        <a href="<%= url_for(@video.final_video) %>" download>Download Final Video</a>
       </div>
+      <%= link_to "Refresh Video", content_dedicace_path(@video, refresh: true), class: "cta", data: { disable_with: "Refreshing..." } %>
+    <% elsif @video.processing? %>
+      <p>Your video is being processed. This page will refresh once it’s ready.</p>
     <% else %>
       <p>No final video generated.</p>
     <% end %>
 
-    <% if @zip_url %>
+    <% if @video.completed? && @video.final_video_xml.attached? %>
       <div>
         <h3>Final Cut Pro Project:</h3>
-        <a href="<%= @zip_url %>" download>Download FCPXML Project</a>
+        <a href="<%= url_for(@video.final_video_xml) %>" download>Download FCPXML Project</a>
       </div>
     <% else %>
       <p>No FCPXML file generated.</p>
     <% end %>
-
-
-
   </div>
 
   <div class="video-steps">
     <%= render "videos/shared/back_button" %>
-    <%= link_to "Étape suivante", skip_content_dedicace_path, data: {turbo: false}, class:"cta" %>
+    <%= link_to "Étape suivante", skip_content_dedicace_path, data: { turbo: false }, class: "cta" %>
   </div>
-
-
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const videoId = "<%= @video.id %>";
+
+    // Check the initial status of the video
+    fetch(`/videos/${videoId}/concat_status`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+
+        // Only start polling if the video is processing
+        if (data.concat_status !== "completed") {
+          const intervalId = setInterval(() => {
+            checkStatus(intervalId); // Pass the interval ID to clear it later
+          }, 10000); // Poll every 10 seconds
+        }
+      });
+
+    function checkStatus(intervalId) {
+      fetch(`/videos/${videoId}/concat_status`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          if (data.concat_status === "completed") {
+            clearInterval(intervalId); // Stop polling
+            window.location.reload(); // Reloads the page to show the final video
+          }
+        })
+        .catch(error => {
+          console.error("Error checking status:", error);
+        });
+    }
+  });
+</script>

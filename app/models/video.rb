@@ -3,6 +3,7 @@ class Video < ApplicationRecord
     enum :occasion, { anniversaire: 0, mariage: 1 }
     enum :theme, {specific_request: 0, theme_1: 1, theme_2: 2}
     enum :music_type, { whole_video: 0, by_chapters: 1 }
+    enum concat_status: { pending: 0, processing: 1, completed: 2, failed: 3 }
 
     has_many :video_destinataires, dependent: :destroy
     has_many :video_chapters, dependent: :destroy
@@ -13,7 +14,7 @@ class Video < ApplicationRecord
 
     has_many :video_previews, dependent: :destroy
     has_many :previews, through: :video_previews
-    has_many :collaborations
+    has_many :collaborations, dependent: :destroy
 
     has_one_attached :final_video
     has_one_attached :final_video_xml

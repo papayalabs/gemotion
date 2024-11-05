@@ -1,0 +1,9 @@
+<div>
+  <h1 class="video-h1"></h1>
+  <p class="video-desc">Confirmez la date limite pour la création du film.</p>
+
+  <div class="video-steps">
+    <%= render "videos/shared/back_button" %>
+    <%= link_to "Étape suivante", skip_content_dedicace_path, data: { turbo: false }, class: "cta" %>
+  </div>
+</div>
