@@ -37,7 +37,7 @@
     <% if @video.completed? && @video.final_video_xml.attached? %>
       <div>
         <h3>Final Cut Pro Project:</h3>
-        <a href="<%= url_for(@video.final_video_xml) %>" download>Download FCPXML Project</a>
+        <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download>Download MLT archive</a>
       </div>
     <% else %>
       <p>No FCPXML file generated.</p>

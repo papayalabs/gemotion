@@ -7,12 +7,15 @@ class ContentDedicaceService
     @temp_dir = Rails.root.join("tmp", SecureRandom.hex)
     FileUtils.mkdir_p(@temp_dir)
 
-    @archive_path = @temp_dir.join("previews.zip")
+    @archive_path = @temp_dir.join("video_mlt.zip")
     Zip::File.open(@archive_path, Zip::File::CREATE) {}
 
     @ts_videos = []
+    @previews_length = ""
+    @video_length = ""
+    @chapters_count = @video.video_chapters.count - 1
     @mlt_content = <<-MLT
-    <mlt version="6.22">
+    <mlt LC_NUMERIC="C" version="7.28.0" title="Shotcut version 24.10.29" producer="main_bin">
       <profile description="HD 1080p 30fps" id="HD 1080p 30fps" width="1920" height="1080" frame_rate="30" />
     MLT
   end
@@ -33,6 +36,8 @@ class ContentDedicaceService
     unless File.exist?(final_video_path)
       return { error: "La concaténation des vidéos finales a échoué." }
     end
+
+    set_final_video_length(final_video_path)
 
     finalize_mlt
 
@@ -60,6 +65,7 @@ class ContentDedicaceService
   end
 
   def process_previews(preview_assets)
+
     preview_assets.each_with_index do |preview, index|
       preview_path = ActiveStorage::Blob.service.send(:path_for, preview.preview.image.key)
       output_path = @temp_dir.join("preview_#{index}.ts")
@@ -192,6 +198,8 @@ class ContentDedicaceService
 
     if @video.music_type == "by_chapters" && chapter_music_path
       add_music_to_chapter(chapter_concatenated_video_path, chapter_music_path, chapter_index)
+      add_to_mlt_music(chapter_music_path, "music_#{chapter_index}.mp3", "music_#{chapter_index}")
+      upload_to_archive("music_#{chapter_index}.mp3", chapter_music_path)
     else
       @ts_videos << chapter_concatenated_video_path.to_s
     end
@@ -242,9 +250,14 @@ class ContentDedicaceService
     # system("ffmpeg -y -i \"concat:#{final_video_ts_file_list}\" -c copy -f mpegts \"#{final_concatenated_ts_path}\"")
     p "-"*100 + "concatenate_final_video_ts" + "-"*100
 
+
     # Convert the final TS to MP4
     final_video_path = @temp_dir.join("final_video.mp4")
     if @video.music_type == "whole_video" && final_music_path
+
+      add_to_mlt_music(final_music_path, "music_whole_video.mp3", "music_whole_video")
+      upload_to_archive("music_whole_video.mp3", final_music_path)
+
       p "+"*100 + "concatenate_final_video_with_music_on_whole_video" + "+"*100
       system(
         "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
@@ -312,8 +325,31 @@ class ContentDedicaceService
     @video.final_video.attach(io: File.open(final_video_path), filename: "final_video.mp4")
 
     if File.exist?(@archive_path)
-      @video.final_video_xml.attach(io: File.open(@archive_path), filename: "previews.zip")
+      @video.final_video_xml.attach(io: File.open(@archive_path), filename: "video_mlt.zip")
     end
+  end
+
+  def time_to_seconds(time_str)
+    parts = time_str.split(":").map(&:to_f)
+    hours, minutes, seconds = parts[0], parts[1], parts[2]
+    hours * 3600 + minutes * 60 + seconds
+  end
+
+  def format_time(seconds)
+    Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
+  end
+
+  def set_final_video_length(final_video_path)
+    output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 #{final_video_path.to_s.shellescape}`
+
+    if output.strip.empty?
+      raise "Error: Could not retrieve video duration."
+    end
+
+    seconds = output.strip.to_f
+    formatted_duration = Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
+
+    @video_length = formatted_duration
   end
 
   def add_to_mlt(input_path, id)
@@ -324,20 +360,106 @@ class ContentDedicaceService
     MLT
   end
 
+  def calculate_chapter_durations
+
+    main_bin_section = @mlt_content[/\<playlist id="main_bin"\>(.*?)\<\/playlist\>/m, 1]
+    chapter_durations = Hash.new(0)
+
+    main_bin_section.scan(/<entry producer="(chapter_intro_\d+|video_\d+_\d+|photo_\d+_\d+)" in="[\d:.]+" out="([\d:.]+)"/).each do |producer, out_time|
+      chapter_index = producer.match(/\d+/)[0].to_i
+      chapter_durations[chapter_index] += time_to_seconds(out_time)
+    end
+
+    formatted_durations = chapter_durations.transform_values { |total_seconds| format_time(total_seconds) }
+
+    formatted_durations
+  end
+
+  def create_combined_music_playlist(chapter_durations)
+    entries = chapter_durations.map do |index, duration|
+      %(<entry producer="music_#{index}" in="00:00:00.000" out="#{duration}"/>)
+    end
+
+    <<-MLT
+    <playlist id="playlist1">
+      <property name="shotcut:audio">1</property>
+      <property name="shotcut:name">A1</property>
+      <blank length="00:00:09.000"/>
+      #{entries.join("\n    ")}
+    </playlist>
+    MLT
+  end
+
+  def create_music_playlist
+    <<-MLT
+    <playlist id="playlist1">
+      <property name="shotcut:audio">1</property>
+      <property name="shotcut:name">A1</property>
+      <entry producer="music_whole_video" in="00:00:00.000" out="#{@video_length}"/>
+    </playlist>
+    MLT
+  end
+
   def finalize_mlt
 
     producers = @mlt_content.scan(/<producer id="([^"]+)" in="([^"]+)" out="([^"]+)">/)
 
-    playlist_entries = producers.map do |id, in_time, out_time|
-      %(<entry producer="#{id}" in="#{in_time}" out="#{out_time}"/>)
+    all_playlist_entries = producers.map do |id, in_time, out_time|
+      %(<entry producer="#{id}" in="00:00:00.000" out="#{out_time}"/>)
     end
+
+    playlist_entries = producers.reject { |id, _, _| id.start_with?("music") }.map { |id, _, out_time| %(<entry producer="#{id}" in="00:00:00.000" out="#{out_time}"/>) }
+
+    @mlt_content << <<-MLT
+      <producer id="black" in="00:00:00.000" out="#{@video_length}">
+        <property name="length">#{@video_length}</property>
+        <property name="eof">pause</property>
+        <property name="resource">0</property>
+        <property name="aspect_ratio">1</property>
+        <property name="mlt_service">color</property>
+        <property name="mlt_image_format">rgba</property>
+        <property name="set.test_audio">0</property>
+      </producer>
+
+      <playlist id="background">
+        <entry producer="black" in="00:00:00.000" out="#{@video_length}"/>
+      </playlist>
+    MLT
 
     # Append the playlist to @mlt_content.
     @mlt_content << <<-MLT
       <playlist id="main_bin">
+        <property name="shotcut:skipConvert">0</property>
+        <property name="xml_retain">1</property>
+        #{all_playlist_entries.join("\n      ")}
+      </playlist>
+
+      <playlist id="playlist0">
+        <property name="shotcut:skipConvert">0</property>
+        <property name="xml_retain">1</property>
         #{playlist_entries.join("\n      ")}
       </playlist>
     MLT
+
+
+    if @video.music_type == "whole_video"
+      @mlt_content << create_music_playlist
+    else
+      @mlt_content << create_combined_music_playlist(calculate_chapter_durations)
+    end
+
+    @mlt_content << <<-MLT
+      <tractor id="tractor0" title="Shotcut version 24.10.29" in="00:00:00.000" out="#{@video_length}">
+        <property name="shotcut">1</property>
+        <property name="shotcut:projectAudioChannels">2</property>
+        <property name="shotcut:projectFolder">0</property>
+        <property name="shotcut:skipConvert">0</property>
+        <track producer="background"/>
+        <track producer="playlist0"/>
+        <track producer="playlist1" hide="video"/>
+      </tractor>
+    MLT
+
 
     @mlt_content << "\n</mlt>"
 
@@ -346,8 +468,6 @@ class ContentDedicaceService
 
     upload_to_archive("project.mlt", mlt_file_path)
   end
-
-
 
   def add_to_mlt_img(input_path, file_name, id, duration) # Default to 4.36 seconds for example, adjust as needed
     # You may want to extract the video width and height dynamically using ffprobe
@@ -375,9 +495,6 @@ class ContentDedicaceService
         <property name="xml">was here</property>
         <property name="ignore_points">1</property>
       </producer>
-      <playlist id="playlist_#{id}">
-        <entry producer="#{id}" in="00:00:00.000" out="#{formatted_duration}"/>
-      </playlist>
     MLT
   end
 
@@ -420,9 +537,49 @@ class ContentDedicaceService
         <property name="xml">was here</property>
         <property name="ignore_points">1</property>
       </producer>
-      <playlist id="playlist_#{id}">
-        <entry producer="#{id}" in="00:00:00.000" out="#{formatted_duration}"/>
-      </playlist>
+    MLT
+  end
+
+  def add_to_mlt_music(input_path, file_name, id)
+    # Use ffprobe to get the duration of the audio
+    p "+"*100 + "add_to_mlt_music duration" + "+"*100
+
+    audio_info = `ffprobe -v error -select_streams a:0 -show_entries format=duration -of default=noprint_wrappers=1 #{input_path}`
+    duration = audio_info.strip.split("=").last.to_f
+
+    # Convert duration to a proper format (hh:mm:ss.sss)
+    formatted_duration = Time.at(duration).utc.strftime("%H:%M:%S.%3N")
+    p "*"*100
+    p audio_info
+    p "*"*100
+    p "-"*100 + "add_to_mlt_music duration" + "-"*100
+
+    # Get audio properties (like sample rate and channels)
+    sample_rate_info = `ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,channels -of default=noprint_wrappers=1 #{input_path}`
+    sample_rate, channels = sample_rate_info.strip.split("\n").map { |line| line.split("=").last.to_i }
+
+    # Set creation time (use current time)
+    creation_time = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S")
+
+    @mlt_content << <<-MLT
+      <producer id="#{id}" in="00:00:00.000" out="#{formatted_duration}">
+        <property name="length">#{formatted_duration}</property>
+        <property name="eof">pause</property>
+        <property name="resource">#{file_name}</property>
+        <property name="mlt_service">avformat-novalidate</property>
+        <property name="meta.media.nb_streams">1</property>
+        <property name="meta.media.0.stream.type">audio</property>
+        <property name="meta.media.0.codec.sample_rate">#{sample_rate}</property>
+        <property name="meta.media.0.codec.channels">#{channels}</property>
+        <property name="meta.media.0.codec.layout">#{channels == 2 ? 'stereo' : 'mono'}</property>
+        <property name="creation_time">#{creation_time}</property>
+        <property name="seekable">1</property>
+        <property name="audio_index">0</property>
+        <property name="video_index">-1</property>
+        <property name="shotcut:skipConvert">1</property>
+        <property name="ignore_points">0</property>
+        <property name="shotcut:caption">#{File.basename(file_name)}</property>
+      </producer>
     MLT
   end
 
