@@ -10,8 +10,9 @@ class VideosController < ApplicationController
   before_action :define_video_chapters, only: %i[content content_post]
 
   def start
-    # TODO: with last user
-    @video = Video.last
+    @video = current_user.videos.last
+
+    # authorize @video, :start?, policy_class: VideoPolicy
     return if @video.nil?
     return unless @video.current_step != "start"
 
@@ -27,8 +28,8 @@ class VideosController < ApplicationController
   # Utilise le template dans videos/shared/_back_button.html.erb pour récupérer
   # un lien fonctionnel
   def go_back
-    # TODO: change with current_user.videos.last
-    @video = Video.last
+    @video = current_user.videos.last
+    authorize @video, :go_back?, policy_class: VideoPolicy
     redirect_to start_path, alert: "Aucune vidéo trouvé." if @video.nil?
 
     @video.stop_at = @video.previous_step
@@ -40,20 +41,23 @@ class VideosController < ApplicationController
   end
 
   def start_post
-    # Creation d'une nouvelle vidéo
-    @video = Video.new
-    return render start_path, status: :unprocessable_entity if params[:video_type].nil?
+    last_video = current_user.videos.last
 
-    # Le type de la vidéo depuis le radio button du formulaire
-    @video.video_type = params[:video_type].downcase
-    # On est à la première étape de la vidéo
-    @video.stop_at = @video.way.first
-    # Generate the unique identifier of the video
-    @video.generate_token
-    # Set current user
-    @video.user = current_user
+    if current_user.videos.count > 0 && current_user.videos.last.finished? || current_user.videos.count == 0
+      @video = Video.new(user: current_user)
+      @video.user = current_user
+      skip_authorization
+      return render start_path, status: :unprocessable_entity if params[:video_type].nil?
+      @video.video_type = params[:video_type].downcase
+      @video.stop_at = @video.way.first
+      @video.generate_token
 
-    # Validate and create the video
+    else
+      @video = current_user.videos.last
+      authorize @video, :start_post?, policy_class: VideoPolicy
+      @video.video_type = params[:video_type].downcase
+    end
+
     if @video.validate_start && @video.save
       redirect_to send("#{@video.next_step}_path")
     else
@@ -62,6 +66,7 @@ class VideosController < ApplicationController
   end
 
   def occasion_post
+    authorize @video, :occasion_post?, policy_class: VideoPolicy
     @video.occasion = params[:occasion]
     @video.stop_at = @video.next_step
 
@@ -74,6 +79,7 @@ class VideosController < ApplicationController
   end
 
   def destinataire_post
+    authorize @video, :destinataire_post?, policy_class: VideoPolicy
     @vd = @video.video_destinataires.new(genre: params[:sexe_destinataire])
     @video.stop_at = @video.next_step
 
@@ -85,7 +91,13 @@ class VideosController < ApplicationController
     end
   end
 
+  def info_destinataire
+    p "*"*1000
+    authorize @video, :info_destinataire?, policy_class: VideoPolicy
+  end
+
   def info_destinataire_post
+    authorize @video, :info_destinataire_post?, policy_class: VideoPolicy
     # for skip destinataire page
     @vd = @video.video_destinataires.create(genre: 2)
     ##############################
@@ -112,6 +124,7 @@ class VideosController < ApplicationController
   end
 
   def date_fin_post
+    authorize @video, :date_fin_post?, policy_class: VideoPolicy
     return render date_fin_path, status: :unprocessable_entity if params[:end_date].blank?
 
     @video.end_date = DateTime.parse(params[:end_date])
@@ -126,6 +139,7 @@ class VideosController < ApplicationController
   end
 
   def introduction_post
+    authorize @video, :introduction_post?, policy_class: VideoPolicy
     @video.theme = params[:theme]
     @video.theme_specific_request = params[:special_request]
     @video.stop_at = @video.next_step
@@ -138,6 +152,7 @@ class VideosController < ApplicationController
   end
 
   def photo_intro_post
+    authorize @video, :photo_intro_post?, policy_class: VideoPolicy
     @video.previews.destroy_all unless params[:previews] == [""] && @video.previews.count > 0
 
     ordered_previews = params[:image_order]&.split(',') || []
@@ -172,9 +187,11 @@ class VideosController < ApplicationController
   end
 
   def select_chapters
+    authorize @video, :select_chapters?, policy_class: VideoPolicy
   end
 
   def select_chapters_post
+    authorize @video, :select_chapters_post?, policy_class: VideoPolicy
     # On authorize que certain parametre
     params_allow = params.permit(chapters: %i[select text])["chapters"]
 
@@ -240,6 +257,7 @@ class VideosController < ApplicationController
   end
 
   def music_post
+    authorize @video, :music_post?, policy_class: VideoPolicy
     # Check for params indicating the whole video or chapters
     if params[:music].nil? && params.keys.none? { |key| key.start_with?('music_') }
       flash[:alert] = "Vous devez sélectionner au moins une musique"
@@ -290,6 +308,7 @@ class VideosController < ApplicationController
   end
 
   def dedicace_post
+    authorize @video, :dedicace_post?, policy_class: VideoPolicy
     if params[:dedicace].nil?
       flash[:alert] = "Vous devez séléctionnez une dedicace"
       return render dedicace_path, status: :unprocessable_entity
@@ -314,6 +333,7 @@ class VideosController < ApplicationController
   end
 
   def share_post
+    authorize @video, :share_post?, policy_class: VideoPolicy
     # Le mailer fonctionne mais pas le join
     email = params[:email]
     if email.blank?
@@ -358,10 +378,12 @@ class VideosController < ApplicationController
   end
 
   def skip_share
+    # authorize @video, :skip_share?
     skip_element(share_path)
   end
 
   def content_post
+    authorize @video, :content_post?, policy_class: VideoPolicy
     @video_chapter = @video.video_chapters.find(params[:id])
 
     # Attach videos
@@ -399,10 +421,12 @@ class VideosController < ApplicationController
   end
 
   def skip_content
+    # authorize @video, :skip_content?
     skip_element(content_path)
   end
 
   def content_dedicace
+    authorize @video, :content_dedicace?, policy_class: VideoPolicy
     # Check if a refresh has been requested
     if params[:refresh]
       # Update the status to processing
@@ -437,15 +461,17 @@ class VideosController < ApplicationController
   end
 
   def deadline
-
+    authorize @video, :deadline?, policy_class: VideoPolicy
   end
 
   def get_video_duration(video_path)
+    # authorize @video, :get_video_duration?
     output = `ffprobe -i #{video_path} -show_entries format=duration -v quiet -of csv="p=0"`
     output.strip
   end
 
   def content_dedicace_post
+    authorize @video, :content_dedicace_post?, policy_class: VideoPolicy
     params[:contents].each do |file|
       dc = @video.dedicace_contents.create(position: @video.dedicace_contents.count)
       dc.content.attach(file)
@@ -456,11 +482,14 @@ class VideosController < ApplicationController
   end
 
   def skip_content_dedicace
+    # authorize @video, :skip_content_dedicace?
     skip_element(content_dedicace_path)
   end
 
   def update_video_music_type
     @video = Video.find(params[:id])
+    authorize @video, :update_video_music_type?, policy_class: VideoPolicy
+
     if @video.update(music_type: params[:video][:music_type])
       head :no_content # Respond with a 204 No Content status to avoid template rendering
     else
@@ -470,6 +499,7 @@ class VideosController < ApplicationController
 
   def concat_status
     video = Video.find(params[:id])
+    authorize video, :concat_status?, policy_class: VideoPolicy
     render json: { concat_status: video.concat_status }
   end
 
@@ -505,8 +535,7 @@ class VideosController < ApplicationController
   end
 
   def select_video
-    # TODO: change when user login to current_user.videos.last
-    @video = Video.last
+    @video = current_user.videos.last
     # On check si une vidéo existe
     if @video.nil?
       redirect_to start_path, alert: "Aucune vidéo trouvé."

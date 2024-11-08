@@ -218,6 +218,8 @@ GEM
     public_suffix (5.0.5)
     puma (6.4.2)
       nio4r (~> 2.0)
+    pundit (2.4.0)
+      activesupport (>= 3.0.0)
     racc (1.7.3)
     rack (3.0.10)
     rack-session (2.0.0)
@@ -389,6 +391,7 @@ DEPENDENCIES
   letter_opener
   pg (~> 1.1)
   puma (>= 5.0)
+  pundit
   rails (~> 7.1.3, >= 7.1.3.2)
   redis (>= 4.0.1)
   rubocop
