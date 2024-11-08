@@ -11,9 +11,15 @@ class ContentDedicaceService
     Zip::File.open(@archive_path, Zip::File::CREATE) {}
 
     @ts_videos = []
+
     @previews_length = ""
+
     @video_length = ""
-    @chapters_count = @video.video_chapters.count - 1
+
+    @imgs_to_video_duration_in_seconds = "3"
+
+    @previews_duration = ""
+
     @mlt_content = <<-MLT
     <mlt LC_NUMERIC="C" version="7.28.0" title="Shotcut version 24.10.29" producer="main_bin">
       <profile description="HD 1080p 30fps" id="HD 1080p 30fps" width="1920" height="1080" frame_rate="30" />
@@ -25,6 +31,8 @@ class ContentDedicaceService
     chapter_assets = fetch_chapter_assets
 
     return { error: "Aucune vidéo, photo ou aperçu de chapitre disponible." } if chapter_assets.empty? || preview_assets.empty?
+
+    previews_duration_calc(preview_assets.count) if @video.by_chapters?
 
     process_previews(preview_assets)
     process_chapters(chapter_assets)
@@ -47,6 +55,11 @@ class ContentDedicaceService
   end
 
   private
+
+  def previews_duration_calc(preview_count)
+    total_seconds = preview_count * 3
+    @previews_duration = Time.at(total_seconds).utc.strftime("%H:%M:%S.%3N")
+  end
 
   def fetch_preview_assets
     @video.video_previews.includes(:preview).sort_by(&:order)
@@ -73,16 +86,10 @@ class ContentDedicaceService
       system(
         "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
         "-f lavfi -i anullsrc=r=44100:cl=stereo " \
-        "-c:v libx264 -c:a aac -t 3 -r 30 -vf \"scale=1280:720\" -pix_fmt yuvj420p " \
+        "-c:v libx264 -c:a aac -t #{@imgs_to_video_duration_in_seconds} -r 30 -vf \"scale=1280:720\" -pix_fmt yuvj420p " \
         "\"#{output_path}\""
       )
       p "-"*100 + "process_preview" + "-"*100
-      # system(
-      #   "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
-      #   "-f lavfi -i anullsrc=r=44100:cl=stereo " \
-      #   "-c:v libx264 -c:a aac -t 3 -vf \"scale=1280:720\" -pix_fmt yuv420p " \
-      #   "\"#{output_path}\""
-      # )
       @ts_videos << output_path.to_s
 
       add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
@@ -105,7 +112,7 @@ class ContentDedicaceService
   end
 
   def fetch_chapter_music(assets)
-    if @video.music_type == "by_chapters"
+    if @video.by_chapters?
       ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if assets[:music]
     end
   end
@@ -121,15 +128,9 @@ class ContentDedicaceService
       "ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" " \
       "-f lavfi -i anullsrc=r=44100:cl=stereo " \
       "-vf \"scale=1280:720, drawtext=text='#{chapter_text}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2\" " \
-      "-t 3 -c:v libx264 -pix_fmt yuvj420p -c:a aac -r 30 -shortest \"#{text_output_path}\""
+      "-t #{@imgs_to_video_duration_in_seconds} -c:v libx264 -pix_fmt yuvj420p -c:a aac -r 30 -shortest \"#{text_output_path}\""
     )
     p "-"*100 + "process_chapter_intro" + "-"*100
-    # system(
-    #   "ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" " \
-    #   "-f lavfi -i anullsrc=r=44100:cl=stereo " \
-    #   "-vf \"scale=iw:-2, drawtext=text='#{chapter_text}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2\" " \
-    #   "-t 3 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest \"#{text_output_path}\""
-    # )
     @ts_videos << text_output_path.to_s
     add_to_mlt_img(text_output_path, "chapter_intro_#{chapter_index}.ts", "chapter_intro_#{chapter_index}", 3)
     upload_to_archive("chapter_intro_#{chapter_index}.ts", text_output_path)
@@ -144,8 +145,6 @@ class ContentDedicaceService
       p "+"*100 + "process_video" + "+"*100
       system("ffmpeg -y -i \"#{input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 \"#{output_path}\"")
       p "-"*100 + "process_video" + "-"*100
-
-      # system("ffmpeg -y -i \"#{input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{output_path}\"")
       @ts_videos << output_path.to_s
       add_to_mlt_video(output_path, "video_#{chapter_index}_#{video_index}.ts", "video_#{chapter_index}_#{video_index}")
       upload_to_archive("video_#{chapter_index}_#{video_index}.ts", output_path)
@@ -160,14 +159,10 @@ class ContentDedicaceService
       p "+"*100 + "process_photo" + "+"*100
       system(
         "ffmpeg -y -loop 1 -i \"#{input_path}\" -f lavfi -i anullsrc=r=44100:cl=stereo " \
-        "-c:v libx264 -t 3 -vf \"scale=1280:720\" -map 0:v -map 1:a -c:a aac -pix_fmt yuvj420p -r 30 \"#{output_path}\""
+        "-c:v libx264 -t #{@imgs_to_video_duration_in_seconds} -vf \"scale=1280:720\" " \
+        "-map 0:v -map 1:a -c:a aac -pix_fmt yuvj420p -r 30 \"#{output_path}\""
       )
       p "-"*100 + "process_photo" + "-"*100
-
-      # system(
-      #   "ffmpeg -y -loop 1 -i \"#{input_path}\" -f lavfi -i anullsrc=r=44100:cl=stereo " \
-      #   "-c:v libx264 -t 3 -vf \"scale=1280:720\" -map 0:v -map 1:a -c:a aac -pix_fmt yuv420p \"#{output_path}\""
-      # )
       @ts_videos << output_path.to_s
       add_to_mlt_img(output_path, "photo_#{chapter_index}_#{photo_index}.ts", "photo_#{chapter_index}_#{photo_index}", 3)
       upload_to_archive("photo_#{chapter_index}_#{photo_index}.ts", output_path)
@@ -180,23 +175,16 @@ class ContentDedicaceService
     chapter_ts_file_list = chapter_ts_files.join("|")
     concatenated_ts_path = @temp_dir.join("chapter_#{chapter_index}_concatenated.ts")
     p "+"*100 + "concatenate_chapter_video" + "+"*100
-    # system("ffmpeg -y -i \"concat:#{chapter_ts_file_list}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 -f mpegts -copyts \"#{concatenated_ts_path}\"")
-    # system("ffmpeg -y -i \"concat:#{chapter_ts_file_list}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 -f mpegts -fflags +genpts \"#{concatenated_ts_path}\"")
     system("ffmpeg -y -fflags +discardcorrupt -i \"concat:#{chapter_ts_file_list}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 -f mpegts -fflags +genpts \"#{concatenated_ts_path}\"")
-
-    # system("ffmpeg -y -i \"concat:#{chapter_ts_file_list}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 -f mpegts \"#{concatenated_ts_path}\"")
-    # system("ffmpeg -y -i \"concat:#{chapter_ts_file_list}\" -c copy -f mpegts \"#{concatenated_ts_path}\"")
     p "-"*100 + "concatenate_chapter_video" + "-"*100
+
     # Convert the chapter TS to MP4
     chapter_concatenated_video_path = @temp_dir.join("chapter_#{chapter_index}_concatenated_video.mp4")
     p "+"*100 + "concatenate_chapter_video_to_mp4" + "+"*100
     system("ffmpeg -y -fflags +discardcorrupt -i \"#{concatenated_ts_path}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 \"#{chapter_concatenated_video_path}\"")
-
-    # system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 \"#{chapter_concatenated_video_path}\"")
-    # system("ffmpeg -y -i \"#{concatenated_ts_path}\" -c copy \"#{chapter_concatenated_video_path}\"")
     p "-"*100 + "concatenate_chapter_video_to_mp4" + "-"*100
 
-    if @video.music_type == "by_chapters" && chapter_music_path
+    if @video.by_chapters? && chapter_music_path
       add_music_to_chapter(chapter_concatenated_video_path, chapter_music_path, chapter_index)
       add_to_mlt_music(chapter_music_path, "music_#{chapter_index}.mp3", "music_#{chapter_index}")
       upload_to_archive("music_#{chapter_index}.mp3", chapter_music_path)
@@ -214,11 +202,6 @@ class ContentDedicaceService
       "-map 0:v:0 -map \"[aout]\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 -movflags +faststart -shortest \"#{final_chapter_video_path}\""
     )
     p "-"*100 + "add_music_to_chapter" + "-"*100
-    # system(
-    #   "ffmpeg -y -i \"#{chapter_concatenated_video_path}\" -i \"#{chapter_music_path}\" " \
-    #   "-filter_complex \"anullsrc=channel_layout=stereo:sample_rate=44100[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
-    #   "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -movflags +faststart -shortest \"#{final_chapter_video_path}\" 2>&1"
-    # )
     unless File.exist?(final_chapter_video_path)
       raise "L'ajout de la musique de chapitre a échoué pour le chapitre #{chapter_index + 1}."
     end
@@ -232,28 +215,23 @@ class ContentDedicaceService
     p "+"*100 + "dedicace_video" + "+"*100
     system("ffmpeg -y -i \"#{dedicace_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{dedicace_output_path}\"")
     p "-"*100 + "dedicace_video" + "-"*100
-    # system("ffmpeg -y -i \"#{dedicace_input_path}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"#{dedicace_output_path}\"")
     @ts_videos << dedicace_output_path.to_s
     add_to_mlt_video(dedicace_output_path, "dedicace.ts", "dedicace")
     upload_to_archive("dedicace.ts", dedicace_output_path)
-
   end
 
   def concatenate_final_video
-    final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key) if @video.music_type == "whole_video"
+    final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key) if @video.whole_video?
 
     final_video_ts_file_list = @ts_videos.join("|")
     final_concatenated_ts_path = @temp_dir.join("final_concatenated.ts")
     p "+"*100 + "concatenate_final_video_ts" + "+"*100
     system("ffmpeg -y -fflags +discardcorrupt -i \"concat:#{final_video_ts_file_list}\" -c copy -f mpegts \"#{final_concatenated_ts_path}\"")
-
-    # system("ffmpeg -y -i \"concat:#{final_video_ts_file_list}\" -c copy -f mpegts \"#{final_concatenated_ts_path}\"")
     p "-"*100 + "concatenate_final_video_ts" + "-"*100
-
 
     # Convert the final TS to MP4
     final_video_path = @temp_dir.join("final_video.mp4")
-    if @video.music_type == "whole_video" && final_music_path
+    if @video.whole_video? && final_music_path
 
       add_to_mlt_music(final_music_path, "music_whole_video.mp3", "music_whole_video")
       upload_to_archive("music_whole_video.mp3", final_music_path)
@@ -265,12 +243,6 @@ class ContentDedicaceService
         "-map 0:v:0 -map \"[aout]\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 -movflags +faststart -shortest \"#{final_video_path}\""
       )
       p "-"*100 + "concatenate_final_video_with_music_on_whole_video" + "-"*100
-
-      # system(
-      #   "ffmpeg -y -i \"#{final_concatenated_ts_path}\" -i \"#{final_music_path}\" " \
-      #   "-filter_complex \"anullsrc=channel_layout=stereo:sample_rate=44100[a0];[1:a:0]volume=0.5[a1];[a0][a1]amix=inputs=2:duration=shortest[aout]\" " \
-      #   "-map 0:v:0 -map \"[aout]\" -c:v copy -c:a aac -movflags +faststart -shortest \"#{final_video_path}\" 2>&1"
-      # )
     else
       rebuild_final_video_with_music_by_chapters(final_video_path)
     end
@@ -289,8 +261,6 @@ class ContentDedicaceService
         p "+"*100 + "Convert final_chapters_videos_with_music to .ts format if needed" + "+"*100
         system("ffmpeg -y -i \"#{mp4_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -bsf:v h264_mp4toannexb -f mpegts \"#{ts_path}\"")
         p "-"*100 + "Convert final_chapters_videos_with_music to .ts format if needed" + "-"*100
-
-        # system("ffmpeg -y -i \"#{mp4_path}\" -c copy -bsf:v h264_mp4toannexb \"#{ts_path}\"")
       end
     end
 
@@ -312,12 +282,11 @@ class ContentDedicaceService
       end
     end
 
-    text_video_path = File.join(@temp_dir, "final_video.mp4")
-    # ffmpeg_command = "ffmpeg -y -f concat -safe 0 -i \"#{concat_file_path}\" -c copy \"#{final_video_path}\""
     p "+"*100 + "concatenate_final_video_with_music_by_chapter_video" + "+"*100
-    ffmpeg_command = "ffmpeg -y -f concat -safe 0 -i \"#{concat_file_path}\" -c:v libx264 -pix_fmt yuv420p -r 30 -c:a aac -ar 44100 \"#{final_video_path}\""
-
-    system(ffmpeg_command)
+    system(
+      "ffmpeg -y -f concat -safe 0 -i \"#{concat_file_path}\" -c:v libx264 -pix_fmt yuv420p " \
+      "-r 30 -c:a aac -ar 44100 \"#{final_video_path}\""
+    )
     p "-"*100 + "concatenate_final_video_with_music_by_chapter_video" + "-"*100
   end
 
@@ -384,7 +353,7 @@ class ContentDedicaceService
     <playlist id="playlist1">
       <property name="shotcut:audio">1</property>
       <property name="shotcut:name">A1</property>
-      <blank length="00:00:09.000"/>
+      <blank length="#{@previews_duration}"/>
       #{entries.join("\n    ")}
     </playlist>
     MLT
@@ -442,7 +411,7 @@ class ContentDedicaceService
     MLT
 
 
-    if @video.music_type == "whole_video"
+    if @video.whole_video?
       @mlt_content << create_music_playlist
     else
       @mlt_content << create_combined_music_playlist(calculate_chapter_durations)
@@ -469,8 +438,7 @@ class ContentDedicaceService
     upload_to_archive("project.mlt", mlt_file_path)
   end
 
-  def add_to_mlt_img(input_path, file_name, id, duration) # Default to 4.36 seconds for example, adjust as needed
-    # You may want to extract the video width and height dynamically using ffprobe
+  def add_to_mlt_img(input_path, file_name, id, duration)
     video_info = `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of default=noprint_wrappers=1 #{input_path}`
     width, height = video_info.strip.split("\n").map { |line| line.split("=").last.to_i }
 
@@ -499,7 +467,6 @@ class ContentDedicaceService
   end
 
   def add_to_mlt_video(input_path, file_name, id)
-    # Use ffprobe to get the duration of the video
     p "+"*100 + "add_to_mlt_video duration" + "+"*100
 
     video_info = `ffprobe -v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1 #{input_path}`
