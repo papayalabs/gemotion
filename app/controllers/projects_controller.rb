@@ -11,6 +11,7 @@ class ProjectsController < ApplicationController
 
   def participants_progress
     @video = Video.find(params[:video_id])
+    authorize @video, :participants_progress?, policy_class: ProjectPolicy
     @participants = Collaboration.where(video_id: @video.id).includes(:invited_user)
     @final_video_url = url_for(@video.final_video)
 
@@ -20,6 +21,7 @@ class ProjectsController < ApplicationController
 
   def creator_update_date
     if @video.update(end_date: params[:end_date])
+      authorize @video, :creator_update_date?, policy_class: ProjectPolicy
       redirect_to project_path(@video), notice: "La date limite a été mise à jour avec succès."
     else
       flash.now[:alert] = "Une erreur est survenue. Veuillez réessayer."
@@ -29,12 +31,13 @@ class ProjectsController < ApplicationController
 
   def delete_collaboration
     collaboration = Collaboration.find(params[:id]) # Use the appropriate ID from the params
-    video_id = collaboration.video_id
+    video = Video.find(collaboration.video_id)
+    authorize video, :delete_collaboration?, policy_class: ProjectPolicy
     if collaboration.inviting_user == current_user || collaboration.invited_user == current_user
       collaboration.destroy
-      redirect_to participants_progress_path(video_id: video_id), notice: 'Collaboration deleted successfully.'
+      redirect_to participants_progress_path(video_id: video.id), notice: 'Collaboration deleted successfully.'
     else
-      redirect_to participants_progress_path(video_id: video_id), alert: 'You are not authorized to delete this collaboration.'
+      redirect_to participants_progress_path(video_id: video.id), alert: 'You are not authorized to delete this collaboration.'
     end
   end
 end

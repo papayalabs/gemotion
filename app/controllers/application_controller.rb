@@ -18,9 +18,19 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    # video_id = session.delete(:collab_video_id) # Retrieve and clear the session
-    # video_token = Video.find(video_id).token if video_id.present?
-    # video_id ? join_path(video_token) : super # Redirect to join path if video_id exists
+    video_id = session.delete(:collab_video_id) # Retrieve and clear the session
+    begin
+      video = Video.find(video_id) if video_id.present?
+    rescue ActiveRecord::RecordNotFound
+      video = nil  # If not found, set video to nil
+    end
+
+    if video.present? && video.token.present?
+      video_token = video.token
+      join_path(video_token)  # Redirect to join path with token
+    else
+      super  # Default redirect (can be to root or another path)
+    end
   end
 
   def after_sign_up_path_for(resource)
