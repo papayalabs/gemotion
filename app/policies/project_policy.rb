@@ -12,5 +12,6 @@ class ProjectPolicy < ApplicationPolicy
 
   def creator_update_date?; participants_progress?; end
   def delete_collaboration?; participants_progress?; end
-
+  def modify_deadline?; participants_progress?; end
+  def close_project?; participants_progress?; end
 end

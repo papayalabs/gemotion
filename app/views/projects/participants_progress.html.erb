@@ -5,15 +5,43 @@
 
 <div class="spaces-on-sides">
   <div class="flex flex-row items-center justify-between">
-    <div><%= @video.end_date.strftime("%m/%d/%Y") %></div>
+    <div><%= @video&.end_date&.strftime("%d/%m/%Y") %></div>
     <div class='flex flex-row items-center justify-start'>
-      <!-- Button to open the "edit date" modal -->
-      <button onclick="toggleEditDateModal()" class="text-black text-decoration-underline">
-        Modifier la date limite
-      </button>
-      <button onclick="toggleCloseProjectModal()" class="ml-2 cta-transparent">
-        Clôturer le projet
-      </button>
+
+      <div data-controller="dialog" data-action="click->dialog#clickOutside">
+        <button data-action="click->dialog#open" class="text-black text-decoration-underline">Modifier la date limite</button>
+        <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 close-proj-modal">
+
+
+          <%= form_with url: modify_deadline_path(id: @video.id), method: :patch do |f| %>
+            <div class="flex flex-col items-center gap-[48px] px-[40px] py-80px pb-146px rounded-[20px] border border-[#C9E1FF] bg-white shadow-custom">
+              <p class="text-black font-red-hat-display text-[16px] font-normal leading-[25px]">Vous pouvez modifier la date limite du projet en cours</p>
+              <%= f.date_field :end_date, value: @video.end_date %>
+                          <div class="flex justify-between items-center">
+              <%= f.submit "Étape suivante", class:"cta-transparent" %>
+              <button formmethod="dialog" class="cta ml-2">Annuler</button>
+            </div>
+            </div>
+
+          <% end %>
+        </dialog>
+      </div>
+
+      <div data-controller="dialog" data-action="click->dialog#clickOutside">
+        <button data-action="click->dialog#open" class="ml-2 cta-transparent">Clôturer le projet</button>
+        <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 close-proj-modal">
+          <div class='w-full h-full flex flex-col items-center justify-center'>
+            <p class="font-bold">Êtes-vous sûr de vouloir arrêter ce projet ?</p>
+            <div class="close-proj-grey-block flex items-center justify-center">
+              <span>Vous pouvez déplacer la date limite pour permettre à tous les participants de contribuer à la création du film.</span>
+            </div>
+            <%= form_with url: close_project_path(id: @video.id), method: :patch do |f| %>
+              <button formmethod="dialog" class="cta-transparent">Prolonger le délai</button>
+              <%= f.submit "Terminer le projet et enregistrer comme brouillon", class:"cta ml-2" %>
+            <% end %>
+          </div>
+        </dialog>
+      </div>
     </div>
   </div>
 

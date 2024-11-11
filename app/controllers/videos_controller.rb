@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[start start_post go_back join update_video_music_type concat_status]
+  before_action :select_video, except: %i[join update_video_music_type concat_status]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -10,13 +10,11 @@ class VideosController < ApplicationController
   before_action :define_video_chapters, only: %i[content content_post]
 
   def start
-    @video = current_user.videos.last
-
     # authorize @video, :start?, policy_class: VideoPolicy
     return if @video.nil?
     return unless @video.current_step != "start"
 
-    redirect_to send("#{@video.current_step}_path"), notice: "Reprenez votre vidéo en cours."
+    redirect_to send("#{@video.current_step}_path"), notice: "Reprenez votre vidéo en cours." if @video.current_step != "start"
 
     # TODO: delete current video if user confirmation
   end
@@ -28,7 +26,6 @@ class VideosController < ApplicationController
   # Utilise le template dans videos/shared/_back_button.html.erb pour récupérer
   # un lien fonctionnel
   def go_back
-    @video = current_user.videos.last
     authorize @video, :go_back?, policy_class: VideoPolicy
     redirect_to start_path, alert: "Aucune vidéo trouvé." if @video.nil?
 
@@ -41,19 +38,18 @@ class VideosController < ApplicationController
   end
 
   def start_post
-    last_video = current_user.videos.last
 
-    if current_user.videos.count > 0 && current_user.videos.last.finished? || current_user.videos.count == 0
+    if current_user.videos.where.not(project_status: [:finished, :closed]).count == 0 || current_user.videos.count == 0
       @video = Video.new(user: current_user)
       @video.user = current_user
       skip_authorization
       return render start_path, status: :unprocessable_entity if params[:video_type].nil?
       @video.video_type = params[:video_type].downcase
+
       @video.stop_at = @video.way.first
       @video.generate_token
 
     else
-      @video = current_user.videos.last
       authorize @video, :start_post?, policy_class: VideoPolicy
       @video.video_type = params[:video_type].downcase
     end
@@ -92,7 +88,6 @@ class VideosController < ApplicationController
   end
 
   def info_destinataire
-    p "*"*1000
     authorize @video, :info_destinataire?, policy_class: VideoPolicy
   end
 
@@ -371,8 +366,6 @@ class VideosController < ApplicationController
       end
     else
       session[:collab_video_id] = @video.id # Store the video ID for later redirection
-      p "*"*1000
-      p session[:collab_video_id]
       redirect_to new_user_session_path
     end
   end
@@ -535,10 +528,10 @@ class VideosController < ApplicationController
   end
 
   def select_video
-    @video = current_user.videos.last
+    @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
     # On check si une vidéo existe
     if @video.nil?
-      redirect_to start_path, alert: "Aucune vidéo trouvé."
+      redirect_to start_path, alert: "Aucune vidéo trouvé." unless request.path == start_path
     # Si une vidéo existe, on doit être sur la bonne étape
     elsif ![@video.next_step.downcase, "#{@video.next_step.downcase}_post",
             "skip_#{@video.next_step.downcase}"].include?(params[:action].downcase)

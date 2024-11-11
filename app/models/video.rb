@@ -4,7 +4,7 @@ class Video < ApplicationRecord
     enum :theme, {specific_request: 0, theme_1: 1, theme_2: 2}
     enum :music_type, { whole_video: 0, by_chapters: 1 }
     enum concat_status: { pending: 0, processing: 1, completed: 2, failed: 3 }
-    enum project_status: { started: 0, in_progress: 1, finished: 3 }
+    enum project_status: { started: 0, in_progress: 1, finished: 2, closed: 3 }
 
 
     has_many :video_destinataires, dependent: :destroy

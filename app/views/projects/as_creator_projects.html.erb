@@ -18,7 +18,49 @@
   <div class="projects-grid">
     <% @creator_projects.each do |video| %>
       <div class="project-main-block flex flex-col justify-between">
-        <div class="project-block">Item 1</div>
+        <div class="project-block">
+              <div data-controller="dialog" data-action="click->dialog#clickOutside">
+                <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Icon", class: "edit-prof-video-icon", data: { action: "click->dialog#open" } %>
+                <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 edit-proj-modal">
+                  <div class="w-full h-full flex flex-col justify-start items-center">
+                    <div class="flex justify-between items-cente w-80 mt-6">
+                      <div class="flex justify-between items-center"><span><%= video&.end_date&.strftime("%d/%m/%Y") %></span></div>
+                      <button class="cta">Partager</button>
+                    </div>
+                    <% if video.final_video.attached? %>
+                      <div class='flex  flex-row items-center justify-center mt-6'>
+                        <video controls style="max-width: 80%; max-height: 460px;">
+                          <source src="<%= url_for(video.final_video) %>" type="video/mp4">
+                          Your browser does not support the video element.
+                        </video>
+                      </div>
+                    <% else %>
+                      <p class='mt-6'>No final video generated.</p>
+                    <% end %>
+                    <div class="flex flex-row justify-between items-center w-80 mt-6">
+                      <div class="flex justify-between items-center"><span>Titre</span></div>
+                      <input type="text" value="<%= video.title %>" class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-600 disabled-input border-gray-300" disabled>
+                    </div>
+                    <div class="flex flex-row justify-between items-center w-80 mt-6">
+                      <div class="flex justify-between items-center"><span>Description</span></div>
+                      <input type="text" value="<%= video.description %>" class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-600 disabled-input border-gray-300" disabled>
+                    </div>
+                    <div class="flex flex-row justify-end items-center w-80 mt-6">
+                      <% if video.final_video.attached? %>
+                        <a href="<%= url_for(video.final_video) %>" class="cta-transparent" download>
+                          Télécharger
+                          <%= image_tag "icons/mdi_download-outline.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
+                        </a>
+                      <% end %>
+                    </div>
+                  </div>
+                </dialog>
+              </div>
+          <%unless video.preview_id.nil?%>
+            <%preview_img = Preview.find(video.preview_id)%>
+            <%= image_tag preview_img.image, class: "preview-image prev-image preview-prof-img" %>
+          <%end%>
+        </div>
         <a href="<%= participants_progress_path(video_id: video.id) %>" class="cta-button">Voir la progression</a>
       </div>
     <%end%>
