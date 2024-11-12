@@ -59,6 +59,10 @@ Rails.application.routes.draw do
   post 'videos/deadline', to: "videos#deadline_post", as: "deadline_post"
   get 'videos/skip_deadline', to: "videos#skip_deadline", as: "skip_deadline"
 
+  get 'videos/dedicace_de_fin', to: "videos#dedicace_de_fin", as: "dedicace_de_fin"
+  patch 'videos/dedicace_de_fin_patch/:id', to: "videos#dedicace_de_fin_patch", as: "dedicace_de_fin_patch"
+  get 'videos/skip_dedicace_de_fin', to: "videos#skip_dedicace_de_fin", as: "skip_dedicace_de_fin"
+
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 
   get 'projects/as_creator', to: 'projects#as_creator_projects', as: 'as_creator_projects'

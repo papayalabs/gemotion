@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back join update_video_music_type concat_status]
+  before_action :select_video, except: %i[go_back dedicace_de_fin_patch join update_video_music_type concat_status]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -11,6 +11,7 @@ class VideosController < ApplicationController
 
   def start
     # authorize @video, :start?, policy_class: VideoPolicy
+
     return if @video.nil?
     return unless @video.current_step != "start"
 
@@ -27,6 +28,7 @@ class VideosController < ApplicationController
   # un lien fonctionnel
   def go_back
     @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
+    p @video
     authorize @video, :go_back?, policy_class: VideoPolicy
     redirect_to start_path, alert: "Aucune vidéo trouvé." if @video.nil?
 
@@ -458,6 +460,44 @@ class VideosController < ApplicationController
         flash[:notice] = "Le traitement de la vidéo est déjà en cours."
       end
     end
+  end
+
+  def dedicace_de_fin
+    @dedicace = @video.dedicace
+  end
+
+  def dedicace_de_fin_patch
+    @dedicace = Dedicace.find(params[:id])
+    # position = params[:dedicace][:car_position]
+
+
+    # @video.stop_at = @video.next_step
+
+    # if @video.save
+    #   redirect_to send("#{@video.next_step}_path")
+    # else
+    #   @video.update(stop_at: @video.current_step)
+    #   render dedicace_path, status: :unprocessable_entity
+    # end
+
+    if params[:dedicace].present? &&
+       params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
+      file = params[:dedicace][:creator_end_dedication_video].present? ? params[:dedicace][:creator_end_dedication_video] : params[:dedicace][:creator_end_dedication_video_uploaded]
+      @dedicace.creator_end_dedication_video.attach(file)
+      # @dedicace.update(car_position: position)
+      if @dedicace.save
+        redirect_to dedicace_de_fin_path, notice: 'Video successfully updated.'
+      else
+        render :edit, alert: 'Failed to update video.'
+      end
+    else
+      redirect_to dedicace_de_fin_path, alert: 'No video file provided.'
+    end
+  end
+
+  def skip_dedicace_de_fin
+    # authorize @video, :skip_content_dedicace?
+    skip_element(dedicace_de_fin_path)
   end
 
   def deadline
