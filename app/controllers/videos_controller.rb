@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[join update_video_music_type concat_status]
+  before_action :select_video, except: %i[go_back join update_video_music_type concat_status]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -26,6 +26,7 @@ class VideosController < ApplicationController
   # Utilise le template dans videos/shared/_back_button.html.erb pour récupérer
   # un lien fonctionnel
   def go_back
+    @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
     authorize @video, :go_back?, policy_class: VideoPolicy
     redirect_to start_path, alert: "Aucune vidéo trouvé." if @video.nil?
 
@@ -188,7 +189,7 @@ class VideosController < ApplicationController
   def select_chapters_post
     authorize @video, :select_chapters_post?, policy_class: VideoPolicy
     # On authorize que certain parametre
-    params_allow = params.permit(chapters: %i[select text])["chapters"]
+    params_allow = params.permit(chapters: %i[select text slide_color text_family text_style text_size])["chapters"]
 
     chapter_to_create = [] # Un tableau a remplir de chapitre a créer
     chapter_to_updates = {} # Un hash a remplir de chapitre a modifier
@@ -214,12 +215,18 @@ class VideosController < ApplicationController
         if v["select"] == "true"
           video_chapter = chapter_to_updates_by_chapter_type[k]
           chapter_to_updates[video_chapter.id] = {
-            text: v["text"]
+            text: v["text"],
+            slide_color: v["slide_color"],
+            text_family: v["text_family"],
+            text_style: v["text_style"],
+            text_size: v["text_size"]
           }
         end
       elsif v["select"] == "true"
         # Si l'élément est bien séléctionné
-        chapter_to_create.append({ chapter_type_id: k, text: v["text"] })
+        chapter_to_create.append({ chapter_type_id: k, text: v["text"],
+                                   slide_color: v["slide_color"], text_family: v["text_family"],
+                                   text_style: v["text_style"], text_size: v["text_size"]})
         # On l'ajoute dans la liste des éléments à supprimer
         # ... on le modifie
       end
@@ -543,7 +550,7 @@ class VideosController < ApplicationController
   def define_chapter_type
     # On va cherche la query directement dans SQL
     q_results = ActiveRecord::Base.connection.exec_query('
-      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "video_chapters".text
+      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "video_chapters".text, "video_chapters".slide_color, "video_chapters".text_family, "video_chapters".text_style, "video_chapters".text_size
       FROM "chapter_types"
       LEFT OUTER JOIN "video_chapters" ON "video_chapters"."chapter_type_id" = "chapter_types"."id" AND video_chapters.video_id = $1
       ORDER BY "chapter_types".created_at ASC',
@@ -557,7 +564,10 @@ class VideosController < ApplicationController
     chapter_types_h = chapter_types.index_by { |ct| ct.id }
 
     @chapterstype = q_results.as_json.map do |k|
-      { ct: chapter_types_h[k["id"]], text: k["text"], select: k["text"].present? }
+      { ct: chapter_types_h[k["id"]], text: k["text"],
+        slide_color: k["slide_color"], text_family: k["text_family"],
+        text_style: k["text_style"], text_size: k["text_size"],
+        select: k["text"].present? }
     end
   end
 

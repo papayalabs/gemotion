@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_11_110013) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_12_063027) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -125,6 +125,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_11_110013) do
     t.datetime "updated_at", null: false
     t.json "ordered_videos_ids", default: []
     t.json "ordered_images_ids", default: []
+    t.string "slide_color"
+    t.string "text_family"
+    t.string "text_style"
+    t.integer "text_size"
     t.index ["chapter_type_id"], name: "index_video_chapters_on_chapter_type_id"
     t.index ["video_id"], name: "index_video_chapters_on_video_id"
   end
