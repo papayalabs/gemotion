@@ -14,4 +14,7 @@ class ProjectPolicy < ApplicationPolicy
   def delete_collaboration?; participants_progress?; end
   def modify_deadline?; participants_progress?; end
   def close_project?; participants_progress?; end
+  def collaborator_video_details?
+    @user.present? && @video.collaborations.exists?(invited_user_id: @user.id)
+  end
 end

@@ -1,13 +1,12 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :find_video, only: %i[participants_progress modify_deadline close_project]
+  before_action :find_video, only: %i[participants_progress collaborator_video_details modify_deadline close_project]
 
   def as_creator_projects
-    @creator_projects = Video.left_joins(:video_previews)
-                            .where.not(project_status: [:finished, :closed])
-                            .where("video_previews.order = 1 OR video_previews.order IS NULL")
-                            .select("videos.*, COALESCE(video_previews.id, NULL) AS video_preview_id, COALESCE(video_previews.preview_id, NULL) AS preview_id")
-    p @creator_projects
+    @creator_projects = current_user.videos.left_joins(:video_previews)
+                                            .where.not(project_status: [:finished, :closed])
+                                            .where("video_previews.order = 1 OR video_previews.order IS NULL")
+                                            .select("videos.*, COALESCE(video_previews.id, NULL) AS video_preview_id, COALESCE(video_previews.preview_id, NULL) AS preview_id")
   end
 
   def as_collaborator_projects
@@ -26,6 +25,11 @@ class ProjectsController < ApplicationController
 
     # Optionally, you can also filter out the inviting user if needed
     # @participants.reject! { |collab| collab.inviting_user == @video.user }
+  end
+
+  def collaborator_video_details
+    authorize @video, :collaborator_video_details?, policy_class: ProjectPolicy
+    @destinataire = @video.video_destinataire
   end
 
   def creator_update_date

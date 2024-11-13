@@ -347,6 +347,12 @@ class VideosController < ApplicationController
 
     # create Collab obj
     collab_user = User.find_by_email(params[:email])
+    if collab_user == @video.user
+      flash[:alert] = "Il s'agit de l'e-mail du créateur du projet, veuillez utiliser l'e-mail correct."
+      return render share_path, status: :unprocessable_entity
+    end
+
+    @video.update(video_type: :colab) #update to collab if was solo before
     collaboration = Collaboration.create!(
       video: @video,
       inviting_user: current_user,
@@ -361,6 +367,7 @@ class VideosController < ApplicationController
 
   def join
     if current_user.present? && @video.user != current_user
+      @video.update(video_type: :colab) #update to collab if was solo before
       @existing_collaboration = Collaboration.find_by(
         video: @video,
         invited_user: current_user
@@ -515,8 +522,13 @@ class VideosController < ApplicationController
       return render confirmation_path, status: :unprocessable_entity
     end
 
-    # create Collab obj
     collab_user = User.find_by_email(params[:email])
+    if collab_user == @video.user
+      flash[:alert] = "Il s'agit de l'e-mail du créateur du projet, veuillez utiliser l'e-mail correct."
+      return render share_path, status: :unprocessable_entity
+    end
+
+    @video.update(video_type: :colab) #update to collab if was solo before
     collaboration = Collaboration.create!(
       video: @video,
       inviting_user: current_user,

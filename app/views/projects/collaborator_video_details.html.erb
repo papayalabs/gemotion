@@ -1,9 +1,8 @@
 <div class="flex flex-col items-center mb-45">
-
   <%= render "shared/hello_block"%>
-
   <%= render "shared/profile_tabs", page_count: 1 %>
 </div>
+
 <div class='spaces-on-sides'>
 
   <%= render "shared/creator_participant_block", creator: false %>
@@ -23,19 +22,19 @@
       </ul>
     </div>
   </div>
-  <hr class='hr-divider-gray mt-65 '/>
-
-  <div class="projects-grid mt-8">
-    <% @collaborator_projects.each do |video| %>
-      <div class="project-main-block flex flex-col justify-between">
-        <div class="project-block">
-          <%unless video.preview_id.nil?%>
-            <%preview_img = Preview.find(video.preview_id)%>
-            <%= image_tag preview_img.image, class: "preview-image prev-image preview-prof-img" %>
-          <%end%>
-        </div>
-        <a href="<%= collaborator_video_details_path(video.id) %>" class="cta-button">Détails du projet</a>
-      </div>
-    <%end%>
+  <div class="w-80 mt-65">
+    <h2 class="text-left">Les informations sur le projet en cours</h2>
+  </div>
+  <div class="flex flex-row items-start mt-4">
+    <span class="font-bold mr-4">Nom du destinataire (pour qui nous préparons le film) :</span>
+    <span><%=@destinataire.name%></span>
+  </div>
+  <div class="flex flex-row items-start mt-4">
+    <span class="font-bold mr-4">Occasion :</span>
+    <span><%= @video.occasion.humanize %></span>
+  </div>
+  <div class="flex flex-row items-start mt-4">
+    <span class="font-bold mr-4">Date de livraison du film :</span>
+    <span><%=@video&.end_date&.strftime("%d/%m/%Y") %></span>
   </div>
 </div>

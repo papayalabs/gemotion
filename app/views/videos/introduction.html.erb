@@ -29,7 +29,9 @@
         </div>
       </div>
 
-      <div class="frame">
+      <%
+=begin%>
+ <div class="frame">
         <h3 class="video-h3">Regardez l'aperçu</h3>
         <p>Le début de la vidéo dépendra du genre (masculin, féminin ou neutre) que vous avez indiqué précédemment.</p>
 
@@ -37,6 +39,8 @@
           <%= video_tag "previews/#{el[0]}.mp4", class: "hidden", 'data-switchvideo-target': 'video', 'data-switchvideo-info':el[0], controls: true %>
         <% end %>
       </div>
+<%
+=end%>
       <div class="video-steps">
         <%= render "videos/shared/back_button" %>
         <%= f.submit "Étape suivante", class:"cta" %>

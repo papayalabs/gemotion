@@ -72,6 +72,7 @@ Rails.application.routes.draw do
   get 'projects/as_creator', to: 'projects#as_creator_projects', as: 'as_creator_projects'
   get 'projects/as_collaborator', to: 'projects#as_collaborator_projects', as: 'as_collaborator_projects'
   get 'projects/participants_progress', to: 'projects#participants_progress', as: 'participants_progress'
+  get 'projects/collaborator_video_details/:id', to: 'projects#collaborator_video_details', as: 'collaborator_video_details'
   delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
   patch 'projects/:id/modify_deadline', to: 'projects#modify_deadline', as: 'modify_deadline'
   patch 'projects/:id/close_project', to: 'projects#close_project', as: 'close_project'
