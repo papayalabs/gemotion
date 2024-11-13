@@ -66,7 +66,7 @@ class ContentDedicaceService
   end
 
   def fetch_chapter_assets
-    @video.video_chapters.includes(:chapter_type).map do |vc|
+    @video.video_chapters.includes(:chapter_type).sort_by(&:order).map do |vc|
       {
         videos: vc.ordered_videos,
         photos: vc.ordered_photos,

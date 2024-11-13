@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
   # Video
   get 'videos/back', to: "videos#go_back", as: "step_back"
+  get 'videos/go_to_select_chapters', to: "videos#go_to_select_chapters", as: "go_to_select_chapters"
 
   get 'videos/start', to: "videos#start", as: "start"
   post 'videos/start', to: "videos#start_post", as: "start_post"
@@ -66,6 +67,14 @@ Rails.application.routes.draw do
   get 'videos/confirmation', to: "videos#confirmation", as: "confirmation"
   post 'videos/confirmation', to: "videos#confirmation_post", as: "confirmation_post"
   get 'videos/skip_confirmation', to: "videos#skip_confirmation", as: "skip_confirmation"
+
+  get 'videos/edit_video', to: "videos#edit_video", as: "edit_video"
+  post 'videos/edit_video_post', to: "videos#edit_video_post", as: "edit_video_post"
+  get 'videos/skip_edit_video', to: "videos#skip_edit_video", as: "skip_edit_video"
+  delete 'videos/delete_video_chapter/:id', to: 'videos#delete_video_chapter', as: 'delete_video_chapter'
+
+  get 'videos/payment', to: "videos#payment", as: "payment"
+
 
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 

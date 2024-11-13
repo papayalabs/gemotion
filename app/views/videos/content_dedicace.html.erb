@@ -6,7 +6,9 @@
     <div class="dedication-content-medias"><span>Vos médias</span></div>
     <div class="dedication-content-theme"><span><strong>Thème&nbsp;:&nbsp;</strong><%= @video.dedicace.name %></span></div>
 
-    <%= form_with url: content_dedicace_post_path, method: :post, html: { class: "dedication-content-form" } do |f| %>
+    <%
+=begin%>
+ <%= form_with url: content_dedicace_post_path, method: :post, html: { class: "dedication-content-form" } do |f| %>
       <% @video.dedicace_contents.order(position: :asc)&.each do |dc| %>
         <% if dc.content.attached? %>
           <%= video_tag dc.content, controls: true, autobuffer: true %>
@@ -16,6 +18,8 @@
       <%= f.file_field :contents, multiple: true %>
       <%= f.submit "Mettre en ligne", class:"cta" %>
     <% end %>
+<%
+=end%>
 
     <% if @video.completed? %>
       <div>

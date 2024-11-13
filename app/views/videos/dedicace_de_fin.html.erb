@@ -115,7 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
     videoPreview.srcObject = stream;
     videoPreviewText.style.display = "none";
     videoPreviewImg.style.display = "none";
-    videoUploaded.style.display = "none";
+    if(videoUploaded){
+      videoUploaded.style.display = "none";
+    }
     videoPreview.style.display = "block";
     videoPreview.play();
 

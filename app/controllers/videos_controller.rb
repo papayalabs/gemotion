@@ -2,9 +2,9 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back dedicace_de_fin_patch join update_video_music_type concat_status]
+  before_action :select_video, except: %i[go_back go_to_select_chapters dedicace_de_fin_patch join update_video_music_type concat_status delete_video_chapter]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
-  before_action :define_music, only: %i[music music_post]
+  before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
   before_action :select_join_video, only: %i[join]
   before_action :define_video_chapters, only: %i[content content_post]
@@ -38,6 +38,12 @@ class VideosController < ApplicationController
     else
       redirect_to send("#{@video.current_step}_path"), alert: "Impossible de revenir en arrière"
     end
+  end
+
+  def go_to_select_chapters
+    @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
+    @video.update(stop_at: "photo_intro")
+    redirect_to select_chapters_path, alert: "Aucune vidéo trouvé."
   end
 
   def start_post
@@ -241,7 +247,6 @@ class VideosController < ApplicationController
     end
 
     # Création, Mise à jour et suppression
-
     if @video.video_chapters.create(chapter_to_create) &&
       @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
 
@@ -475,8 +480,10 @@ class VideosController < ApplicationController
   end
 
   def dedicace_de_fin_patch
-    authorize @video, :dedicace_de_fin_patch?, policy_class: VideoPolicy
     @dedicace = Dedicace.find(params[:id])
+    video = Video.find_by(dedicace_id: params[:id])
+    authorize video, :dedicace_de_fin_patch?, policy_class: VideoPolicy
+
     # position = params[:dedicace][:car_position]
 
 
@@ -566,6 +573,69 @@ class VideosController < ApplicationController
 
   def skip_deadline
     skip_element(deadline_path)
+  end
+
+  def edit_video
+    authorize @video, :edit_video?, policy_class: VideoPolicy
+    @chapters = @video.video_chapters.order(:order).includes(:chapter_type, videos_attachments: :blob, photos_attachments: :blob)
+  end
+
+  def edit_video_post
+    authorize @video, :edit_video_post?, policy_class: VideoPolicy
+
+    # Update the order of chapters
+    if params[:chapter_order].present?
+      chapter_ids = params[:chapter_order].split(',').map(&:to_i)
+      chapter_ids.each_with_index do |id, index|
+        chapter = @video.video_chapters.find_by(id: id)
+        chapter.update(order: index + 1) if chapter
+      end
+    end
+
+    # Update text and music for each chapter
+    params[:chapters]&.each do |chapter_id, chapter_data|
+      chapter = @video.video_chapters.find_by(id: chapter_id)
+      next unless chapter
+
+      # Update the text
+      chapter.update(text: chapter_data[:text]) if chapter_data[:text].present?
+
+      # Update or create the associated video_music record
+      if chapter_data[:music_id].present?
+        if chapter.video_music.present?
+          chapter.video_music.update(music_id: chapter_data[:music_id])
+        else
+          chapter.create_video_music(music_id: chapter_data[:music_id])
+        end
+      end
+    end
+
+    redirect_to edit_video_path, notice: 'Video chapters reordered successfully'
+  end
+
+  def payment
+
+  end
+
+  def skip_edit_video
+    # authorize @video, :skip_content_dedicace?
+    skip_element(edit_video_path)
+  end
+
+  def delete_video_chapter
+    video_chapter = VideoChapter.find(params[:id]) # Use the appropriate ID from the params
+    authorize video_chapter.video, :delete_video_chapter?, policy_class: VideoPolicy
+    if video_chapter.destroy
+      respond_to do |format|
+        format.html { redirect_to edit_video_path, notice: 'Chapter deleted successfully.' }
+        format.json { render json: { message: 'Chapter deleted successfully' }, status: :ok }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to edit_video_path, alert: 'Failed to delete the chapter.' }
+        format.json { render json: { error: 'Failed to delete the chapter' }, status: :unprocessable_entity }
+      end
+    end
   end
 
   def get_video_duration(video_path)

@@ -47,6 +47,9 @@ class VideoPolicy < ApplicationPolicy
   def deadline?; start_post?; end
   def deadline_post?; start_post?; end
   def skip_deadline?; start_post?; end
+  def edit_video?; start_post?; end
+  def edit_video_post?; start_post?; end
+  def delete_video_chapter?; start_post?; end
   def concat_status?; start_post?; end
   def go_back?; start_post?; end
   # def join?; start_post?; end

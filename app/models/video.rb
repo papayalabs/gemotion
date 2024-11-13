@@ -25,8 +25,8 @@ class Video < ApplicationRecord
     belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
 
-    SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'deadline', 'content_dedicace', 'render']
-    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'deadline', 'content_dedicace', 'render']
+    SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'deadline', 'edit_video', 'content_dedicace', 'payment']
+    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'deadline', 'edit_video', 'content_dedicace', 'payment']
 
     def video_destinataire
         self.video_destinataires.last

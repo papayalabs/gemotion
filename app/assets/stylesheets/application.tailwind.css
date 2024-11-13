@@ -858,6 +858,14 @@ h2 {
   grid-row-gap: 30px;
 }
 
+.chapters-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 30px;
+}
+
 .project-block{
   position: relative;
   overflow: hidden;
@@ -889,6 +897,11 @@ h2 {
 }
 .edit-proj-modal{
   height: 700px;
+  border-radius: 20px;
+}
+.edit-chap-modal{
+  height: 700px;
+  width: 577px;
   border-radius: 20px;
 }
 .popup-chap-modal{
@@ -1140,4 +1153,19 @@ h2 {
   background-color: rgba(247, 247, 247, 1);
   border-radius: 10px;
   margin-top: 20px;
+}
+.edit_video_form_block{
+  width: 80%;
+  background-color: rgba(247, 247, 247, 1);
+  border-radius: 20px;
+  padding: 20px;
+}
+.delete-chap-icon{
+  position: absolute;
+  top: 10px;
+  right: 35px;
+  width: 24px;
+  height: 24px;
+  z-index: 2; /* Ensure the icon is on top */
+  display: block; /* Make sure the icon is visible */
 }
