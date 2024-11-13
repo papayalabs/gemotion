@@ -63,6 +63,10 @@ Rails.application.routes.draw do
   patch 'videos/dedicace_de_fin_patch/:id', to: "videos#dedicace_de_fin_patch", as: "dedicace_de_fin_patch"
   get 'videos/skip_dedicace_de_fin', to: "videos#skip_dedicace_de_fin", as: "skip_dedicace_de_fin"
 
+  get 'videos/confirmation', to: "videos#confirmation", as: "confirmation"
+  post 'videos/confirmation', to: "videos#confirmation_post", as: "confirmation_post"
+  get 'videos/skip_confirmation', to: "videos#skip_confirmation", as: "skip_confirmation"
+
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 
   get 'projects/as_creator', to: 'projects#as_creator_projects', as: 'as_creator_projects'

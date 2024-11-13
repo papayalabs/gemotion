@@ -463,10 +463,12 @@ class VideosController < ApplicationController
   end
 
   def dedicace_de_fin
+    authorize @video, :dedicace_de_fin?, policy_class: VideoPolicy
     @dedicace = @video.dedicace
   end
 
   def dedicace_de_fin_patch
+    authorize @video, :dedicace_de_fin_patch?, policy_class: VideoPolicy
     @dedicace = Dedicace.find(params[:id])
     # position = params[:dedicace][:car_position]
 
@@ -498,6 +500,37 @@ class VideosController < ApplicationController
   def skip_dedicace_de_fin
     # authorize @video, :skip_content_dedicace?
     skip_element(dedicace_de_fin_path)
+  end
+
+  def confirmation
+    authorize @video, :confirmation?, policy_class: VideoPolicy
+  end
+
+  def confirmation_post
+    authorize @video, :confirmation_post?, policy_class: VideoPolicy
+    # Le mailer fonctionne mais pas le join
+    email = params[:email]
+    if email.blank?
+      flash[:alert] = "Un email doit être indiqué pour envoyer l'invitation."
+      return render confirmation_path, status: :unprocessable_entity
+    end
+
+    # create Collab obj
+    collab_user = User.find_by_email(params[:email])
+    collaboration = Collaboration.create!(
+      video: @video,
+      inviting_user: current_user,
+      invited_email: params[:email],
+      invited_user: collab_user # may be nil if user doesn't exist yet
+    )
+
+    InvitationMailer.with(url: join_url(@video.token), email:).send_invitation.deliver_later
+    flash[:notice] = "Invitation envoyé."
+    redirect_to confirmation_path
+  end
+
+  def skip_confirmation
+    skip_element(confirmation_path)
   end
 
   def deadline

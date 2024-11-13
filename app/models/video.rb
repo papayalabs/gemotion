@@ -26,7 +26,7 @@ class Video < ApplicationRecord
     belongs_to :dedicace, optional: true
 
     SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'content_dedicace', 'deadline', 'render']
-    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'content_dedicace', 'deadline', 'render']
+    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'content_dedicace', 'deadline', 'render']
 
     def video_destinataire
         self.video_destinataires.last

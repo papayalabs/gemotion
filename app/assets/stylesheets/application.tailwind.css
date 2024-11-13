@@ -149,7 +149,12 @@
 .mr-8 {
   margin-right: 2rem
 }
-
+.pt-40 {
+  padding-top: 40px;
+}
+.pb-40{
+  padding-bottom: 40px;
+}
 .placeholder-text-12::placeholder {
   font-size: 12px!important;
 }
@@ -1050,7 +1055,7 @@ h2 {
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   position: relative;
-  height: 128px;
+  min-height: 128px;
   border-radius: 10px;
 }
 .video-recording-block{
@@ -1114,4 +1119,15 @@ h2 {
 .plus-sign {
   font-size: 2rem;
   color: #666;
+}
+.frame-grey{
+  display: flex;
+  width: 1006px;
+  padding: 40px 116px;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  border-radius: 20px;
+  background: rgba(247, 247, 247, 1);
+  margin: auto;
 }

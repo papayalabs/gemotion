@@ -10,7 +10,7 @@
         <div class="mr-2">Vos médias</div>
         <div class="flex justify-start items-center">
           <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2', style: 'height: 24px; width: 24px;' %>
-          <div id="setVideoTime" class="ml-2">00:00</div>
+          <%= @dedicace.video_duration %>
         </div>
       </div>
 
@@ -126,8 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
     mediaRecorder.onstop = () => {
-      const recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
-      const file = new File([recordedBlob], "recorded_video.webm", { type: "video/webm" });
+      const recordedBlob = new Blob(recordedChunks, { type: "video/mp4" });
+      const file = new File([recordedBlob], "recorded_video.mp4", { type: "video/mp4" });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
       recordedVideoFile.files = dataTransfer.files;

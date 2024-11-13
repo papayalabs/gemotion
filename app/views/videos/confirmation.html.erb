@@ -1,0 +1,40 @@
+<div class="flex flex-col justify-start items-center">
+  <div class="film-yourself-block flex flex-col justify-center items-center mt-65 pt-40 pb-40">
+    <span class="mt-8">Veuillez confirmer que tout est en ordre et maintenant c'est aux invités de participer.</span>
+    <%= image_tag 'img_placeholder.png', class: 'top-image' %>
+
+  <div class="mt-8">
+
+    <div class="frame-grey">
+
+      <h4 class="video-h4">Invitez des amis par e-mail, lien simple, lien WhatsApp, lien Facebook Messenger.</h4>
+
+      <%= form_with url: confirmation_post_path, method: :post do |f| %>
+        <div class="share-wrapper">
+          <%= f.email_field :email, placeholder: "Email", class:"share-email" %>
+          <%= f.submit "Inviter", class:"share-submit" %>
+        </div>
+      <% end %>
+
+      <p>Ou partagez le lien</p>
+
+      <div class="share-clipboard" data-controller="clipboard">
+        <div class="share-clipboard-wrapper">
+          <%= image_tag "icons/link.svg" %>
+          <span><%= join_url(@video.token) %></span>
+        </div>
+        <span data-action="click->clipboard#copy" data-clipboard-value-param="<%= join_url(@video.token) %>" class="share-clipboard-btn">Copier</span>
+      </div>
+
+    </div>
+
+
+    <div class="video-steps">
+      <%= render "videos/shared/back_button" %>
+      <%= link_to "Étape suivante", skip_confirmation_path, class: "cta" %>
+    </div>
+
+  </div>
+  </div>
+
+</div>

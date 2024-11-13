@@ -38,6 +38,12 @@ class VideoPolicy < ApplicationPolicy
   def content_dedicace?; start_post?; end
   def content_dedicace_post?; start_post?; end
   def skip_content_dedicace?; start_post?; end
+  def dedicace_de_fin?; start_post?; end
+  def dedicace_de_fin_patch?; start_post?; end
+  def skip_dedicace_de_fin?; start_post?; end
+  def confirmation?; start_post?; end
+  def confirmation_post?; start_post?; end
+  def skip_confirmation?; start_post?; end
   def deadline?; start_post?; end
   def deadline_post?; start_post?; end
   def skip_deadline?; start_post?; end
