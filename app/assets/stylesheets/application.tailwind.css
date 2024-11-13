@@ -1131,3 +1131,13 @@ h2 {
   background: rgba(247, 247, 247, 1);
   margin: auto;
 }
+.date-field{
+  border-radius: 16px;
+  border: 1px dotted black;
+}
+.grey-block{
+  width: 80%;
+  background-color: rgba(247, 247, 247, 1);
+  border-radius: 10px;
+  margin-top: 20px;
+}

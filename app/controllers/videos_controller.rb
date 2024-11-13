@@ -537,6 +537,25 @@ class VideosController < ApplicationController
     authorize @video, :deadline?, policy_class: VideoPolicy
   end
 
+  def deadline_post
+    authorize @video, :deadline_post?, policy_class: VideoPolicy
+    return render deadline_path, status: :unprocessable_entity if params[:end_date].blank?
+
+    @video.end_date = DateTime.parse(params[:end_date])
+    @video.stop_at = @video.next_step
+
+    if @video.validate_date_fin && @video.save
+      redirect_to send("#{@video.next_step}_path")
+    else
+      @video.update(stop_at: @video.current_step)
+      render deadline_path, status: :unprocessable_entity
+    end
+  end
+
+  def skip_deadline
+    skip_element(deadline_path)
+  end
+
   def get_video_duration(video_path)
     # authorize @video, :get_video_duration?
     output = `ffprobe -i #{video_path} -show_entries format=duration -v quiet -of csv="p=0"`
