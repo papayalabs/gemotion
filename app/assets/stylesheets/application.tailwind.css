@@ -155,6 +155,9 @@
 .pb-40{
   padding-bottom: 40px;
 }
+.br-10{
+  border-radius: 10px;
+}
 .placeholder-text-12::placeholder {
   font-size: 12px!important;
 }
@@ -901,7 +904,7 @@ h2 {
 }
 .edit-chap-modal{
   height: 700px;
-  width: 577px;
+  width: 450px;
   border-radius: 20px;
 }
 .popup-chap-modal{
@@ -1112,6 +1115,27 @@ h2 {
   padding-left: 25px;
   padding-right: 25px;
 }
+.upload-attachment-block{
+  width: 100%;
+  height: 150px;
+  border-radius: 10px;
+  border: 1px dotted rgba(0, 0, 0, 1);
+  background-color: rgba(255, 255, 255, 1);
+  padding-left: 25px;
+  padding-right: 25px;
+}
+.upload-attachment-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease;
+}
 .upload-circle {
   width: 100px;
   height: 100px;
@@ -1168,4 +1192,73 @@ h2 {
   height: 24px;
   z-index: 2; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
+}
+.video-container{
+  position: relative;
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 10px;
+  video{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.image-container{
+  position: relative;
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 10px;
+  img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.edit-video-container{
+  position: relative;
+  width: 110px;
+  height: 110px;
+  overflow: hidden;
+  border-radius: 10px;
+  video{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.edit-image-container{
+  position: relative;
+  width: 110px;
+  height: 110px;
+  overflow: hidden;
+  border-radius: 10px;
+  .preview-image{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.purge-chap-icon{
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 20px !important;
+  height: 20px !important;
+  z-index: 2 !important;
+  display: block !important;
 }

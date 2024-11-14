@@ -50,6 +50,7 @@ class VideoPolicy < ApplicationPolicy
   def edit_video?; start_post?; end
   def edit_video_post?; start_post?; end
   def delete_video_chapter?; start_post?; end
+  def purge_chapter_attachment?; start_post?; end
   def concat_status?; start_post?; end
   def go_back?; start_post?; end
   # def join?; start_post?; end

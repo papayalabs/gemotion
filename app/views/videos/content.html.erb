@@ -2,7 +2,7 @@
   <h1 class="video-h1">Ajoutez 2 vidéos et 2 photos pour chaque chapitre</h1>
 
   <div class="">
-    <% @video_chapters.each do |video_chapter| %>
+    <% @video_chapters.sort_by(&:order).each do |video_chapter| %>
       <%= form_with url: content_post_path(video_chapter), method: :post, html: { class: "video-form", data: { turbo: false } } do |f| %>
         <div class="frame" id="drop-area-<%= video_chapter.id %>">
           <div class="video-memory-thumb-wrapper">

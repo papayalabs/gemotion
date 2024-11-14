@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back go_to_select_chapters dedicace_de_fin_patch join update_video_music_type concat_status delete_video_chapter]
+  before_action :select_video, except: %i[go_back go_to_select_chapters dedicace_de_fin_patch join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -635,6 +635,20 @@ class VideosController < ApplicationController
         format.html { redirect_to edit_video_path, alert: 'Failed to delete the chapter.' }
         format.json { render json: { error: 'Failed to delete the chapter' }, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def purge_chapter_attachment
+    attachment = ActiveStorage::Attachment.find_by(id: params[:id])
+    if attachment.nil?
+      return respond_to do |format|
+        format.json { render json: { error: 'Attachment not found' }, status: :not_found }
+      end
+    end
+    authorize attachment.record.video, :purge_chapter_attachment?, policy_class: VideoPolicy
+    attachment.purge
+    respond_to do |format|
+      format.json { render json: { message: 'Attachment deleted successfully' }, status: :ok }
     end
   end
 

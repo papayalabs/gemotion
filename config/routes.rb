@@ -72,6 +72,7 @@ Rails.application.routes.draw do
   post 'videos/edit_video_post', to: "videos#edit_video_post", as: "edit_video_post"
   get 'videos/skip_edit_video', to: "videos#skip_edit_video", as: "skip_edit_video"
   delete 'videos/delete_video_chapter/:id', to: 'videos#delete_video_chapter', as: 'delete_video_chapter'
+  delete 'videos/purge_chapter_attachment/:id', to: 'videos#purge_chapter_attachment', as: 'purge_chapter_attachment'
 
   get 'videos/payment', to: "videos#payment", as: "payment"
 
