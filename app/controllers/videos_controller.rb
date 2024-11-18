@@ -592,13 +592,49 @@ class VideosController < ApplicationController
       end
     end
 
-    # Update text and music for each chapter
+    # Update fields for each chapter
     params[:chapters]&.each do |chapter_id, chapter_data|
       chapter = @video.video_chapters.find_by(id: chapter_id)
       next unless chapter
 
-      # Update the text
+      # Update text
       chapter.update(text: chapter_data[:text]) if chapter_data[:text].present?
+
+      # Update videos order
+      chapter.update(videos_order: chapter_data[:videos_order]) if chapter_data[:videos_order].present?
+
+      # Attach new videos
+      if chapter_data[:videos].present?
+        chapter_data[:videos].each do |video|
+          next if video.blank?
+
+          # Skip if the file is already attached
+          next if chapter.videos.any? { |v| v.filename.to_s == video.original_filename }
+
+          # Purge the oldest video if there are already 2 videos
+          chapter.videos.first.purge if chapter.videos.count >= 2
+
+          chapter.videos.attach(video)
+        end
+      end
+
+      # Update photos order
+      chapter.update(photos_order: chapter_data[:photos_order]) if chapter_data[:photos_order].present?
+
+      # Attach new photos
+      if chapter_data[:photos].present?
+        chapter_data[:photos].each do |photo|
+          next if photo.blank?
+
+          # Skip if the file is already attached
+          next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
+
+          # Purge the oldest photo if there are already 2 photos
+          chapter.photos.first.purge if chapter.photos.count >= 2
+
+          chapter.photos.attach(photo)
+        end
+      end
 
       # Update or create the associated video_music record
       if chapter_data[:music_id].present?
@@ -610,7 +646,7 @@ class VideosController < ApplicationController
       end
     end
 
-    redirect_to edit_video_path, notice: 'Video chapters reordered successfully'
+    redirect_to edit_video_path, notice: 'Video chapters updated successfully'
   end
 
   def payment

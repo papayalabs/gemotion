@@ -68,8 +68,12 @@
                         <% selected_music_id = chapter.video_music&.music_id %>
                         <%= f.select "chapters[#{chapter.id}][music_id]", @musics.map { |music| [music.name, music.id] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select w-full br-10' } %>
                       </div>
+                      <%= button_tag type: 'button', formmethod: 'dialog', class: 'cta w-100i h-45', data: { action: 'click->dialog#close' } do %>
+                        Fermer
+                      <% end %>
                     </div>
                   </div>
+
                 </dialog>
               </div>
 
@@ -111,6 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const fileUploadInputVideos = document.getElementById("fileUploadInputVideos");
   const fileUploadInputPhotos = document.getElementById("fileUploadInputPhotos");
 
+  initializeSortableForAll();
+
   customUploadButtonVideos.addEventListener("click", () => {
     fileUploadInputVideos.click();
   });
@@ -126,11 +132,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Replace existing video containers with new uploaded files
     videoGallery.innerHTML = "";
     Array.from(event.target.files).forEach((file) => {
-      addVideoContainer(videoGallery, file);
+      addVideoContainer(videoGallery, file, event.target);
     });
 
     // Update order and reinitialize Sortable
     updateOrder(videoGallery, videosOrderInput);
+    initializeSortableForGallery(videoGallery, videosOrderInput);
     const fileName = event.target.files[0]?.name;
     if (fileName) {
 
@@ -146,32 +153,56 @@ document.addEventListener("DOMContentLoaded", function () {
     // Replace existing photo containers with new uploaded files
     photoGallery.innerHTML = "";
     Array.from(event.target.files).forEach((file) => {
-      addPhotoContainer(photoGallery, file);
+      addPhotoContainer(photoGallery, file, event.target);
     });
 
     // Update order and reinitialize Sortable
     updateOrder(photoGallery, photosOrderInput);
+    initializeSortableForGallery(photoGallery, photosOrderInput);
     const fileName = event.target.files[0]?.name;
     if (fileName) {
       customUploadButtonPhotos.querySelector(".plus-sign").textContent = "✔";
     }
   });
 
-  // Initialize Sortable for chapter list reordering
-  const chaptersList = document.getElementById("chapters-list");
-  const chapterOrderInput = document.getElementById("chapter_order");
+  // Initialize Sortable for all galleries
+  function initializeSortableForAll() {
+    const chaptersList = document.getElementById("chapters-list");
+    const chapterOrderInput = document.getElementById("chapter_order");
 
-  if (chaptersList) {
-    new Sortable(chaptersList, {
-      animation: 150,
-      onEnd: function () {
-        // Update the order of chapter IDs
-        const order = Array.from(chaptersList.children).map((item) =>
-          item.getAttribute("data-id")
-        );
-        chapterOrderInput.value = order.join(",");
-      },
-    });
+    if (chaptersList) {
+      new Sortable(chaptersList, {
+        animation: 150,
+        onEnd: function () {
+          // Update the order of chapter IDs
+          const order = Array.from(chaptersList.children).map((item) =>
+            item.getAttribute("data-id")
+          );
+          chapterOrderInput.value = order.join(",");
+        },
+      });
+      Array.from(chaptersList.children).forEach((chapterItem) => {
+        const chapterId = chapterItem.getAttribute("data-id");
+        const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
+        const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
+        const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
+        const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
+
+        initializeSortableForGallery(videoGallery, videosOrderInput);
+        initializeSortableForGallery(photoGallery, photosOrderInput);
+      });
+    }
+  }
+
+
+  // Helper function to initialize Sortable for a gallery
+  function initializeSortableForGallery(gallery, orderInput) {
+    if (gallery) {
+      new Sortable(gallery, {
+        animation: 150,
+        onEnd: () => updateOrder(gallery, orderInput),
+      });
+    }
   }
 
   // Handle delete chapter button click
@@ -246,9 +277,24 @@ document.addEventListener("DOMContentLoaded", function () {
     orderInput.value = order.join(",");
   }
 
+  function updateFileInput(inputElement, fileList) {
+    const dataTransfer = new DataTransfer();
+    console.log("updateFileInput")
+    fileList.forEach((file) => {
+      dataTransfer.items.add(file);
+    });
+
+    inputElement.files = dataTransfer.files;
+  }
+
+  let uploadedVideos = [];
+  let uploadedPhotos = [];
+
   // Helper function to add video container
-  function addVideoContainer(gallery, file) {
+  function addVideoContainer(gallery, file, inputElement) {
     const fileName = file.name;
+    uploadedVideos.push(file);
+
     const videoContainer = document.createElement("div");
     videoContainer.classList.add("edit-video-container", "new-video-container");
     videoContainer.setAttribute("data-file-name", fileName);
@@ -258,11 +304,17 @@ document.addEventListener("DOMContentLoaded", function () {
     videoPreview.src = URL.createObjectURL(file);
 
     const deleteButton = document.createElement("div");
-    deleteButton.classList.add("purge-attachment-icon-btn");
-    deleteButton.innerHTML = `<img src="/icons/delete_icon.png" alt="Delete Icon" class="purge-chap-icon">`;
+    deleteButton.classList.add("purge-attachment-icon");
+    deleteButton.innerHTML = `<img src="<%= asset_path('icons/delete_icon.png') %>" alt="Delete Icon" class="purge-chap-icon">`;
     deleteButton.addEventListener("click", () => {
-      videoContainer.remove();
+      console.log("sdfsdfds")
+
+      uploadedVideos = uploadedVideos.filter((item) => item.name !== fileName);
+      updateFileInput(inputElement, uploadedVideos);
+
       updateOrder(gallery, gallery.closest(".chapter-item").querySelector(`[id^='videos_order_']`));
+      videoContainer.remove();
+
     });
 
     videoContainer.appendChild(videoPreview);
@@ -271,8 +323,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Helper function to add photo container
-  function addPhotoContainer(gallery, file) {
+  function addPhotoContainer(gallery, file, inputElement) {
     const fileName = file.name;
+    uploadedPhotos.push(file);
+
     const photoContainer = document.createElement("div");
     photoContainer.classList.add("edit-image-container", "new-image-container");
     photoContainer.setAttribute("data-file-name", fileName);
@@ -282,10 +336,14 @@ document.addEventListener("DOMContentLoaded", function () {
     photoPreview.src = URL.createObjectURL(file);
 
     const deleteButton = document.createElement("div");
-    deleteButton.classList.add("purge-attachment-icon-btn");
-    deleteButton.innerHTML = `<img src="/icons/delete_icon.png" alt="Delete Icon" class="purge-chap-icon">`;
+    deleteButton.classList.add("purge-attachment-icon");
+    deleteButton.innerHTML = `<img src="<%= asset_path('icons/delete_icon.png') %>" alt="Delete Icon" class="purge-chap-icon">`;
     deleteButton.addEventListener("click", () => {
       photoContainer.remove();
+
+      uploadedPhotos = uploadedPhotos.filter((item) => item.name !== fileName);
+      updateFileInput(inputElement, uploadedPhotos);
+
       updateOrder(gallery, gallery.closest(".chapter-item").querySelector(`[id^='images_order_']`));
     });
 
