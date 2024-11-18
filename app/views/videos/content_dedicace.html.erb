@@ -1,50 +1,38 @@
 <div>
-  <h1 class="video-h1">Ajoutez votre partie vidéo à la dédicace finale</h1>
-  <p class="video-desc">Filmez vous directement sur notre plateforme (via votre tablette, téléphone, ordinateur)</p>
+  <h1 class="video-h1">Une première version de votre vidéo est déjà disponible</h1>
 
   <div class="frame">
-    <div class="dedication-content-medias"><span>Vos médias</span></div>
-    <div class="dedication-content-theme"><span><strong>Thème&nbsp;:&nbsp;</strong><%= @video.dedicace.name %></span></div>
-
-    <%
-=begin%>
- <%= form_with url: content_dedicace_post_path, method: :post, html: { class: "dedication-content-form" } do |f| %>
-      <% @video.dedicace_contents.order(position: :asc)&.each do |dc| %>
-        <% if dc.content.attached? %>
-          <%= video_tag dc.content, controls: true, autobuffer: true %>
-        <% end %>
-      <% end %>
-
-      <%= f.file_field :contents, multiple: true %>
-      <%= f.submit "Mettre en ligne", class:"cta" %>
-    <% end %>
-<%
-=end%>
-
     <% if @video.completed? %>
       <div>
-        <h3>Final Video:</h3>
-        <video controls style="max-width: 100%; height: auto;">
-          <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
-          Your browser does not support the video element.
-        </video>
-        <br>
-        <a href="<%= url_for(@video.final_video) %>" download>Download Final Video</a>
-      </div>
-      <%= link_to "Refresh Video", content_dedicace_path(@video, refresh: true), class: "cta", data: { disable_with: "Refreshing..." } %>
-    <% elsif @video.processing? %>
-      <p>Your video is being processed. This page will refresh once it’s ready.</p>
-    <% else %>
-      <p>No final video generated.</p>
-    <% end %>
+        <div class="flex justify-start items-center mb-45">
+          <div class="mr-2">Vos médias</div>
+          <div class="flex justify-start items-center">
+            <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
+            <%= format_time(@video.final_video_duration) %>
+          </div>
+          <div class="ml-50">Coût de votre film</div>
+          <div class="flex justify-start items-center">
+            <%= image_tag 'icons/ant-design_euro-outlined', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
+            <%duration_in_minutes = Video.calculate_duration(@video.final_video_duration) %>
+            <%=Video.calculate_price(duration_in_minutes)%>
+          </div>
 
-    <% if @video.completed? && @video.final_video_xml.attached? %>
-      <div>
-        <h3>Final Cut Pro Project:</h3>
-        <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download>Download MLT archive</a>
+        </div>
+
+        <video id="video-player" style="max-width: 100%; height: auto;" oncontextmenu="return false;">
+          <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
+          Votre navigateur ne prend pas en charge l'élément vidéo.
+        </video>
+        <div class="custom-controls flex justify-center">
+          <button id="play-pause" class="cta mt-2 with-play-icon">Play</button>
+        </div>
+        <br>
       </div>
+      <%= link_to "Actualiser la vidéo", content_dedicace_path(@video, refresh: true), class: "cta", data: { disable_with: "Refreshing..." } %>
+    <% elsif @video.processing? %>
+      <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
     <% else %>
-      <p>No FCPXML file generated.</p>
+      <p>Aucune vidéo finale générée.</p>
     <% end %>
   </div>
 
@@ -54,8 +42,27 @@
   </div>
 </div>
 
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
+    const video = document.getElementById('video-player');
+    const playPauseButton = document.getElementById('play-pause');
+    if(playPauseButton){
+      playPauseButton.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+          playPauseButton.textContent = 'Pause';
+          playPauseButton.classList.remove('with-play-icon');
+          playPauseButton.classList.add('with-stop-icon');
+        } else {
+          video.pause();
+          playPauseButton.textContent = 'Play';
+          playPauseButton.classList.remove('with-stop-icon');
+          playPauseButton.classList.add('with-play-icon');
+        }
+      });
+    }
+
     const videoId = "<%= @video.id %>";
 
     // Check the initial status of the video

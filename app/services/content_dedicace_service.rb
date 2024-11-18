@@ -211,9 +211,11 @@ class ContentDedicaceService
 
   def dedicace_video
     dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
+    # video_dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.video_dedicace.creator_end_dedication_video.key)
     dedicace_output_path = @temp_dir.join("dedicace.ts")
     p "+"*100 + "dedicace_video" + "+"*100
     system("ffmpeg -y -i \"#{dedicace_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{dedicace_output_path}\"")
+    # system("ffmpeg -y -i \"#{video_dedicace_input_path}\" -i \"#{dedicace_input_path}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{video_dedicace_input_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{dedicace_output_path}\"")
     p "-"*100 + "dedicace_video" + "-"*100
     @ts_videos << dedicace_output_path.to_s
     add_to_mlt_video(dedicace_output_path, "dedicace.ts", "dedicace")

@@ -1,9 +1,96 @@
+<div class='big-spaces-on-sides'>
+  <h2 class="text-left mb-2">Votre projet</h2>
 
+  <div class="payment-container">
+
+    <div class="payment-block payment-block-1 flex flex-row justify-start">
+      <div class="vector-block flex justify-center items-center mt-8">
+        <%= image_tag 'Vector.png', class: ""%>
+      </div>
+      <div class="flex flex-col ml-50">
+        <div class="font-bold">PRODUIT</div>
+        <div class="mt-6"><%= "Film, #{format_time(@video.final_video_duration)} min." %></div>
+      </div>
+      <div class="flex flex-col ml-50">
+        <div class="font-bold">PRIX</div>
+        <div class="flex justify-start items-center mt-6">
+          €<%= @amount %>
+        </div>
+      </div>
+      <div class="flex flex-col ml-50">
+        <div class="font-bold">QUANTITÉ</div>
+        <div class="mt-6 div-input">1</div>
+      </div>
+
+      <div class="flex flex-col ml-50">
+        <div class="font-bold">SOUS-TOTAL</div>
+        <div class="mt-6">€<%= @amount %></div>
+      </div>
+    </div>
+    <div class="payment-block payment-block-2">
+      <div>
+
+        <form action="<%= payment_post_path %>" method="post" id="payment-form">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <input type="hidden" name="stripeToken" id="stripeToken">
+          <div class="flex flex-col justify-between">
+            <div class="mb-[48px]">
+              <div class="total-price mb-4">TOTAL DU PANIER</div>
+
+              <div class="flex justify-between items-center mb-4">
+                <span class="font-bold">SOUS-TOTAL</span>
+                <span>€<%= @amount %></span>
+              </div>
+
+              <div class="mb-[16px]">Carte de crédit ou de débit</div>
+              <div id="card-element"></div>
+
+
+              <div class="flex justify-between items-center mb-4 mt-8">
+                <span class="font-bold">MONTANT TOTAL</span>
+                <span>€<%= @amount %></span>
+              </div>
+            </div>
+            <div data-controller="dialog" data-action="click->dialog#clickOutside" class="payment-modal">
+              <button data-action="click->dialog#open" class="cta h-45">Payer</button>
+              <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 br-20">
+                <div class="payment-conf-block flex flex-col justify-center items-center text-center">
+                  <p class="w-80 mb-45">Merci ! Nous avons bien reçu votre paiement et votre film vous sera envoyé par e-mail et sera disponible dans votre espace personnel dans un délai de 7 jours.</p>
+                  <div class="flex justify-center items-center">
+                    <%= button_tag type: 'button', formmethod: 'dialog', class: 'cta-transparent mr-8', data: { action: 'click->dialog#close' } do %>
+                      Créer un nouveau film
+                    <% end %>
+                    <button type="submit" class="cta">Mon compte</button>
+                  </div>
+                </div>
+              </dialog>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   <div class="video-steps">
     <%= render "videos/shared/back_button" %>
-    <%
-=begin%>
- <%= link_to "Enregistrer et payer", skip_edit_video_path, class: "cta", data: {turbo: false} %>
-<%
-=end%>
   </div>
+
+</div>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe('<%= @stripe_publishable_key %>');
+  const elements = stripe.elements();
+  const card = elements.create('card');
+  card.mount('#card-element');
+
+  const form = document.getElementById('payment-form');
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const { token, error } = await stripe.createToken(card);
+    if (error) {
+      console.error(error.message);
+    } else {
+      document.getElementById('stripeToken').value = token.id;
+      form.submit();
+    }
+  });
+</script>

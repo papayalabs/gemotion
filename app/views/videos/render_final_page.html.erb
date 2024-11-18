@@ -1,0 +1,68 @@
+<div>
+  <h1 class="video-h1">Une version finale de votre vidéo est déjà disponible</h1>
+
+  <div class="frame">
+    <% if @video.completed? %>
+      <div>
+        <video controls style="max-width: 100%; height: auto;">
+          <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
+          Votre navigateur ne prend pas en charge l'élément vidéo.
+        </video>
+        <div class="flex flex-row justify-center items-center mt-2">
+          <a href="<%= url_for(@video.final_video) %>" class= "cta mr-4" download>Télécharger la vidéo finale</a>
+          <% if @video.completed? && @video.final_video_xml.attached? %>
+            <div>
+              <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download>Télécharger les archives MLT</a>
+            </div>
+          <% else %>
+            <p>Aucun fichier MLT généré.</p>
+          <% end %>
+        </div>
+        <br>
+      </div>
+
+    <% elsif @video.processing? %>
+      <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
+    <% else %>
+      <p>Aucune vidéo finale générée.</p>
+    <% end %>
+    <%= form_with url: close_project_path(id: @video.id), method: :patch do |f| %>
+      <%= f.submit "Terminer le projet et enregistrer comme brouillon", class:"cta-transparent ml-2" %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const videoId = "<%= @video.id %>";
+
+    // Check the initial status of the video
+    fetch(`/videos/${videoId}/concat_status`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+
+        // Only start polling if the video is processing
+        if (data.concat_status !== "completed") {
+          const intervalId = setInterval(() => {
+            checkStatus(intervalId); // Pass the interval ID to clear it later
+          }, 10000); // Poll every 10 seconds
+        }
+      });
+
+    function checkStatus(intervalId) {
+      fetch(`/videos/${videoId}/concat_status`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          if (data.concat_status === "completed") {
+            clearInterval(intervalId); // Stop polling
+            window.location.reload(); // Reloads the page to show the final video
+          }
+        })
+        .catch(error => {
+          console.error("Error checking status:", error);
+        });
+    }
+  });
+</script>

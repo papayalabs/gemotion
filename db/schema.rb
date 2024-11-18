@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_18_052235) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_18_111238) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -137,6 +137,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_052235) do
     t.index ["video_id"], name: "index_video_chapters_on_video_id"
   end
 
+  create_table "video_dedicaces", force: :cascade do |t|
+    t.bigint "dedicace_id", null: false
+    t.bigint "video_id", null: false
+    t.string "car_position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dedicace_id"], name: "index_video_dedicaces_on_dedicace_id"
+    t.index ["video_id"], name: "index_video_dedicaces_on_video_id"
+  end
+
   create_table "video_destinataires", force: :cascade do |t|
     t.integer "genre"
     t.integer "age"
@@ -187,6 +197,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_052235) do
     t.integer "project_status", default: 0, null: false
     t.string "title"
     t.string "description"
+    t.boolean "paid"
     t.index ["dedicace_id"], name: "index_videos_on_dedicace_id"
     t.index ["music_id"], name: "index_videos_on_music_id"
     t.index ["user_id"], name: "index_videos_on_user_id"
@@ -200,6 +211,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_052235) do
   add_foreign_key "dedicace_contents", "videos"
   add_foreign_key "video_chapters", "chapter_types"
   add_foreign_key "video_chapters", "videos"
+  add_foreign_key "video_dedicaces", "dedicaces"
+  add_foreign_key "video_dedicaces", "videos"
   add_foreign_key "video_destinataires", "videos"
   add_foreign_key "video_musics", "musics"
   add_foreign_key "video_musics", "video_chapters"

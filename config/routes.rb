@@ -61,7 +61,7 @@ Rails.application.routes.draw do
   get 'videos/skip_deadline', to: "videos#skip_deadline", as: "skip_deadline"
 
   get 'videos/dedicace_de_fin', to: "videos#dedicace_de_fin", as: "dedicace_de_fin"
-  patch 'videos/dedicace_de_fin_patch/:id', to: "videos#dedicace_de_fin_patch", as: "dedicace_de_fin_patch"
+  patch 'videos/dedicace_de_fin_post', to: "videos#dedicace_de_fin_post", as: "dedicace_de_fin_post"
   get 'videos/skip_dedicace_de_fin', to: "videos#skip_dedicace_de_fin", as: "skip_dedicace_de_fin"
 
   get 'videos/confirmation', to: "videos#confirmation", as: "confirmation"
@@ -75,7 +75,9 @@ Rails.application.routes.draw do
   delete 'videos/purge_chapter_attachment/:id', to: 'videos#purge_chapter_attachment', as: 'purge_chapter_attachment'
 
   get 'videos/payment', to: "videos#payment", as: "payment"
+  post 'videos/payment_post', to: "videos#payment_post", as: "payment_post"
 
+  get 'videos/render_final_page', to: "videos#render_final_page", as: "render_final_page"
 
   get 'join/videos/:id', to: 'videos#join', as: 'join'
 

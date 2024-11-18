@@ -52,7 +52,10 @@ gem 'pundit'
 
 gem 'sidekiq'
 
+gem 'stripe'
+
 gem "letter_opener", group: :development
+gem 'dotenv', groups: [:development, :test]
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

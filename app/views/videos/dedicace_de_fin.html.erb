@@ -1,4 +1,4 @@
-<%= form_with url: dedicace_de_fin_patch_path(@dedicace), method: :patch, multipart: true, local: true do |f| %>
+<%= form_with url: dedicace_de_fin_post_path(@video_dedicace), method: :patch, multipart: true, local: true do |f| %>
   <div class="flex flex-col justify-start items-center">
     <h2 class='mb-[48px]'>Ajoutez votre partie vidéo à la dédicace finale</h2>
     <div class="film-yourself-block flex justify-center items-center mt-65">
@@ -10,7 +10,9 @@
         <div class="mr-2">Vos médias</div>
         <div class="flex justify-start items-center">
           <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2', style: 'height: 24px; width: 24px;' %>
-          <%= @dedicace.video_duration %>
+          <%unless @video_dedicace.nil?%>
+            <%= @video_dedicace.video_duration %>
+          <%end%>
         </div>
       </div>
 
@@ -22,11 +24,11 @@
       </div>
       <div class = "w-full flex justify-center items-center mt-8">
         <div class="video-recording-block flex justify-center items-center">
-          <%if @dedicace.creator_end_dedication_video.attached?%>
-            <%= video_tag @dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded" %>
+          <%if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached?%>
+            <%= video_tag @video_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded" %>
          <%end%>
-          <span id="videoPreviewText" style="<%=@dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>">La vue depuis la caméra frontale s'ouvre ici</span>
-          <%= image_tag 'f7_person-alt.png', class: "#{@dedicace.creator_end_dedication_video.attached? ? 'd-none' : ''} video-recording-block-img", id: 'videoPreviewImg' %>
+          <span id="videoPreviewText" style="<%=@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>">La vue depuis la caméra frontale s'ouvre ici</span>
+          <%= image_tag 'f7_person-alt.png', class: "#{@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'd-none' : ''} video-recording-block-img", id: 'videoPreviewImg' %>
           <video id="videoPreview" controls style="display: none;width: 100%; height:100%; border-radius:15px;"></video>
         </div>
 

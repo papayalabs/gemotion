@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back go_to_select_chapters dedicace_de_fin_patch join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment]
+  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -441,6 +441,7 @@ class VideosController < ApplicationController
 
   def content_dedicace
     authorize @video, :content_dedicace?, policy_class: VideoPolicy
+
     # Check if a refresh has been requested
     if params[:refresh]
       # Update the status to processing
@@ -457,11 +458,9 @@ class VideosController < ApplicationController
       # Redirect to the same action without the refresh parameter
       redirect_to content_dedicace_path(@video) and return
     end
-
     # Check if the final video is already attached
     if @video.final_video.attached?
       @final_video_url = url_for(@video.final_video)
-      @zip_url = url_for(@video.final_video_xml) if @video.final_video_xml.attached?
     else
       # Start processing if no final video exists
       unless @video.concat_status == 'processing' # Check if not already processing
@@ -477,12 +476,13 @@ class VideosController < ApplicationController
   def dedicace_de_fin
     authorize @video, :dedicace_de_fin?, policy_class: VideoPolicy
     @dedicace = @video.dedicace
+    @video_dedicace = @video.video_dedicace
   end
 
-  def dedicace_de_fin_patch
-    @dedicace = Dedicace.find(params[:id])
-    video = Video.find_by(dedicace_id: params[:id])
-    authorize video, :dedicace_de_fin_patch?, policy_class: VideoPolicy
+  def dedicace_de_fin_post
+    # @dedicace = Dedicace.find(params[:id])
+    # video = Video.find_by(dedicace_id: params[:id])
+    authorize @video, :dedicace_de_fin_post?, policy_class: VideoPolicy
 
     # position = params[:dedicace][:car_position]
 
@@ -499,15 +499,16 @@ class VideosController < ApplicationController
     if params[:dedicace].present? &&
        params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
       file = params[:dedicace][:creator_end_dedication_video].present? ? params[:dedicace][:creator_end_dedication_video] : params[:dedicace][:creator_end_dedication_video_uploaded]
-      @dedicace.creator_end_dedication_video.attach(file)
+      video_dedicace = VideoDedicace.new(video: @video, dedicace: @video.dedicace)
+      video_dedicace.creator_end_dedication_video.attach(file)
       # @dedicace.update(car_position: position)
-      if @dedicace.save
-        redirect_to dedicace_de_fin_path, notice: 'Video successfully updated.'
+      if video_dedicace.save
+        redirect_to send("#{@video.next_step}_path"), notice: 'Contenu ajouté avec succès.'
       else
-        render :edit, alert: 'Failed to update video.'
+        render :edit, alert: 'Échec de la mise à jour de la vidéo.'
       end
     else
-      redirect_to dedicace_de_fin_path, alert: 'No video file provided.'
+      redirect_to dedicace_de_fin_path, alert: 'Aucun fichier vidéo fourni.'
     end
   end
 
@@ -650,7 +651,55 @@ class VideosController < ApplicationController
   end
 
   def payment
+    authorize @video, :payment?, policy_class: VideoPolicy
+    @duration_in_minutes = Video.calculate_duration(@video.final_video_duration) # Replace with your logic to fetch duration
+    @amount = Video.calculate_price(@duration_in_minutes)
+    @stripe_publishable_key = ENV['STRIPE_PUBLISHABLE_KEY']
+  end
 
+  def payment_post
+    authorize @video, :payment_post?, policy_class: VideoPolicy
+    duration_in_minutes = Video.calculate_duration(@video.final_video_duration)
+    amount = Video.calculate_price(duration_in_minutes) * 100 # Convert to cents
+
+    begin
+      charge = Stripe::Charge.create(
+        amount: amount,
+        currency: 'eur',
+        description: "Payment for video rendering (#{duration_in_minutes} minutes)",
+        source: params[:stripeToken],
+        metadata: {
+          video_id: @video.id,
+          user_email: current_user.email # Example of including the user's email
+        }
+      )
+
+      # Save payment record and update video status
+      @video.update!(paid: true) # Ensure `paid` is a boolean in the Video model
+      flash[:notice] = 'Paiement réussi!'
+      skip_element(payment_path)
+    rescue Stripe::CardError => e
+      flash[:alert] = e.message
+      redirect_to payment_path
+    end
+  end
+
+  def render_final_page
+    authorize @video, :render_final_page?, policy_class: VideoPolicy
+    # Check if the final video is already attached
+    if @video.final_video.attached?
+      @final_video_url = url_for(@video.final_video)
+      @zip_url = url_for(@video.final_video_xml) if @video.final_video_xml.attached?
+    else
+      # Start processing if no final video exists
+      unless @video.concat_status == 'processing' # Check if not already processing
+        @video.update!(concat_status: :processing)
+        ContentDedicaceJob.perform_later(@video.id)
+        flash[:notice] = "Le traitement de la vidéo a été lancé en arrière-plan."
+      else
+        flash[:notice] = "Le traitement de la vidéo est déjà en cours."
+      end
+    end
   end
 
   def skip_edit_video

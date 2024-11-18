@@ -39,7 +39,7 @@ class VideoPolicy < ApplicationPolicy
   def content_dedicace_post?; start_post?; end
   def skip_content_dedicace?; start_post?; end
   def dedicace_de_fin?; start_post?; end
-  def dedicace_de_fin_patch?; start_post?; end
+  def dedicace_de_fin_post?; start_post?; end
   def skip_dedicace_de_fin?; start_post?; end
   def confirmation?; start_post?; end
   def confirmation_post?; start_post?; end
@@ -49,6 +49,11 @@ class VideoPolicy < ApplicationPolicy
   def skip_deadline?; start_post?; end
   def edit_video?; start_post?; end
   def edit_video_post?; start_post?; end
+  def payment?; start_post?; end
+  def payment_post?; start_post?; end
+  def render_final_page?
+    @user.present? && @video.user_id == @user.id && @video.paid
+  end
   def delete_video_chapter?; start_post?; end
   def purge_chapter_attachment?; start_post?; end
   def concat_status?; start_post?; end

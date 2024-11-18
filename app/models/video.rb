@@ -10,6 +10,7 @@ class Video < ApplicationRecord
     has_many :video_destinataires, dependent: :destroy
     has_many :video_chapters, dependent: :destroy
     has_many :dedicace_contents, dependent: :destroy
+    has_one :video_dedicace, dependent: :destroy
 
     # has_many :video_musics, dependent: :destroy
     # has_many :musics, through: :video_musics
@@ -25,11 +26,15 @@ class Video < ApplicationRecord
     belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
 
-    SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'deadline', 'edit_video', 'content_dedicace', 'payment']
-    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'deadline', 'edit_video', 'content_dedicace', 'payment']
+    SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'deadline', 'edit_video', 'content_dedicace', 'payment', 'render_final_page']
+    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'deadline', 'edit_video', 'content_dedicace', 'payment', 'render_final_page']
 
     def video_destinataire
         self.video_destinataires.last
+    end
+
+    def final_video_duration
+        ActiveStorage::Analyzer::VideoAnalyzer.new(self.final_video.blob).metadata[:duration]
     end
 
     def generate_token
@@ -101,5 +106,20 @@ class Video < ApplicationRecord
     def way
         return SOLO_WAY if self.video_type == 'solo'
         return COLAB_WAY
+    end
+
+    def self.calculate_duration(duration_in_seconds)
+        (duration_in_seconds.to_f / 60).ceil
+    end
+
+    def self.calculate_price(minutes)
+        case minutes
+        when 0..5
+            minutes * 20
+        when 6..15
+            minutes * 15
+        else
+            minutes * 10
+        end
     end
 end

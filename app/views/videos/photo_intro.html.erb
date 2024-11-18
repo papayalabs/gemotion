@@ -16,7 +16,7 @@
     <div class='frame'>
       <div id="gallery" class="gallery flex flex-row items-center space-x-8" data-sortable="true">
         <% @video.previews.each_with_index do |preview, index| %>
-          <div class="image-container" data-id="<%= index %>">
+          <div class="edit-image-container" data-id="<%= index %>">
             <%= image_tag preview.image, class: "preview-image prev-image" %>
           </div>
         <% end %>
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("You can only upload a maximum of 3 images.");
       return;
     }
-    const images = gallery.getElementsByClassName("image-container");
+    const images = gallery.getElementsByClassName("edit-image-container");
 
     while (images.length > 0) {
       images[0].parentNode.removeChild(images[0]);
@@ -88,16 +88,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const imgContainer = document.createElement("div");
-        imgContainer.classList.add("image-container");
+        imgContainer.classList.add("edit-image-container");
         imgContainer.setAttribute("data-id", dataTransfer.items.length + index);
 
         const img = document.createElement("img");
         img.src = e.target.result;
         img.classList.add("preview-image");
 
-        const removeBtn = document.createElement("button");
-        removeBtn.innerText = "Remove";
-        removeBtn.classList.add("remove-btn");
+
+        const removeBtn = document.createElement("div");
+        removeBtn.classList.add("purge-attachment-icon");
+        removeBtn.innerHTML = `<img src="<%= asset_path('icons/delete_icon.png') %>" alt="Delete Icon" class="purge-chap-icon">`;
         removeBtn.addEventListener("click", () => removeImage(file, imgContainer));
 
         imgContainer.appendChild(img);
@@ -149,11 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
   gap: 50px;
   margin-top: 10px;
   flex-wrap: wrap;
-}
-
-.image-container {
-  position: relative;
-  display: inline-block;
 }
 
 .preview-image {
