@@ -499,11 +499,12 @@ class VideosController < ApplicationController
     if params[:dedicace].present? &&
        params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
       file = params[:dedicace][:creator_end_dedication_video].present? ? params[:dedicace][:creator_end_dedication_video] : params[:dedicace][:creator_end_dedication_video_uploaded]
-      video_dedicace = VideoDedicace.new(video: @video, dedicace: @video.dedicace)
+      video_dedicace = VideoDedicace.find_or_initialize_by(video: @video, dedicace: @video.dedicace)
       video_dedicace.creator_end_dedication_video.attach(file)
       # @dedicace.update(car_position: position)
       if video_dedicace.save
-        redirect_to send("#{@video.next_step}_path"), notice: 'Contenu ajouté avec succès.'
+        VideoProcessingJob.perform_later(video_dedicace.id)
+        skip_element(dedicace_de_fin_path)
       else
         render :edit, alert: 'Échec de la mise à jour de la vidéo.'
       end

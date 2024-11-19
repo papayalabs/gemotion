@@ -64,11 +64,12 @@
                         </div>
                         <%= f.file_field "chapters[#{chapter.id}][photos]", multiple: true, accept: 'image/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputPhotos' %>
                       </div>
-
-                      <div class="music-selection w-full">
-                        <% selected_music_id = chapter.video_music&.music_id %>
-                        <%= f.select "chapters[#{chapter.id}][music_id]", @musics.map { |music| [music.name, music.id] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select w-full br-10' } %>
-                      </div>
+                      <%if @video.by_chapters?%>
+                        <div class="music-selection w-full">
+                          <% selected_music_id = chapter.video_music&.music_id %>
+                          <%= f.select "chapters[#{chapter.id}][music_id]", @musics.map { |music| [music.name, music.id] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select w-full br-10' } %>
+                        </div>
+                      <%end%>
                       <%= button_tag type: 'button', formmethod: 'dialog', class: 'cta w-100i h-45', data: { action: 'click->dialog#close' } do %>
                         Fermer
                       <% end %>

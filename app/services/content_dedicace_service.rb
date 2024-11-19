@@ -50,7 +50,7 @@ class ContentDedicaceService
     finalize_mlt
 
     attach_final_video(final_video_path)
-    FileUtils.rm_rf(@temp_dir)
+    # FileUtils.rm_rf(@temp_dir)
     { success: true }
   end
 
@@ -72,7 +72,11 @@ class ContentDedicaceService
         photos: vc.ordered_photos,
         music: vc.video_music.nil? ? nil : vc.video_music.music,
         chapter_type_image: vc.chapter_type.image,
-        text: vc.text
+        text: vc.text,
+        text_family: vc.text_family,
+        text_style: vc.text_style,
+        text_size: vc.text_size,
+        slide_color: vc.slide_color
       }
     end
   end
@@ -120,16 +124,31 @@ class ContentDedicaceService
   def process_chapter_intro(assets, chapter_index)
     chapter_image_path = ActiveStorage::Blob.service.send(:path_for, assets[:chapter_type_image].key) if assets[:chapter_type_image]
     chapter_text = assets[:text]
+    chapter_text_family = assets[:text_family]
+    chapter_text_style = assets[:text_style]
+    chapter_text_size = assets[:text_size]
     return nil unless chapter_image_path && chapter_text.present?
 
     text_output_path = @temp_dir.join("chapter_intro_#{chapter_index}.ts")
     p "+"*100 + "process_chapter_intro" + "+"*100
+    # system(
+    #   "ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" " \
+    #   "-f lavfi -i anullsrc=r=44100:cl=stereo " \
+    #   "-vf \"scale=1280:720, drawtext=text='#{chapter_text}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2\" " \
+    #   "-t #{@imgs_to_video_duration_in_seconds} -c:v libx264 -pix_fmt yuvj420p -c:a aac -r 30 -shortest \"#{text_output_path}\""
+    # )
+    fontfile = chapter_text_family
+    fontfile = Rails.root.join("app/assets/images/fonts/#{chapter_text_family}-#{chapter_text_style}.ttf").to_s
+
     system(
       "ffmpeg -y -loop 1 -i \"#{chapter_image_path}\" " \
       "-f lavfi -i anullsrc=r=44100:cl=stereo " \
-      "-vf \"scale=1280:720, drawtext=text='#{chapter_text}':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2\" " \
+      "-vf \"scale=1280:720, drawtext=text='#{chapter_text}':fontfile='#{fontfile}':" \
+      "fontcolor=white:fontsize=#{chapter_text_size}:x=(w-text_w)/2:y=(h-text_h)/2:" \
+      "box=1:boxcolor=black@0.5:boxborderw=10\" " \
       "-t #{@imgs_to_video_duration_in_seconds} -c:v libx264 -pix_fmt yuvj420p -c:a aac -r 30 -shortest \"#{text_output_path}\""
     )
+
     p "-"*100 + "process_chapter_intro" + "-"*100
     @ts_videos << text_output_path.to_s
     add_to_mlt_img(text_output_path, "chapter_intro_#{chapter_index}.ts", "chapter_intro_#{chapter_index}", 3)
@@ -210,12 +229,10 @@ class ContentDedicaceService
   end
 
   def dedicace_video
-    dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.dedicace.video.key)
-    # video_dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.video_dedicace.creator_end_dedication_video.key)
+    dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, @video.video_dedicace.creator_end_dedication_video.key)
     dedicace_output_path = @temp_dir.join("dedicace.ts")
     p "+"*100 + "dedicace_video" + "+"*100
     system("ffmpeg -y -i \"#{dedicace_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{dedicace_output_path}\"")
-    # system("ffmpeg -y -i \"#{video_dedicace_input_path}\" -i \"#{dedicace_input_path}\" -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=$(ffprobe -i #{video_dedicace_input_path} -show_entries format=duration -v quiet -of csv='p=0')\" -c:a copy \"#{dedicace_output_path}\"")
     p "-"*100 + "dedicace_video" + "-"*100
     @ts_videos << dedicace_output_path.to_s
     add_to_mlt_video(dedicace_output_path, "dedicace.ts", "dedicace")

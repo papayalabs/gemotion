@@ -10,9 +10,11 @@
         <div class="mr-2">Vos médias</div>
         <div class="flex justify-start items-center">
           <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2', style: 'height: 24px; width: 24px;' %>
-          <%unless @video_dedicace.nil?%>
-            <%= @video_dedicace.video_duration %>
-          <%end%>
+          <% if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? %>
+            <%= @video_dedicace.video_duration%>
+          <% else %>
+            Duration: N/A
+          <% end %>
         </div>
       </div>
 
@@ -115,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     recordedChunks = [];
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     videoPreview.srcObject = stream;
+    videoPreview.muted = true;
     videoPreviewText.style.display = "none";
     videoPreviewImg.style.display = "none";
     if(videoUploaded){
@@ -130,14 +133,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
     mediaRecorder.onstop = () => {
-      const recordedBlob = new Blob(recordedChunks, { type: "video/mp4" });
-      const file = new File([recordedBlob], "recorded_video.mp4", { type: "video/mp4" });
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      recordedVideoFile.files = dataTransfer.files;
-      videoPreview.srcObject = null;
-      stream.getTracks().forEach((track) => track.stop());
+      const recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+
+      // Use a FileReader to re-encode the Blob, ensuring proper metadata
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        const arrayBuffer = fileReader.result;
+        const file = new File([arrayBuffer], "recorded_video.webm", { type: "video/webm" });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        recordedVideoFile.files = dataTransfer.files;
+
+        videoPreview.srcObject = null;
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      fileReader.readAsArrayBuffer(recordedBlob);
     };
+
+
 
     mediaRecorder.start();
     startButton.style.display = "none";
