@@ -1,5 +1,8 @@
+require 'open3'
+require 'shellwords'
 class VideoProcessingJob < ApplicationJob
   queue_as :default
+
 
   def perform(id)
     video_dedicace = VideoDedicace.find(id)
@@ -12,6 +15,8 @@ class VideoProcessingJob < ApplicationJob
     theme_video_path = ActiveStorage::Blob.service.path_for(dedicace.blob.key)
     temp_output_path = "#{Rails.root}/tmp/#{SecureRandom.uuid}.mp4"
     overlay_output_path = "#{Rails.root}/tmp/#{SecureRandom.uuid}_overlay.mp4"
+    transparent_video_path = "#{Rails.root}/tmp/#{SecureRandom.uuid}_transparent.mp4"
+    # output_video_path = "#{Rails.root}/tmp/#{SecureRandom.uuid}_processed_video.mp4"
 
     # Step 1: Reprocess video to MP4 with H.264 codec and AAC audio
     system(<<~CMD.squish)
@@ -21,34 +26,29 @@ class VideoProcessingJob < ApplicationJob
       -movflags +faststart \
       #{Shellwords.escape(temp_output_path)}
     CMD
-    p "+" * 100 + "duration" + "+" * 100
-    # Step 1: Get the duration of the primary video
-    video_duration = `ffprobe -i #{Shellwords.escape(temp_output_path)} -show_entries format=duration -v quiet -of csv="p=0"`.strip
-    p video_duration
-    p "+" * 100 + "duration" + "+" * 100
 
-    # Step 2: Apply overlay with transparency and correct labeling
-    system(<<~CMD.squish)
-      ffmpeg -y -i #{Shellwords.escape(temp_output_path)} \
-      -i #{Shellwords.escape(theme_video_path)} \
-      -filter_complex "\
-        [1]format=rgba,colorchannelmixer=aa=0.3[overlay]; \
-        [0][overlay]overlay=0:0:format=auto,trim=duration=#{video_duration}[v]" \
-      -map "[v]" -map 0:a -c:v libx264 -c:a aac -ar 44100 -shortest -movflags +faststart \
-      #{Shellwords.escape(overlay_output_path)}
-    CMD
+    p "+" * 100 + "python" + "+" * 100
+    python_script = "#{Rails.root}/lib/python/process_video.py"
 
-    # Step 3: Replace the uploaded file with the final video with overlay
-    video.blob.open do |file|
-      File.open(overlay_output_path) do |processed_file|
-        video.attach(io: processed_file, filename: "#{video.filename.base}.mp4", content_type: "video/mp4")
+    # Run Python script and capture output
+    stdout, stderr, status = Open3.capture3("python3.10 #{python_script} #{Shellwords.escape(temp_output_path)} #{Shellwords.escape(transparent_video_path)} #{Shellwords.escape(theme_video_path)}")
+
+    # Check if the Python script ran successfully
+    if status.success?
+      # Attach processed video
+      video.blob.open do |file|
+        File.open(transparent_video_path) do |processed_file|
+          video.attach(io: processed_file, filename: "#{video.filename.base}.mp4", content_type: "video/mp4")
+        end
       end
+    else
+      # Handle error from Python script
+      raise "Python script failed: #{stderr}"
     end
 
-    # # Clean up temporary files
-    [temp_output_path, overlay_output_path].each do |path|
-      File.delete(path) if File.exist?(path)
-    end
+    # Clean up temporary files
+    # [temp_output_path, overlay_output_path, transparent_video_path].each do |path|
+    #   File.delete(path) if File.exist?(path)
+    # end
   end
 end
-    # system("ffmpeg -y -i #{Shellwords.escape(temp_output_path)} -i #{Shellwords.escape(theme_video_path)} -filter_complex \"[1]format=rgba,colorchannelmixer=aa=0.3[overlay];[0][overlay]overlay=0:0:format=auto,format=yuv420p,trim=duration=#{video_duration}\" -c:a copy #{Shellwords.escape(overlay_output_path)}")

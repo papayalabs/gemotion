@@ -50,7 +50,7 @@ class ContentDedicaceService
     finalize_mlt
 
     attach_final_video(final_video_path)
-    # FileUtils.rm_rf(@temp_dir)
+    FileUtils.rm_rf(@temp_dir)
     { success: true }
   end
 

@@ -334,6 +334,7 @@ class VideosController < ApplicationController
     @video.stop_at = @video.next_step
 
     if @video.save
+      @video.video_dedicace.update(dedicace: dedicace)if @video.video_dedicace.present?
       redirect_to send("#{@video.next_step}_path")
     else
       @video.update(stop_at: @video.current_step)
