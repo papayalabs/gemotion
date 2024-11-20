@@ -496,7 +496,10 @@ class VideosController < ApplicationController
     #   @video.update(stop_at: @video.current_step)
     #   render dedicace_path, status: :unprocessable_entity
     # end
-
+    unless params[:dedicace].present?
+      skip_element(dedicace_de_fin_path)
+      return
+    end
     if params[:dedicace].present? &&
        params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
       file = params[:dedicace][:creator_end_dedication_video].present? ? params[:dedicace][:creator_end_dedication_video] : params[:dedicace][:creator_end_dedication_video_uploaded]

@@ -3,6 +3,8 @@ require 'shellwords'
 class VideoProcessingJob < ApplicationJob
   queue_as :default
 
+  sidekiq_options retry: false
+
 
   def perform(id)
     video_dedicace = VideoDedicace.find(id)
@@ -34,7 +36,7 @@ class VideoProcessingJob < ApplicationJob
     stdout, stderr, status = Open3.capture3("python3.10 #{python_script} #{Shellwords.escape(temp_output_path)} #{Shellwords.escape(transparent_video_path)} #{Shellwords.escape(theme_video_path)}")
 
     # Check if the Python script ran successfully
-    if status.success?
+    if status.success? && File.exist?(transparent_video_path)
       # Attach processed video
       video.blob.open do |file|
         File.open(transparent_video_path) do |processed_file|
@@ -47,8 +49,8 @@ class VideoProcessingJob < ApplicationJob
     end
 
     # Clean up temporary files
-    # [temp_output_path, overlay_output_path, transparent_video_path].each do |path|
-    #   File.delete(path) if File.exist?(path)
-    # end
+    [temp_output_path, overlay_output_path, transparent_video_path].each do |path|
+      File.delete(path) if File.exist?(path)
+    end
   end
 end
