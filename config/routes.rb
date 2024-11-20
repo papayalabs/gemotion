@@ -88,6 +88,8 @@ Rails.application.routes.draw do
 
   get 'projects/collaborator_manage_chapters/:id', to: 'projects#collaborator_manage_chapters', as: 'collaborator_manage_chapters'
   post 'projects/collaborator_chapters_post', to: "projects#collaborator_chapters_post", as: "collaborator_chapters_post"
+  post 'videos/edit_collaborator_chapters_post', to: "videos#edit_collaborator_chapters_post", as: "edit_collaborator_chapters_post"
+  delete 'projects/delete_collaborator_chapter/:id', to: 'projects#delete_collaborator_chapter', as: 'delete_collaborator_chapter'
 
   get 'projects/collaborator_manage_dedicace/:id', to: 'projects#collaborator_manage_dedicace', as: 'collaborator_manage_dedicace'
   post 'projects/collaborator_dedicace_de_fin_post', to: "projects#collaborator_dedicace_de_fin_post", as: "collaborator_dedicace_de_fin_post"

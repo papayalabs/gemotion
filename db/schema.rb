@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_20_073308) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_20_105346) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -91,6 +91,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_20_073308) do
     t.index ["collaboration_id"], name: "index_collaborator_dedicaces_on_collaboration_id"
     t.index ["dedicace_id"], name: "index_collaborator_dedicaces_on_dedicace_id"
     t.index ["video_id"], name: "index_collaborator_dedicaces_on_video_id"
+  end
+
+  create_table "collaborator_musics", force: :cascade do |t|
+    t.bigint "music_id", null: false
+    t.bigint "collaborator_chapter_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collaborator_chapter_id"], name: "index_collaborator_musics_on_collaborator_chapter_id"
+    t.index ["music_id"], name: "index_collaborator_musics_on_music_id"
   end
 
   create_table "contact_forms", force: :cascade do |t|
@@ -247,6 +256,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_20_073308) do
   add_foreign_key "collaborator_dedicaces", "collaborations"
   add_foreign_key "collaborator_dedicaces", "dedicaces"
   add_foreign_key "collaborator_dedicaces", "videos"
+  add_foreign_key "collaborator_musics", "collaborator_chapters"
+  add_foreign_key "collaborator_musics", "musics"
   add_foreign_key "dedicace_contents", "videos"
   add_foreign_key "video_chapters", "chapter_types"
   add_foreign_key "video_chapters", "videos"
