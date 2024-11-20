@@ -6,8 +6,9 @@ class VideoProcessingJob < ApplicationJob
   sidekiq_options retry: false
 
 
-  def perform(id)
-    video_dedicace = VideoDedicace.find(id)
+  def perform(id, klass)
+    record_class = klass.constantize
+    video_dedicace = record_class.find(id)
     video = video_dedicace.creator_end_dedication_video
     dedicace = video_dedicace.dedicace.video
     return unless video.attached?

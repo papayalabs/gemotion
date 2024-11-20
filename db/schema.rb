@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_18_111238) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_20_073308) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,6 +58,39 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_111238) do
     t.index ["invited_user_id"], name: "index_collaborations_on_invited_user_id"
     t.index ["inviting_user_id"], name: "index_collaborations_on_inviting_user_id"
     t.index ["video_id"], name: "index_collaborations_on_video_id"
+  end
+
+  create_table "collaborator_chapters", force: :cascade do |t|
+    t.string "text", null: false
+    t.string "videos_order", default: ""
+    t.string "photos_order", default: ""
+    t.json "ordered_videos_ids", default: []
+    t.json "ordered_images_ids", default: []
+    t.string "slide_color"
+    t.string "text_family"
+    t.string "text_style"
+    t.integer "text_size"
+    t.integer "order"
+    t.bigint "chapter_type_id", null: false
+    t.bigint "video_id", null: false
+    t.bigint "collaboration_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chapter_type_id"], name: "index_collaborator_chapters_on_chapter_type_id"
+    t.index ["collaboration_id"], name: "index_collaborator_chapters_on_collaboration_id"
+    t.index ["video_id"], name: "index_collaborator_chapters_on_video_id"
+  end
+
+  create_table "collaborator_dedicaces", force: :cascade do |t|
+    t.bigint "dedicace_id", null: false
+    t.bigint "video_id", null: false
+    t.bigint "collaboration_id", null: false
+    t.string "car_position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collaboration_id"], name: "index_collaborator_dedicaces_on_collaboration_id"
+    t.index ["dedicace_id"], name: "index_collaborator_dedicaces_on_dedicace_id"
+    t.index ["video_id"], name: "index_collaborator_dedicaces_on_video_id"
   end
 
   create_table "contact_forms", force: :cascade do |t|
@@ -208,6 +241,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_111238) do
   add_foreign_key "collaborations", "users", column: "invited_user_id"
   add_foreign_key "collaborations", "users", column: "inviting_user_id"
   add_foreign_key "collaborations", "videos"
+  add_foreign_key "collaborator_chapters", "chapter_types"
+  add_foreign_key "collaborator_chapters", "collaborations"
+  add_foreign_key "collaborator_chapters", "videos"
+  add_foreign_key "collaborator_dedicaces", "collaborations"
+  add_foreign_key "collaborator_dedicaces", "dedicaces"
+  add_foreign_key "collaborator_dedicaces", "videos"
   add_foreign_key "dedicace_contents", "videos"
   add_foreign_key "video_chapters", "chapter_types"
   add_foreign_key "video_chapters", "videos"

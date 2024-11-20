@@ -85,6 +85,15 @@ Rails.application.routes.draw do
   get 'projects/as_collaborator', to: 'projects#as_collaborator_projects', as: 'as_collaborator_projects'
   get 'projects/participants_progress', to: 'projects#participants_progress', as: 'participants_progress'
   get 'projects/collaborator_video_details/:id', to: 'projects#collaborator_video_details', as: 'collaborator_video_details'
+
+  get 'projects/collaborator_manage_chapters/:id', to: 'projects#collaborator_manage_chapters', as: 'collaborator_manage_chapters'
+  post 'projects/collaborator_chapters_post', to: "projects#collaborator_chapters_post", as: "collaborator_chapters_post"
+
+  get 'projects/collaborator_manage_dedicace/:id', to: 'projects#collaborator_manage_dedicace', as: 'collaborator_manage_dedicace'
+  post 'projects/collaborator_dedicace_de_fin_post', to: "projects#collaborator_dedicace_de_fin_post", as: "collaborator_dedicace_de_fin_post"
+
+  get 'projects/creator_manage_chapters/:id', to: 'projects#creator_manage_chapters', as: 'creator_manage_chapters'
+  get 'projects/creator_manage_dedicace/:id', to: 'projects#creator_manage_dedicace', as: 'creator_manage_dedicace'
   delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
   patch 'projects/:id/modify_deadline', to: 'projects#modify_deadline', as: 'modify_deadline'
   patch 'projects/:id/close_project', to: 'projects#close_project', as: 'close_project'

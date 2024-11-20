@@ -1387,3 +1387,15 @@ h2 {
   padding: 4px;
   background-color: white;
 }
+.record-instruction{
+  padding-left: 40px;
+  padding-right: 40px;
+  height: 210px;
+  text-align: center;
+}
+.collaborator-dedicace-thumb{
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  height: 100%;
+}

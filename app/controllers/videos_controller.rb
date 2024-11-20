@@ -507,7 +507,7 @@ class VideosController < ApplicationController
       video_dedicace.creator_end_dedication_video.attach(file)
       # @dedicace.update(car_position: position)
       if video_dedicace.save
-        VideoProcessingJob.perform_later(video_dedicace.id)
+        VideoProcessingJob.perform_later(video_dedicace.id, "VideoDedicace")
         skip_element(dedicace_de_fin_path)
       else
         render :edit, alert: 'Échec de la mise à jour de la vidéo.'

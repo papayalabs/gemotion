@@ -5,6 +5,11 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :videos, dependent: :destroy
+  has_many :invitations, class_name: 'Collaboration', foreign_key: 'inviting_user_id', dependent: :destroy
+  has_many :collaborations, class_name: 'Collaboration', foreign_key: 'invited_user_id', dependent: :destroy
+  has_one :collaborator_dedicace, through: :collaborations
+  has_many :collaborator_chapters, through: :collaborations
+
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :phone, presence: true

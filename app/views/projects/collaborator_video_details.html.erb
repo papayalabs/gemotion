@@ -37,4 +37,29 @@
     <span class="font-bold mr-4">Date de livraison du film :</span>
     <span><%=@video&.end_date&.strftime("%d/%m/%Y") %></span>
   </div>
+
+  <hr class='hr-divider-gray mt-65 '/>
+
+  <div class="flex justify-start items-center mt-6">
+    <div class="font-bold">Ajouter mon contenu dans les chapitres</div>
+    <a href="<%= collaborator_manage_chapters_path(@video.id) %>" class="cta-transparent ml-50">Gérer les chapitres</a>
+  </div>
+
+  <hr class='hr-divider-gray mt-65 '/>
+
+  <div class="flex justify-start items-center mt-6">
+    <div class="font-bold ">Participation à la Dédicace de fin</div>
+    <%= link_to "Gérer Dédicace de fin", collaborator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "cta-transparent ml-50" %>
+  </div>
+
+  <div class="projects-grid mt-8">
+    <div class="project-main-block flex flex-col justify-between">
+      <div class="project-block">
+        <% if @collaborator_dedicace.creator_end_dedication_video.attached? %>
+          <%= video_tag @collaborator_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, class: 'collaborator-dedicace-thumb' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
 </div>

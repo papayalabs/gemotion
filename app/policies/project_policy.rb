@@ -17,4 +17,12 @@ class ProjectPolicy < ApplicationPolicy
   def collaborator_video_details?
     @user.present? && @video.collaborations.exists?(invited_user_id: @user.id)
   end
+  def collaborator_manage_chapters?
+    @user.present? && @video.collaborations.exists?(invited_user_id: @user.id)
+  end
+  def collaborator_manage_dedicace?
+    @user.present? && @video.collaborations.exists?(invited_user_id: @user.id)
+  end
+  def creator_manage_chapters?; participants_progress?; end
+  def creator_manage_dedicace?; participants_progress?; end
 end

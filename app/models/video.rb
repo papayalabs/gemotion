@@ -10,6 +10,8 @@ class Video < ApplicationRecord
     has_many :video_destinataires, dependent: :destroy
     has_many :video_chapters, dependent: :destroy
     has_many :dedicace_contents, dependent: :destroy
+    has_many :collaborator_dedicaces, dependent: :destroy
+    has_many :collaborator_chapters, dependent: :destroy
     has_one :video_dedicace, dependent: :destroy
 
     # has_many :video_musics, dependent: :destroy
