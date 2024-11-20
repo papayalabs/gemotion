@@ -3,9 +3,9 @@ class ProjectsController < ApplicationController
   before_action :find_video, only: %i[participants_progress collaborator_video_details modify_deadline close_project
                                       collaborator_manage_chapters collaborator_manage_dedicace creator_manage_chapters
                                       creator_manage_dedicace collaborator_dedicace_de_fin_post
-                                      collaborator_chapters_post edit_collaborator_chapters_post]
+                                      collaborator_chapters_post edit_collaborator_chapters_post
+                                      creator_chapters_post creator_dedicace_de_fin_post]
   before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace]
-  before_action :define_chapter_type, only: %i[collaborator_manage_chapters creator_manage_chapters]
   def as_creator_projects
     @creator_projects = current_user.videos.left_joins(:video_previews)
                                             .where.not(project_status: [:finished, :closed])
@@ -26,7 +26,9 @@ class ProjectsController < ApplicationController
     authorize @video, :participants_progress?, policy_class: ProjectPolicy
     @participants = Collaboration.where(video_id: @video.id).includes(:invited_user)
     @final_video_url = @video&.final_video&.attached? ? url_for(@video.final_video) : nil
-
+    @video_dedicace = VideoDedicace.find_by(video_id: @video.id)
+    @video_chapters = VideoChapter.where(video: @video).order(:order)
+    @musics = Music.all
     # Optionally, you can also filter out the inviting user if needed
     # @participants.reject! { |collab| collab.inviting_user == @video.user }
   end
@@ -35,7 +37,7 @@ class ProjectsController < ApplicationController
     authorize @video, :collaborator_video_details?, policy_class: ProjectPolicy
     collaboration = Collaboration.find_by(video: @video, invited_user: current_user)
     @collaborator_dedicace = CollaboratorDedicace.find_by(video: @video, collaboration: collaboration)
-    @collaborator_chapters = CollaboratorChapter.where(video: @video, collaboration: collaboration)
+    @collaborator_chapters = CollaboratorChapter.where(video: @video, collaboration: collaboration).order(:order)
     @musics = Music.all
   end
 
@@ -83,7 +85,7 @@ class ProjectsController < ApplicationController
 
   def collaborator_manage_chapters
     authorize @video, :collaborator_manage_chapters?, policy_class: ProjectPolicy
-
+    define_chapter_type(CollaboratorChapter)
   end
 
   def collaborator_chapters_post
@@ -155,6 +157,144 @@ class ProjectsController < ApplicationController
       @chapterstype = ChapterType.all
       render collaborator_manage_chapters_path(@video.id), status: :unprocessable_entity
     end
+  end
+
+  def creator_chapters_post
+    authorize @video, :creator_chapters_post?, policy_class: ProjectPolicy
+    # On authorize que certain parametre
+    params_allow = params.permit(chapters: %i[select text slide_color text_family text_style text_size])["chapters"]
+
+    chapter_to_create = [] # Un tableau a remplir de chapitre a créer
+    chapter_to_updates = {} # Un hash a remplir de chapitre a modifier
+
+    # Si le chapitre est déjà sélectionné, on doit le modifier
+    find_chapters = [] # On crée un tableau servant à la requete SQL IN pour ne récupérer que des chapitres déjà crée
+    params_allow.each { |k, v| find_chapters.append(k) if v["select"] == "true" }
+    # On cherche avec la request SQL IN les video_chapters ayant déjà un chapitre lié à l'ancien
+    chapter_to_updates_model = @video.video_chapters.where(chapter_type_id: find_chapters)
+    chapter_to_delete = @video.video_chapters.where.not(chapter_type_id: find_chapters)
+    id_chapter_type = [] # L'id uniquement des chapitre_type en relation avec les chapitres video a modifier.
+    chapter_to_updates_by_chapter_type = {} # Un hash permettant de faire une recherche par le chapitre_type
+    chapter_to_updates_model.each do |k|
+      id_chapter_type.append(k.chapter_type_id.to_s)
+      chapter_to_updates_by_chapter_type[k.chapter_type_id.to_s] = k
+    end
+
+    # On ne se prépare à créer que les éléments qu'il faut.
+    params_allow.each do |k, v|
+      # Si un chapitre existe déjà avec ce type de chapitre, on ne le crée pas ...
+      if id_chapter_type.include?(k)
+        # Si le chapitre est toujours sélectionné, on le modifie
+        if v["select"] == "true"
+          video_chapter = chapter_to_updates_by_chapter_type[k]
+          chapter_to_updates[video_chapter.id] = {
+            text: v["text"],
+            slide_color: v["slide_color"],
+            text_family: v["text_family"],
+            text_style: v["text_style"],
+            text_size: v["text_size"]
+          }
+        end
+      elsif v["select"] == "true"
+        # Si l'élément est bien séléctionné
+        chapter_to_create.append({ chapter_type_id: k, text: v["text"],
+                                   slide_color: v["slide_color"], text_family: v["text_family"],
+                                   text_style: v["text_style"], text_size: v["text_size"]})
+        # On l'ajoute dans la liste des éléments à supprimer
+        # ... on le modifie
+      end
+    end
+
+    # 12 chapitres maximum
+    if (chapter_to_create.size + chapter_to_updates.size) >= 12
+      flash[:alert] = "Ne sélectionnez que 12 chapitres maximum"
+      return render select_chapters_path, status: :unprocessable_entity
+    end
+
+    # Création, Mise à jour et suppression
+    if @video.video_chapters.create(chapter_to_create) &&
+      @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
+
+      @video.video_chapters.each do |chapter|
+        chapter.video_music.destroy if chapter.video_music
+      end
+
+      chapter_to_delete.destroy_all
+
+      redirect_to participants_progress_path(video_id: @video.id)
+    else
+      @chapterstype = ChapterType.all
+      render creator_manage_chapters_path(@video.id), status: :unprocessable_entity
+    end
+  end
+
+
+  def edit_creator_chapters_post
+    authorize @video, :edit_creator_chapters_post?, policy_class: ProjectPolicy
+    # Update the order of chapters
+    if params[:chapter_order].present?
+      chapter_ids = params[:chapter_order].split(',').map(&:to_i)
+      chapter_ids.each_with_index do |id, index|
+        chapter = @video.video_chapters.find_by(id: id)
+        chapter.update(order: index + 1) if chapter
+      end
+    end
+
+    # Update fields for each chapter
+    params[:chapters]&.each do |chapter_id, chapter_data|
+      chapter = @video.video_chapters.find_by(id: chapter_id)
+      next unless chapter
+
+      # Update text
+      chapter.update(text: chapter_data[:text]) if chapter_data[:text].present?
+
+      # Update videos order
+      chapter.update(videos_order: chapter_data[:videos_order]) if chapter_data[:videos_order].present?
+
+      # Attach new videos
+      if chapter_data[:videos].present?
+        chapter_data[:videos].each do |video|
+          next if video.blank?
+
+          # Skip if the file is already attached
+          next if chapter.videos.any? { |v| v.filename.to_s == video.original_filename }
+
+          # Purge the oldest video if there are already 2 videos
+          chapter.videos.first.purge if chapter.videos.count >= 2
+
+          chapter.videos.attach(video)
+        end
+      end
+
+      # Update photos order
+      chapter.update(photos_order: chapter_data[:photos_order]) if chapter_data[:photos_order].present?
+
+      # Attach new photos
+      if chapter_data[:photos].present?
+        chapter_data[:photos].each do |photo|
+          next if photo.blank?
+
+          # Skip if the file is already attached
+          next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
+
+          # Purge the oldest photo if there are already 2 photos
+          chapter.photos.first.purge if chapter.photos.count >= 2
+
+          chapter.photos.attach(photo)
+        end
+      end
+
+      # Update or create the associated video_music record
+      if chapter_data[:music_id].present?
+        if chapter.video_music.present?
+          chapter.video_music.update(music_id: chapter_data[:music_id])
+        else
+          chapter.create_video_music(music_id: chapter_data[:music_id])
+        end
+      end
+    end
+
+    redirect_to participants_progress_path(video_id: @video.id), notice: 'Video chapters updated successfully'
   end
 
   def edit_collaborator_chapters_post
@@ -241,6 +381,22 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def delete_creator_chapter
+    video_chapter = VideoChapter.find(params[:id]) # Use the appropriate ID from the params
+    authorize video_chapter.video, :delete_creator_chapter?, policy_class: ProjectPolicy
+    if video_chapter.destroy!
+      respond_to do |format|
+        format.html { redirect_to participants_progress_path(video_id: @video.id), notice: 'Chapter deleted successfully.' }
+        format.json { render json: { message: 'Chapter deleted successfully' }, status: :ok }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to participants_progress_path(video_id: @video.id), alert: 'Failed to delete the chapter.' }
+        format.json { render json: { error: 'Failed to delete the chapter' }, status: :unprocessable_entity }
+      end
+    end
+  end
+
   def collaborator_manage_dedicace
     authorize @video, :collaborator_manage_dedicace?, policy_class: ProjectPolicy
     @dedicaces = Dedicace.all
@@ -279,40 +435,76 @@ class ProjectsController < ApplicationController
     redirect_to collaborator_manage_dedicace_path(@video.id)
   end
 
+  def creator_dedicace_de_fin_post
+    authorize @video, :creator_dedicace_de_fin_post?, policy_class: ProjectPolicy
+
+    video_dedicace = VideoDedicace.find_or_initialize_by(
+      video_id: @video.id,
+    )
+
+    video_dedicace.dedicace_id = params[:video_dedicace]
+
+    if params[:creator_end_dedication_video].present?
+      video_dedicace.creator_end_dedication_video.attach(params[:creator_end_dedication_video])
+    elsif params[:creator_end_dedication_video_uploaded].present?
+      video_dedicace.creator_end_dedication_video.attach(params[:creator_end_dedication_video_uploaded])
+    end
+
+    if video_dedicace.save
+      VideoProcessingJob.perform_later(video_dedicace.id, "VideoDedicace")
+      flash[:notice] = "Video Dedicace successfully created!"
+    else
+      flash[:alert] = "Failed to create Collaborator Dedicace: #{video_dedicace.errors.full_messages.to_sentence}"
+    end
+
+    redirect_to participants_progress_path(video_id: @video.id)
+  end
+
   def creator_manage_chapters
     authorize @video, :creator_manage_chapters?, policy_class: ProjectPolicy
+    define_chapter_type(VideoChapter)
 
   end
 
   def creator_manage_dedicace
     authorize @video, :creator_manage_dedicace?, policy_class: ProjectPolicy
-
+    @dedicaces = Dedicace.all
+    @dedicace = @video.dedicace
+    @video_dedicace = VideoDedicace.find_by(video_id: @video.id)
   end
 
 
   private
 
-  def define_chapter_type
-    # On va cherche la query directement dans SQL
-    q_results = ActiveRecord::Base.connection.exec_query('
-      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "collaborator_chapters".text, "collaborator_chapters".slide_color, "collaborator_chapters".text_family, "collaborator_chapters".text_style, "collaborator_chapters".text_size
+  def define_chapter_type(model)
+    table_name = model.to_s.underscore.pluralize
+    query = <<-SQL
+      SELECT DISTINCT "chapter_types".id, "chapter_types".created_at, "#{table_name}".text,
+                      "#{table_name}".slide_color, "#{table_name}".text_family,
+                      "#{table_name}".text_style, "#{table_name}".text_size
       FROM "chapter_types"
-      LEFT OUTER JOIN "collaborator_chapters" ON "collaborator_chapters"."chapter_type_id" = "chapter_types"."id" AND collaborator_chapters.video_id = $1
-      ORDER BY "chapter_types".created_at ASC',
-                                                         "selectChapterWithData",
-                                                         [@video.id])
-    # On recupere le resultat est filtre pour n'avoir que les ID de chapters_types
+      LEFT OUTER JOIN "#{table_name}"
+        ON "#{table_name}"."chapter_type_id" = "chapter_types"."id"
+        AND "#{table_name}".video_id = $1
+      ORDER BY "chapter_types".created_at ASC
+    SQL
+
+    q_results = ActiveRecord::Base.connection.exec_query(query, "selectChapterWithData", [@video.id])
+
     r_only_id = q_results.rows.map { |v| v[0] }
-    # On recupere les ChaptersType (le modèle Rails).
     chapter_types = ChapterType.where(id: r_only_id)
-    # On transforme cela en hash (pour effectuer une accessation en 0(n))
-    chapter_types_h = chapter_types.index_by { |ct| ct.id }
+    chapter_types_h = chapter_types.index_by(&:id)
 
     @chapterstype = q_results.as_json.map do |k|
-      { ct: chapter_types_h[k["id"]], text: k["text"],
-        slide_color: k["slide_color"], text_family: k["text_family"],
-        text_style: k["text_style"], text_size: k["text_size"],
-        select: k["text"].present? }
+      {
+        ct: chapter_types_h[k["id"]],
+        text: k["text"],
+        slide_color: k["slide_color"],
+        text_family: k["text_family"],
+        text_style: k["text_style"],
+        text_size: k["text_size"],
+        select: k["text"].present?
+      }
     end
   end
 

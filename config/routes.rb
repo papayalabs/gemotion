@@ -87,15 +87,19 @@ Rails.application.routes.draw do
   get 'projects/collaborator_video_details/:id', to: 'projects#collaborator_video_details', as: 'collaborator_video_details'
 
   get 'projects/collaborator_manage_chapters/:id', to: 'projects#collaborator_manage_chapters', as: 'collaborator_manage_chapters'
+  get 'projects/collaborator_manage_dedicace/:id', to: 'projects#collaborator_manage_dedicace', as: 'collaborator_manage_dedicace'
   post 'projects/collaborator_chapters_post', to: "projects#collaborator_chapters_post", as: "collaborator_chapters_post"
   post 'videos/edit_collaborator_chapters_post', to: "videos#edit_collaborator_chapters_post", as: "edit_collaborator_chapters_post"
   delete 'projects/delete_collaborator_chapter/:id', to: 'projects#delete_collaborator_chapter', as: 'delete_collaborator_chapter'
-
-  get 'projects/collaborator_manage_dedicace/:id', to: 'projects#collaborator_manage_dedicace', as: 'collaborator_manage_dedicace'
   post 'projects/collaborator_dedicace_de_fin_post', to: "projects#collaborator_dedicace_de_fin_post", as: "collaborator_dedicace_de_fin_post"
 
   get 'projects/creator_manage_chapters/:id', to: 'projects#creator_manage_chapters', as: 'creator_manage_chapters'
   get 'projects/creator_manage_dedicace/:id', to: 'projects#creator_manage_dedicace', as: 'creator_manage_dedicace'
+  post 'projects/creator_chapters_post', to: "projects#creator_chapters_post", as: "creator_chapters_post"
+  post 'videos/edit_creator_chapters_post', to: "videos#edit_creator_chapters_post", as: "edit_creator_chapters_post"
+  delete 'projects/delete_creator_chapter/:id', to: 'projects#delete_creator_chapter', as: 'delete_creator_chapter'
+  post 'projects/creator_dedicace_de_fin_post', to: "projects#creator_dedicace_de_fin_post", as: "creator_dedicace_de_fin_post"
+
   delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
   patch 'projects/:id/modify_deadline', to: 'projects#modify_deadline', as: 'modify_deadline'
   patch 'projects/:id/close_project', to: 'projects#close_project', as: 'close_project'
