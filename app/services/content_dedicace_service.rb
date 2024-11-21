@@ -270,6 +270,9 @@ class ContentDedicaceService
   end
 
   def collaborator_dedicace_video(collaboration)
+    p "*"*100
+    p "+"*100 + "collaborator_dedicace_video counter" + "+"*100
+    p "*"*100
     if collaboration.collaborator_dedicace.approved_by_creator
       dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, collaboration.collaborator_dedicace.creator_end_dedication_video.key)
       dedicace_output_path = @temp_dir.join("collaboration_#{collaboration.id}_dedicace.ts")
@@ -334,7 +337,7 @@ class ContentDedicaceService
 
       collaborator_dedicace_videos = @collaborations.map do |collaboration|
         @ts_videos.grep(/collaboration_#{collaboration.id}_dedicace\.ts/)
-      end.flatten
+      end.uniq
 
       all_videos_to_concat = final_chapter_videos_previews +
                               final_chapter_videos_with_music_ts +
