@@ -335,7 +335,7 @@ class ContentDedicaceService
     if @video.video_type == "colab" && @video.dedicace.present?
       final_chapter_videos_dedicace = @ts_videos.grep(/dedicace\.ts/)
 
-      collaborator_dedicace_videos = @collaborations.map do |collaboration|
+      collaborator_dedicace_videos = @collaborations.flat_map do |collaboration|
         @ts_videos.grep(/collaboration_#{collaboration.id}_dedicace\.ts/)
       end.uniq
 
