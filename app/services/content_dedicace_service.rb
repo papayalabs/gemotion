@@ -12,6 +12,8 @@ class ContentDedicaceService
 
     @ts_videos = []
 
+    @collaborations = @video.collaborations.where.not(invited_user: nil)
+
     @previews_length = ""
 
     @video_length = ""
@@ -30,14 +32,24 @@ class ContentDedicaceService
     preview_assets = fetch_preview_assets
     chapter_assets = fetch_chapter_assets
 
+    @invited_users = @collaborations.includes(:invited_user).map(&:invited_user)
+    collaborators_chapters_assets = fetch_collaborator_chapter_assets(@invited_users)
+
+    united_chapter_assets = chapter_assets + collaborators_chapters_assets
+
     return { error: "Aucune vidéo, photo ou aperçu de chapitre disponible." } if chapter_assets.empty? || preview_assets.empty?
 
     previews_duration_calc(preview_assets.count) if @video.by_chapters?
 
     process_previews(preview_assets)
-    process_chapters(chapter_assets)
+    process_chapters(united_chapter_assets)
 
-    dedicace_video if @video.video_type == "colab" && @video.dedicace.present?
+    if @video.video_type == "colab" && @video.dedicace.present?
+      dedicace_video
+      @collaborations.each do |collaboration|
+        collaborator_dedicace_video(collaboration)
+      end
+    end
 
     final_video_path = concatenate_final_video
 
@@ -78,6 +90,24 @@ class ContentDedicaceService
         text_size: vc.text_size,
         slide_color: vc.slide_color
       }
+    end
+  end
+
+  def fetch_collaborator_chapter_assets(collaborators)
+    collaborators.flat_map do |collaborator|
+      collaborator.collaborator_chapters.approved.includes(:chapter_type).order(:order).map do |vc|
+        {
+          videos: vc.ordered_videos,
+          photos: vc.ordered_photos,
+          music: vc.collaborator_music&.music,
+          chapter_type_image: vc.chapter_type&.image,
+          text: vc.text,
+          text_family: vc.text_family,
+          text_style: vc.text_style,
+          text_size: vc.text_size,
+          slide_color: vc.slide_color
+        }
+      end
     end
   end
 
@@ -239,6 +269,19 @@ class ContentDedicaceService
     upload_to_archive("dedicace.ts", dedicace_output_path)
   end
 
+  def collaborator_dedicace_video(collaboration)
+    if collaboration.collaborator_dedicace.approved_by_creator
+      dedicace_input_path = ActiveStorage::Blob.service.send(:path_for, collaboration.collaborator_dedicace.creator_end_dedication_video.key)
+      dedicace_output_path = @temp_dir.join("collaboration_#{collaboration.id}_dedicace.ts")
+      p "+"*100 + "dedicace_video" + "+"*100
+      system("ffmpeg -y -i \"#{dedicace_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{dedicace_output_path}\"")
+      p "-"*100 + "dedicace_video" + "-"*100
+      @ts_videos << dedicace_output_path.to_s
+      add_to_mlt_video(dedicace_output_path, "collaboration_#{collaboration.id}_dedicace.ts", "collaboration_#{collaboration.id}_dedicace")
+      upload_to_archive("collaboration_#{collaboration.id}_dedicace.ts", dedicace_output_path)
+    end
+  end
+
   def concatenate_final_video
     final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key) if @video.whole_video?
 
@@ -288,7 +331,15 @@ class ContentDedicaceService
 
     if @video.video_type == "colab" && @video.dedicace.present?
       final_chapter_videos_dedicace = @ts_videos.grep(/dedicace\.ts/)
-      all_videos_to_concat = final_chapter_videos_previews + final_chapter_videos_with_music_ts + final_chapter_videos_dedicace
+
+      collaborator_dedicace_videos = @collaborations.map do |collaboration|
+        @ts_videos.grep(/collaboration_#{collaboration.id}_dedicace\.ts/)
+      end.flatten
+
+      all_videos_to_concat = final_chapter_videos_previews +
+                              final_chapter_videos_with_music_ts +
+                              final_chapter_videos_dedicace +
+                              collaborator_dedicace_videos
     else
       all_videos_to_concat = final_chapter_videos_previews + final_chapter_videos_with_music_ts
     end

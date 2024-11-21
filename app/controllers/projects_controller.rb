@@ -25,6 +25,7 @@ class ProjectsController < ApplicationController
 
   def participants_progress
     authorize @video, :participants_progress?, policy_class: ProjectPolicy
+    # ContentDedicaceJob.perform_later(@video.id)
     @participants = Collaboration.where(video_id: @video.id)
                                  .includes(:invited_user, :collaborator_chapters, :collaborator_dedicace)
     @final_video_url = @video&.final_video&.attached? ? url_for(@video.final_video) : nil
