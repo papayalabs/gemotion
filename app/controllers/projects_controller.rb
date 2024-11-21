@@ -4,7 +4,8 @@ class ProjectsController < ApplicationController
                                       collaborator_manage_chapters collaborator_manage_dedicace creator_manage_chapters
                                       creator_manage_dedicace collaborator_dedicace_de_fin_post
                                       collaborator_chapters_post edit_collaborator_chapters_post
-                                      creator_chapters_post creator_dedicace_de_fin_post]
+                                      creator_chapters_post creator_dedicace_de_fin_post edit_creator_chapters_post
+                                      creator_refresh_video approving_collaborator_attachments]
   before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace]
   def as_creator_projects
     @creator_projects = current_user.videos.left_joins(:video_previews)
@@ -24,7 +25,8 @@ class ProjectsController < ApplicationController
 
   def participants_progress
     authorize @video, :participants_progress?, policy_class: ProjectPolicy
-    @participants = Collaboration.where(video_id: @video.id).includes(:invited_user)
+    @participants = Collaboration.where(video_id: @video.id)
+                                 .includes(:invited_user, :collaborator_chapters, :collaborator_dedicace)
     @final_video_url = @video&.final_video&.attached? ? url_for(@video.final_video) : nil
     @video_dedicace = VideoDedicace.find_by(video_id: @video.id)
     @video_chapters = VideoChapter.where(video: @video).order(:order)
@@ -473,6 +475,46 @@ class ProjectsController < ApplicationController
     @video_dedicace = VideoDedicace.find_by(video_id: @video.id)
   end
 
+  def creator_refresh_video
+    authorize @video, :creator_refresh_video?, policy_class: ProjectPolicy
+    # Update the status to processing
+    @video.update!(concat_status: :processing)
+
+    # Purge existing final video attachments
+    @video.final_video.purge if @video.final_video.attached?
+    @video.final_video_xml.purge if @video.final_video_xml.attached?
+
+    # Enqueue the job to process the video again
+    ContentDedicaceJob.perform_later(@video.id)
+    flash[:notice] = "Le traitement de la vidéo a été relancé en arrière-plan."
+
+    # Redirect to the same action without the refresh parameter
+    redirect_to participants_progress_path(video_id: @video.id) and return
+  end
+
+  def approving_collaborator_attachments
+    authorize @video, :approving_collaborator_attachments?, policy_class: ProjectPolicy
+
+    # Extract the parameters
+    collaborator_attachment = params[:collaborator_attachment]
+    collaboration_id = collaborator_attachment[:collaboration_id]
+
+    # Update CollaboratorDedicace
+    if collaborator_attachment[:dedicace].present?
+      dedicace = CollaboratorDedicace.find_by(collaboration_id: collaboration_id)
+      dedicace.update(approved_by_creator: ActiveModel::Type::Boolean.new.cast(collaborator_attachment[:dedicace])) if dedicace
+    end
+
+    # Update CollaboratorChapters
+    if collaborator_attachment[:chapter].present?
+      collaborator_attachment[:chapter].each do |chapter_id, approved|
+        chapter = CollaboratorChapter.find_by(id: chapter_id, collaboration_id: collaboration_id)
+        chapter.update(approved_by_creator: ActiveModel::Type::Boolean.new.cast(approved)) if chapter
+      end
+    end
+
+    redirect_to participants_progress_path(video_id: @video.id), notice: 'Approvals have been updated successfully.'
+  end
 
   private
 

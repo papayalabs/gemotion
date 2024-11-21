@@ -1,6 +1,9 @@
 class CollaboratorChapter < ApplicationRecord
   include ChapterSharedBehavior
 
+  scope :approved, -> { where(approved_by_creator: true) }
+  scope :pending_approval, -> { where(approved_by_creator: false) }
+
   # Additional relationships specific to CollaboratorChapter
   belongs_to :collaboration
   has_one :collaborator_music, dependent: :destroy

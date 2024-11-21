@@ -89,16 +89,18 @@ Rails.application.routes.draw do
   get 'projects/collaborator_manage_chapters/:id', to: 'projects#collaborator_manage_chapters', as: 'collaborator_manage_chapters'
   get 'projects/collaborator_manage_dedicace/:id', to: 'projects#collaborator_manage_dedicace', as: 'collaborator_manage_dedicace'
   post 'projects/collaborator_chapters_post', to: "projects#collaborator_chapters_post", as: "collaborator_chapters_post"
-  post 'videos/edit_collaborator_chapters_post', to: "videos#edit_collaborator_chapters_post", as: "edit_collaborator_chapters_post"
+  post 'projects/edit_collaborator_chapters_post', to: "projects#edit_collaborator_chapters_post", as: "edit_collaborator_chapters_post"
   delete 'projects/delete_collaborator_chapter/:id', to: 'projects#delete_collaborator_chapter', as: 'delete_collaborator_chapter'
   post 'projects/collaborator_dedicace_de_fin_post', to: "projects#collaborator_dedicace_de_fin_post", as: "collaborator_dedicace_de_fin_post"
 
   get 'projects/creator_manage_chapters/:id', to: 'projects#creator_manage_chapters', as: 'creator_manage_chapters'
   get 'projects/creator_manage_dedicace/:id', to: 'projects#creator_manage_dedicace', as: 'creator_manage_dedicace'
   post 'projects/creator_chapters_post', to: "projects#creator_chapters_post", as: "creator_chapters_post"
-  post 'videos/edit_creator_chapters_post', to: "videos#edit_creator_chapters_post", as: "edit_creator_chapters_post"
+  post 'projects/edit_creator_chapters_post', to: "projects#edit_creator_chapters_post", as: "edit_creator_chapters_post"
   delete 'projects/delete_creator_chapter/:id', to: 'projects#delete_creator_chapter', as: 'delete_creator_chapter'
   post 'projects/creator_dedicace_de_fin_post', to: "projects#creator_dedicace_de_fin_post", as: "creator_dedicace_de_fin_post"
+  post 'projects/creator_refresh_video', to: 'projects#creator_refresh_video', as: 'creator_refresh_video'
+  post 'projects/approving_collaborator_attachments', to: 'projects#approving_collaborator_attachments', as: 'approving_collaborator_attachments'
 
   delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
   patch 'projects/:id/modify_deadline', to: 'projects#modify_deadline', as: 'modify_deadline'

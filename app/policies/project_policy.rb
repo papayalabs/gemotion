@@ -36,4 +36,6 @@ class ProjectPolicy < ApplicationPolicy
   def edit_creator_chapters_post?; participants_progress?; end
   def delete_creator_chapter?; participants_progress?; end
   def creator_dedicace_de_fin_post?; participants_progress?; end
+  def creator_refresh_video?; participants_progress?; end
+  def approving_collaborator_attachments?; participants_progress?; end
 end

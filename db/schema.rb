@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_20_105346) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_21_064107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -76,6 +76,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_20_105346) do
     t.bigint "collaboration_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "approved_by_creator", default: false, null: false
     t.index ["chapter_type_id"], name: "index_collaborator_chapters_on_chapter_type_id"
     t.index ["collaboration_id"], name: "index_collaborator_chapters_on_collaboration_id"
     t.index ["video_id"], name: "index_collaborator_chapters_on_video_id"
@@ -88,6 +89,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_20_105346) do
     t.string "car_position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "approved_by_creator", default: false, null: false
     t.index ["collaboration_id"], name: "index_collaborator_dedicaces_on_collaboration_id"
     t.index ["dedicace_id"], name: "index_collaborator_dedicaces_on_dedicace_id"
     t.index ["video_id"], name: "index_collaborator_dedicaces_on_video_id"

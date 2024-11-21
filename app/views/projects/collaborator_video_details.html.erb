@@ -82,14 +82,21 @@
                               </div>
                             <% end %>
                           </div>
+
                           <%= f.hidden_field "chapters[#{chapter.id}][videos_order]", id: "videos_order_#{chapter.id}" %>
+
 
                           <div class="upload-attachment-block flex flex-col justify-center items-center">
                             <span class="text-center">Faites glisser ou appuyez pour ajouter vos vidéos</span>
-                            <div class="upload-attachment-circle mt-2" id="customUploadButtonVideos">
+                            <div class="upload-attachment-circle mt-2 customUploadButtonVideosDetails" data-chapter-id="<%= chapter.id %>">
                               <span class="plus-sign">+</span>
                             </div>
-                            <%= f.file_field "chapters[#{chapter.id}][videos]", multiple: true, accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputVideos' %>
+                            <%= f.file_field "chapters[#{chapter.id}][videos]",
+                                            multiple: true,
+                                            accept: 'video/*',
+                                            class: 'form-control',
+                                            style: 'display: none;',
+                                            id: "fileUploadInputVideos_#{chapter.id}" %>
                           </div>
 
                           <div id="edit-photo-gallery-<%= chapter.id %>" class="gallery flex flex-row items-center space-x-8">
@@ -106,11 +113,19 @@
 
                           <div class="upload-attachment-block flex flex-col justify-center items-center">
                             <span class="text-center">Faites glisser ou appuyez pour ajouter vos photos</span>
-                            <div class="upload-attachment-circle mt-2" id="customUploadButtonPhotos">
+                            <div class="upload-attachment-circle mt-2 customUploadButtonPhotosDetails" data-chapter-id="<%= chapter.id %>">
                               <span class="plus-sign">+</span>
                             </div>
-                            <%= f.file_field "chapters[#{chapter.id}][photos]", multiple: true, accept: 'image/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputPhotos' %>
+                            <%= f.file_field "chapters[#{chapter.id}][photos]",
+                                            multiple: true,
+                                            accept: 'image/*',
+                                            class: 'form-control',
+                                            style: 'display: none;',
+                                            id: "fileUploadInputPhotos_#{chapter.id}" %>
                           </div>
+
+
+
                           <%if @video.by_chapters?%>
                             <div class="music-selection w-full">
                               <% selected_music_id = chapter.collaborator_music&.music_id %>
@@ -165,59 +180,82 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const customUploadButtonVideos = document.getElementById("customUploadButtonVideos");
-  const customUploadButtonPhotos = document.getElementById("customUploadButtonPhotos");
-  const fileUploadInputVideos = document.getElementById("fileUploadInputVideos");
-  const fileUploadInputPhotos = document.getElementById("fileUploadInputPhotos");
 
   initializeSortableForAll();
 
-  customUploadButtonVideos.addEventListener("click", () => {
-    fileUploadInputVideos.click();
-  });
-  customUploadButtonPhotos.addEventListener("click", () => {
-    fileUploadInputPhotos.click();
-  });
-
-  fileUploadInputVideos.addEventListener("change", (event) => {
-    const chapterId = event.target.closest(".chapter-item").getAttribute("data-id");
-    const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
-    const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
-
-    // Replace existing video containers with new uploaded files
-    videoGallery.innerHTML = "";
-    Array.from(event.target.files).forEach((file) => {
-      addVideoContainer(videoGallery, file, event.target);
+  document.querySelectorAll(".customUploadButtonVideosDetails").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const chapterId = button.dataset.chapterId;
+      const fileInput = document.getElementById(`fileUploadInputVideos_${chapterId}`);
+      if (fileInput) {
+        console.log(`Uploading videos for chapter ${chapterId}`);
+        fileInput.click();
+      }
     });
-
-    // Update order and reinitialize Sortable
-    updateOrder(videoGallery, videosOrderInput);
-    initializeSortableForGallery(videoGallery, videosOrderInput);
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-
-      customUploadButtonVideos.querySelector(".plus-sign").textContent = "✔";
-    }
   });
 
-  fileUploadInputPhotos.addEventListener("change", (event) => {
-    const chapterId = event.target.closest(".chapter-item").getAttribute("data-id");
-    const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
-    const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
-
-    // Replace existing photo containers with new uploaded files
-    photoGallery.innerHTML = "";
-    Array.from(event.target.files).forEach((file) => {
-      addPhotoContainer(photoGallery, file, event.target);
+  document.querySelectorAll(".customUploadButtonPhotosDetails").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const chapterId = button.dataset.chapterId;
+      const fileInput = document.getElementById(`fileUploadInputPhotos_${chapterId}`);
+      if (fileInput) {
+        console.log(`Uploading photos for chapter ${chapterId}`);
+        fileInput.click();
+      }
     });
+  });
 
-    // Update order and reinitialize Sortable
-    updateOrder(photoGallery, photosOrderInput);
-    initializeSortableForGallery(photoGallery, photosOrderInput);
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-      customUploadButtonPhotos.querySelector(".plus-sign").textContent = "✔";
-    }
+  document.querySelectorAll("input[id^='fileUploadInputVideos_']").forEach((fileInput) => {
+    fileInput.addEventListener("change", (event) => {
+      const chapterId = fileInput.id.split("_").pop(); // Extract chapter ID from input ID
+      const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
+      const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
+      const customUploadButton = document.querySelector(
+        `.customUploadButtonVideosDetails[data-chapter-id="${chapterId}"]`
+      );
+
+      // Replace existing video containers with new uploaded files
+      videoGallery.innerHTML = "";
+      Array.from(event.target.files).forEach((file) => {
+        addVideoContainer(videoGallery, file, event.target);
+      });
+
+      // Update order and reinitialize Sortable
+      updateOrder(videoGallery, videosOrderInput);
+      initializeSortableForGallery(videoGallery, videosOrderInput);
+
+      const fileName = event.target.files[0]?.name;
+      if (fileName) {
+        customUploadButton.querySelector(".plus-sign").textContent = "✔";
+      }
+    });
+  });
+
+  // Add change event listeners to all photo input fields
+  document.querySelectorAll("input[id^='fileUploadInputPhotos_']").forEach((fileInput) => {
+    fileInput.addEventListener("change", (event) => {
+      const chapterId = fileInput.id.split("_").pop(); // Extract chapter ID from input ID
+      const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
+      const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
+      const customUploadButton = document.querySelector(
+        `.customUploadButtonPhotosDetails[data-chapter-id="${chapterId}"]`
+      );
+
+      // Replace existing photo containers with new uploaded files
+      photoGallery.innerHTML = "";
+      Array.from(event.target.files).forEach((file) => {
+        addPhotoContainer(photoGallery, file, event.target);
+      });
+
+      // Update order and reinitialize Sortable
+      updateOrder(photoGallery, photosOrderInput);
+      initializeSortableForGallery(photoGallery, photosOrderInput);
+
+      const fileName = event.target.files[0]?.name;
+      if (fileName) {
+        customUploadButton.querySelector(".plus-sign").textContent = "✔";
+      }
+    });
   });
 
   // Initialize Sortable for all galleries

@@ -1,5 +1,6 @@
 class ContentDedicaceJob < ApplicationJob
   queue_as :default
+  sidekiq_options retry: false
 
   def perform(video_id)
     video = Video.find(video_id)

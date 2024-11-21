@@ -47,16 +47,52 @@
 
   <br>
 
-  <% if @final_video_url %>
-    <div class='flex  flex-row items-center justify-center mb-150'>
-      <video controls style="max-width: 60%; height: auto;">
-        <source src="<%= @final_video_url %>" type="video/mp4">
-        Your browser does not support the video element.
-      </video>
-    </div>
-  <% else %>
-    <p>No final video generated.</p>
-  <% end %>
+  <div class="frame">
+    <% if @video.completed? %>
+      <div>
+        <div class="flex justify-start items-center mb-45">
+          <div class="mr-2">Vos médias</div>
+          <div class="flex justify-start items-center">
+            <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
+            <%= format_time(@video.final_video_duration) %>
+          </div>
+        </div>
+        <% if @video.paid %>
+          <div>
+            <video controls style="max-width: 100%; height: auto;">
+              <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
+              Votre navigateur ne prend pas en charge l'élément vidéo.
+            </video>
+            <div class="flex flex-row justify-center items-center mt-2">
+              <a href="<%= url_for(@video.final_video) %>" class= "cta mr-4" download>Télécharger la vidéo finale</a>
+              <% if @video.completed? && @video.final_video_xml.attached? %>
+                <div>
+                  <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download>Télécharger les archives MLT</a>
+                </div>
+              <% else %>
+                <p>Aucun fichier MLT généré.</p>
+              <% end %>
+            </div>
+            <br>
+          </div>
+        <% else %>
+          <video id="video-player" style="max-width: 100%; height: auto;" oncontextmenu="return false;">
+            <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
+            Votre navigateur ne prend pas en charge l'élément vidéo.
+          </video>
+          <div class="custom-controls flex justify-center">
+            <button id="play-pause" class="cta mt-2 with-play-icon">Play</button>
+          </div>
+          <br>
+        <%end%>
+      </div>
+      <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "cta", data: { disable_with: "Refreshing..." } %>
+    <% elsif @video.processing? %>
+      <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
+    <% else %>
+      <p>Aucune vidéo finale générée.</p>
+    <% end %>
+  </div>
 
   <hr class='hr-divider-gray mt-65 '/>
 
@@ -106,10 +142,15 @@
 
                           <div class="upload-attachment-block flex flex-col justify-center items-center">
                             <span class="text-center">Faites glisser ou appuyez pour ajouter vos vidéos</span>
-                            <div class="upload-attachment-circle mt-2" id="customUploadButtonVideos">
+                            <div class="upload-attachment-circle mt-2 customUploadButtonVideosDetails" data-chapter-id="<%= chapter.id %>">
                               <span class="plus-sign">+</span>
                             </div>
-                            <%= f.file_field "chapters[#{chapter.id}][videos]", multiple: true, accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputVideos' %>
+                            <%= f.file_field "chapters[#{chapter.id}][videos]",
+                                            multiple: true,
+                                            accept: 'video/*',
+                                            class: 'form-control',
+                                            style: 'display: none;',
+                                            id: "fileUploadInputVideos_#{chapter.id}" %>
                           </div>
 
                           <div id="edit-photo-gallery-<%= chapter.id %>" class="gallery flex flex-row items-center space-x-8">
@@ -122,15 +163,22 @@
                               </div>
                             <% end %>
                           </div>
+
                           <%= f.hidden_field "chapters[#{chapter.id}][photos_order]", id: "images_order_#{chapter.id}" %>
 
                           <div class="upload-attachment-block flex flex-col justify-center items-center">
                             <span class="text-center">Faites glisser ou appuyez pour ajouter vos photos</span>
-                            <div class="upload-attachment-circle mt-2" id="customUploadButtonPhotos">
+                            <div class="upload-attachment-circle mt-2 customUploadButtonPhotosDetails" data-chapter-id="<%= chapter.id %>">
                               <span class="plus-sign">+</span>
                             </div>
-                            <%= f.file_field "chapters[#{chapter.id}][photos]", multiple: true, accept: 'image/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputPhotos' %>
+                            <%= f.file_field "chapters[#{chapter.id}][photos]",
+                                            multiple: true,
+                                            accept: 'image/*',
+                                            class: 'form-control',
+                                            style: 'display: none;',
+                                            id: "fileUploadInputPhotos_#{chapter.id}" %>
                           </div>
+
                           <%if @video.by_chapters?%>
                             <div class="music-selection w-full">
                               <% selected_music_id = chapter.video_music&.music_id %>
@@ -145,8 +193,6 @@
 
                     </dialog>
                   </div>
-
-
 
                   <% if chapter.chapter_type.image.attached? %>
                     <%= image_tag chapter.chapter_type.image, class: "preview-image prev-image preview-prof-img" %>
@@ -185,8 +231,6 @@
 
 
   <hr class='hr-divider-gray mt-65 '/>
-
-
   <div class="mt-8">
     <% @participants.each do |collaboration| %>
       <div class="flex flex-col justify-start">
@@ -197,75 +241,182 @@
               method: :delete,
               class: 'ml-2 font-medium text-black text-decoration-underline',
               form: { data: { turbo_confirm: 'Êtes-vous sûr de vouloir supprimer ce collaborateur ?' } } %>
-          </div>
+        </div>
+          <%= form_with url: approving_collaborator_attachments_path(video_id: @video.id), method: :post, html: { data: { turbo: false } } do |f| %>
+
+          <%= f.hidden_field "collaborator_attachment[collaboration_id]", value: collaboration.id %>
+
+          <div id="chapters-list" class="chapters-grid mt-8">
+
+          <%if collaboration.collaborator_dedicace.present? && collaboration.collaborator_dedicace.creator_end_dedication_video.attached?%>
+            <div class="project-main-block flex flex-col justify-start items-center chapter-item">
+              <div class="mb-2">
+                Approuvée
+                <%= f.check_box "collaborator_attachment[dedicace]",
+                { checked: collaboration.collaborator_dedicace.approved_by_creator,
+                  data: { toggle: true } },
+                "true",
+                "false" %>
+
+              </div>
+              <div class="project-block">
+                <%= image_tag "icons/Group39948.png", alt: "Edit Icon", class: "edit-prof-video-icon" %>
+                <%= video_tag collaboration.collaborator_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, class: 'collaborator-dedicace-thumb' %>
+              </div>
+            </div>
+          <%end%>
+          <% collaboration.collaborator_chapters.order(:order).each do |chapter| %>
+            <div class="project-main-block flex flex-col justify-start items-center chapter-item" data-id="<%= chapter.id %>">
+              <div class="mb-2">
+                Approuvée
+                <%= f.check_box "collaborator_attachment[chapter][#{chapter.id}]",
+                { checked: chapter.approved_by_creator,
+                  data: { toggle: true } },
+                "true",
+                "false" %>
+              </div>
+              <div class="project-block">
+                <div data-controller="dialog" data-action="click->dialog#clickOutside">
+                  <%= image_tag "icons/Group39947.png", alt: "Edit Icon", class: "edit-prof-video-icon", data: { action: "click->dialog#open" } %>
+                  <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 edit-chap-modal">
+                    <div class="w-full h-full flex flex-col justify-start items-center">
+                      <div class="video-memory">
+                        <div class="video-memory-thumb-wrapper">
+                          <% if chapter.chapter_type.image.attached? %>
+                              <%= image_tag chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+                          <% else %>
+                              <p>Pas d'image</p>
+                          <% end %>
+                        </div>
+                        <div class="w-full">
+                          <div class="div-input"> <%=chapter.text%></div>
+                        </div>
+                        <div class="gallery flex flex-row items-center space-x-8">
+                          <% chapter.ordered_videos.each do |video| %>
+                            <div class="collab-video-container">
+                              <%= video_tag video, controls: true, autobuffer: true %>
+                            </div>
+                          <% end %>
+                        </div>
+
+                        <div id="edit-photo-gallery-<%= chapter.id %>" class="gallery flex flex-row items-center space-x-8">
+                          <% chapter.ordered_photos.each do |photo| %>
+                            <div class="collab-video-container">
+                              <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "preview-image prev-image" %>
+                            </div>
+                          <% end %>
+                        </div>
+
+                        <%if @video.by_chapters?%>
+                          <div class="music-selection w-full">
+                            <% if chapter.collaborator_music.present? %>
+                              <%= audio_tag chapter.collaborator_music.music.music, controls: true %>
+                            <% end %>
+                          </div>
+                        <%end%>
+                        <%= button_tag type: 'button', formmethod: 'dialog', class: 'cta w-100i h-45', data: { action: 'click->dialog#close' } do %>
+                          Fermer
+                        <% end %>
+                      </div>
+                    </div>
+
+                  </dialog>
+                </div>
+                <% if chapter.chapter_type.image.attached? %>
+                  <%= image_tag chapter.chapter_type.image, class: "preview-image prev-image preview-prof-img" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
         <br>
+          <div class="flex justify-center">
+            <%= f.submit "Enregistrer les approbations", class: "cta" %>
+          </div>
+        <%end%>
       </div>
     <% end %>
   </div>
-
-
-
-
-
-
-
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const customUploadButtonVideos = document.getElementById("customUploadButtonVideos");
-  const customUploadButtonPhotos = document.getElementById("customUploadButtonPhotos");
-  const fileUploadInputVideos = document.getElementById("fileUploadInputVideos");
-  const fileUploadInputPhotos = document.getElementById("fileUploadInputPhotos");
 
   initializeSortableForAll();
 
-  customUploadButtonVideos.addEventListener("click", () => {
-    fileUploadInputVideos.click();
-  });
-  customUploadButtonPhotos.addEventListener("click", () => {
-    fileUploadInputPhotos.click();
-  });
-
-  fileUploadInputVideos.addEventListener("change", (event) => {
-    const chapterId = event.target.closest(".chapter-item").getAttribute("data-id");
-    const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
-    const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
-
-    // Replace existing video containers with new uploaded files
-    videoGallery.innerHTML = "";
-    Array.from(event.target.files).forEach((file) => {
-      addVideoContainer(videoGallery, file, event.target);
+  document.querySelectorAll(".customUploadButtonVideosDetails").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const chapterId = button.dataset.chapterId;
+      const fileInput = document.getElementById(`fileUploadInputVideos_${chapterId}`);
+      if (fileInput) {
+        console.log(`Uploading videos for chapter ${chapterId}`);
+        fileInput.click();
+      }
     });
-
-    // Update order and reinitialize Sortable
-    updateOrder(videoGallery, videosOrderInput);
-    initializeSortableForGallery(videoGallery, videosOrderInput);
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-
-      customUploadButtonVideos.querySelector(".plus-sign").textContent = "✔";
-    }
   });
 
-  fileUploadInputPhotos.addEventListener("change", (event) => {
-    const chapterId = event.target.closest(".chapter-item").getAttribute("data-id");
-    const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
-    const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
-
-    // Replace existing photo containers with new uploaded files
-    photoGallery.innerHTML = "";
-    Array.from(event.target.files).forEach((file) => {
-      addPhotoContainer(photoGallery, file, event.target);
+  document.querySelectorAll(".customUploadButtonPhotosDetails").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const chapterId = button.dataset.chapterId;
+      const fileInput = document.getElementById(`fileUploadInputPhotos_${chapterId}`);
+      if (fileInput) {
+        console.log(`Uploading photos for chapter ${chapterId}`);
+        fileInput.click();
+      }
     });
+  });
 
-    // Update order and reinitialize Sortable
-    updateOrder(photoGallery, photosOrderInput);
-    initializeSortableForGallery(photoGallery, photosOrderInput);
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-      customUploadButtonPhotos.querySelector(".plus-sign").textContent = "✔";
-    }
+  document.querySelectorAll("input[id^='fileUploadInputVideos_']").forEach((fileInput) => {
+    fileInput.addEventListener("change", (event) => {
+      const chapterId = fileInput.id.split("_").pop(); // Extract chapter ID from input ID
+      const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
+      const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
+      const customUploadButton = document.querySelector(
+        `.customUploadButtonVideosDetails[data-chapter-id="${chapterId}"]`
+      );
+
+      // Replace existing video containers with new uploaded files
+      videoGallery.innerHTML = "";
+      Array.from(event.target.files).forEach((file) => {
+        addVideoContainer(videoGallery, file, event.target);
+      });
+
+      // Update order and reinitialize Sortable
+      updateOrder(videoGallery, videosOrderInput);
+      initializeSortableForGallery(videoGallery, videosOrderInput);
+
+      const fileName = event.target.files[0]?.name;
+      if (fileName) {
+        customUploadButton.querySelector(".plus-sign").textContent = "✔";
+      }
+    });
+  });
+
+  // Add change event listeners to all photo input fields
+  document.querySelectorAll("input[id^='fileUploadInputPhotos_']").forEach((fileInput) => {
+    fileInput.addEventListener("change", (event) => {
+      const chapterId = fileInput.id.split("_").pop(); // Extract chapter ID from input ID
+      const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
+      const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
+      const customUploadButton = document.querySelector(
+        `.customUploadButtonPhotosDetails[data-chapter-id="${chapterId}"]`
+      );
+
+      // Replace existing photo containers with new uploaded files
+      photoGallery.innerHTML = "";
+      Array.from(event.target.files).forEach((file) => {
+        addPhotoContainer(photoGallery, file, event.target);
+      });
+
+      // Update order and reinitialize Sortable
+      updateOrder(photoGallery, photosOrderInput);
+      initializeSortableForGallery(photoGallery, photosOrderInput);
+
+      const fileName = event.target.files[0]?.name;
+      if (fileName) {
+        customUploadButton.querySelector(".plus-sign").textContent = "✔";
+      }
+    });
   });
 
   // Initialize Sortable for all galleries
@@ -453,6 +604,56 @@ document.addEventListener("DOMContentLoaded", function () {
     photoContainer.appendChild(photoPreview);
     photoContainer.appendChild(deleteButton);
     gallery.appendChild(photoContainer);
+  }
+
+
+  const video = document.getElementById('video-player');
+  const playPauseButton = document.getElementById('play-pause');
+  if(playPauseButton){
+    playPauseButton.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        playPauseButton.textContent = 'Pause';
+        playPauseButton.classList.remove('with-play-icon');
+        playPauseButton.classList.add('with-stop-icon');
+      } else {
+        video.pause();
+        playPauseButton.textContent = 'Play';
+        playPauseButton.classList.remove('with-stop-icon');
+        playPauseButton.classList.add('with-play-icon');
+      }
+    });
+  }
+
+  const videoId = "<%= @video.id %>";
+
+  // Check the initial status of the video
+  fetch(`/videos/${videoId}/concat_status`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+
+      // Only start polling if the video is processing
+      if (data.concat_status !== "completed") {
+        const intervalId = setInterval(() => {
+          checkStatus(intervalId); // Pass the interval ID to clear it later
+        }, 10000); // Poll every 10 seconds
+      }
+    });
+
+  function checkStatus(intervalId) {
+    fetch(`/videos/${videoId}/concat_status`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        if (data.concat_status === "completed") {
+          clearInterval(intervalId); // Stop polling
+          window.location.reload(); // Reloads the page to show the final video
+        }
+      })
+      .catch(error => {
+        console.error("Error checking status:", error);
+      });
   }
 });
 </script>
