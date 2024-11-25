@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_21_064107) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_25_084125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -242,6 +242,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_21_064107) do
     t.string "title"
     t.string "description"
     t.boolean "paid"
+    t.text "previews_order", default: [], array: true
     t.index ["dedicace_id"], name: "index_videos_on_dedicace_id"
     t.index ["music_id"], name: "index_videos_on_music_id"
     t.index ["user_id"], name: "index_videos_on_user_id"

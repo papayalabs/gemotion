@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment]
+  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment drop_preview]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -155,38 +155,72 @@ class VideosController < ApplicationController
     end
   end
 
+  def photo_intro
+    authorize @video, :photo_intro?, policy_class: VideoPolicy
+    @ordered_previews = @video.previews.includes(image_attachment: :blob).sort_by do |preview|
+      @video.previews_order.index(preview.image.filename.to_s)
+    end
+  end
+
   def photo_intro_post
     authorize @video, :photo_intro_post?, policy_class: VideoPolicy
-    @video.previews.destroy_all unless params[:previews] == [""] && @video.previews.count > 0
 
-    ordered_previews = params[:image_order]&.split(',') || []
-    previews_to_create = []
+    # Check for maximum preview count
+    new_previews = params[:previews]&.reject(&:blank?) || []
+    current_preview_count = @video.video_previews.count
 
-    params[:previews].each_with_index do |preview, index|
-      next if preview.blank?
-
-      p = Preview.create(image: preview)
-
-      # Adjusted Order Index Logic
-      order_index = ordered_previews.index(index.to_s) # Still using index from params
-      order_index = order_index.nil? ? index : ordered_previews[order_index].to_i # Correctly assigning based on ordered_previews
-
-      previews_to_create << { preview: p, order: order_index }
+    if current_preview_count + new_previews.size > 3
+      flash[:alert] = "Vous ne pouvez pas ajouter plus de 3 aperçus."
+      redirect_to photo_intro_path and return
     end
 
-    previews_to_create.sort_by! { |h| h[:order] }
+    # Handle reordering
+    ordered_previews = params[:images_order]&.split(',') || []
+    existing_previews = @video.video_previews.to_a
 
-    previews_to_create.each do |preview_hash|
-      @video.video_previews.create(preview: preview_hash[:preview], order: preview_hash[:order])
+    # Update order of existing previews
+    existing_previews.each do |preview|
+      if (new_order_index = ordered_previews.index(preview.preview.image.filename.to_s))
+        preview.update(order: new_order_index)
+      end
     end
 
+    # Handle new uploads
+    new_previews.each_with_index do |preview_file, index|
+      next if preview_file.blank?
+
+      p = Preview.create(image: preview_file)
+      @video.video_previews.create(preview: p, order: existing_previews.size + index)
+    end
+
+    p "*"*100
+    p ordered_previews
+    p "*"*100
+    @video.previews_order = ordered_previews
     @video.stop_at = @video.next_step if @video.validate_photo_intro
+
+    # Save video and handle navigation
     if @video.validate_photo_intro && @video.save
       redirect_to send("#{@video.next_step}_path")
     else
       flash[:alert] = "Vous devez sélectionner au moins une photo"
       @video.update(stop_at: @video.current_step)
       redirect_to photo_intro_path
+    end
+  end
+
+  def drop_preview
+    preview = Preview.find(params[:id])
+    video = Video.find(params[:video_id])
+    authorize video, :drop_preview?, policy_class: VideoPolicy
+    if preview.destroy
+      respond_to do |format|
+        format.json { render json: { message: "L'image d'introduction de la photo a été supprimée avec succès" }, status: :ok }
+      end
+    else
+      respond_to do |format|
+        format.json { render json: { error: "Échec de la suppression de l'image d'introduction de la photo" }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -717,13 +751,13 @@ class VideosController < ApplicationController
     authorize video_chapter.video, :delete_video_chapter?, policy_class: VideoPolicy
     if video_chapter.destroy
       respond_to do |format|
-        format.html { redirect_to edit_video_path, notice: 'Chapter deleted successfully.' }
-        format.json { render json: { message: 'Chapter deleted successfully' }, status: :ok }
+        format.html { redirect_to edit_video_path, notice: 'Chapitre supprimé avec succès.' }
+        format.json { render json: { message: 'Chapitre supprimé avec succès.' }, status: :ok }
       end
     else
       respond_to do |format|
-        format.html { redirect_to edit_video_path, alert: 'Failed to delete the chapter.' }
-        format.json { render json: { error: 'Failed to delete the chapter' }, status: :unprocessable_entity }
+        format.html { redirect_to edit_video_path, alert: 'Échec de la suppression du chapitre.' }
+        format.json { render json: { error: 'Échec de la suppression du chapitre.' }, status: :unprocessable_entity }
       end
     end
   end

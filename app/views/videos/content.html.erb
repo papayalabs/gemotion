@@ -6,7 +6,7 @@
       <% @video_chapters.sort_by(&:order).each do |video_chapter| %>
         <div class="w-100i">
           <div class="content-block flex justify-start w-100i">
-            <%= form_with url: content_post_path(video_chapter), method: :post, html: { class: "mt-8 w-100i flex flex-col justify-start items-center", data: { turbo: false } } do |f| %>
+            <%= form_with url: content_post_path(video_chapter), method: :post, html: { class: "pl-20 pr-20 mt-8 w-100i flex flex-col justify-start items-center", data: { turbo: false } } do |f| %>
               <div class="" id="drop-area-<%= video_chapter.id %>">
                 <div class="video-memory-thumb-wrapper">
                   <% if video_chapter.chapter_type.image.attached? %>

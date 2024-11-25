@@ -33,6 +33,7 @@ Rails.application.routes.draw do
 
   get 'videos/photo_intro', to: "videos#photo_intro", as: "photo_intro"
   post 'videos/photo_intro', to: "videos#photo_intro_post", as: "photo_intro_post"
+  delete 'videos/drop_preview/:id', to: 'videos#drop_preview', as: 'drop_preview'
 
   get 'videos/select_chapters', to: "videos#select_chapters", as: "select_chapters"
   post 'videos/select_chapters', to: "videos#select_chapters_post", as: "select_chapters_post"

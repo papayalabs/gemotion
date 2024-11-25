@@ -171,6 +171,12 @@
 .h-45{
   height: 45px !important;
 }
+.pl-20{
+  padding-left: 20px;
+}
+.pr-20{
+  padding-right: 20px;
+}
 .placeholder-text-12::placeholder {
   font-size: 12px!important;
 }
@@ -1413,4 +1419,27 @@ h2 {
     height: 100%;
     object-fit: cover;
   }
+}
+.upload-btn {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.gallery {
+  display: flex;
+  gap: 50px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.preview-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
 }

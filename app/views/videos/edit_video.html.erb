@@ -48,7 +48,7 @@
                       <div id="edit-photo-gallery-<%= chapter.id %>" class="gallery flex flex-row items-center space-x-8">
                         <% chapter.ordered_photos.each do |photo| %>
                           <div class="edit-image-container old-image-container" data-file-name="<%= photo.filename.to_s %>">
-                            <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "preview-image prev-image" %>
+                            <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "prev-image" %>
                             <div class="purge-attachment-icon-btn" data-url="<%= purge_chapter_attachment_path(photo.id) %>">
                               <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
                             </div>
@@ -82,7 +82,7 @@
 
 
               <% if chapter.chapter_type.image.attached? %>
-                <%= image_tag chapter.chapter_type.image, class: "preview-image prev-image preview-prof-img" %>
+                <%= image_tag chapter.chapter_type.image, class: "prev-image preview-prof-img" %>
               <% end %>
 
             </div>
@@ -334,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
     photoContainer.setAttribute("data-file-name", fileName);
 
     const photoPreview = document.createElement("img");
-    photoPreview.classList.add("preview-image", "prev-image");
+    photoPreview.classList.add("prev-image");
     photoPreview.src = URL.createObjectURL(file);
 
     const deleteButton = document.createElement("div");

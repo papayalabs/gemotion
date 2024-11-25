@@ -1,7 +1,7 @@
 <div>
   <h1 class="video-h1">Ajoutez 3 photos du destinataire pour l'introduction de votre vidéo</h1>
 
-  <%= form_with url: photo_intro_post_path, method: :post, html: { class: "video-form", data: { turbo: false } } do |f| %>
+  <%= form_with url: photo_intro_post_path, method: :post, html: { id: "previews-form", class: "video-form", data: { turbo: false } } do |f| %>
     <div class="frame" id="drop-area">
       <div class="drop-area" id="drop-area">
         <p class='text-center'>Faites glisser et déposez les fichiers ici ou cliquez pour télécharger</p>
@@ -12,17 +12,19 @@
       </div>
     </div>
     <br>
-
     <div class='frame'>
       <div id="gallery" class="gallery flex flex-row items-center space-x-8" data-sortable="true">
-        <% @video.previews.each_with_index do |preview, index| %>
-          <div class="edit-image-container" data-id="<%= index %>">
+        <% @ordered_previews.each do |preview| %>
+          <div class="old-image-container edit-image-container" data-id="<%= preview.image.blob.filename.to_s %>">
+            <div class="purge-attachment-icon delete-chap-icon-btn" data-url="<%= drop_preview_path(preview, video_id: @video.id) %>">
+              <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
+            </div>
             <%= image_tag preview.image, class: "preview-image prev-image" %>
           </div>
         <% end %>
       </div>
     </div>
-    <%= f.hidden_field :image_order, id: 'image_order' %>
+    <%= f.hidden_field :images_order, id: 'image_order' %>
 
     <div class="video-steps">
       <%= render "videos/shared/back_button" %>
@@ -38,7 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("fileElem");
   const gallery = document.getElementById("gallery");
   const imageOrderInput = document.getElementById('image_order');
+  const form = document.getElementById('previews-form'); // Assuming this is the form ID
   let dataTransfer = new DataTransfer();
+
+  toggleDropArea();
 
   // Initialize Sortable.js for gallery reordering
   new Sortable(gallery, {
@@ -46,15 +51,68 @@ document.addEventListener("DOMContentLoaded", () => {
     onEnd: updateOrder
   });
 
+  function toggleDropArea() {
+    const maxFiles = 3;
+    const uploadedImagesCount = gallery.getElementsByClassName("old-image-container").length + dataTransfer.items.length;
+
+    if (uploadedImagesCount >= maxFiles) {
+      dropArea.classList.add("disabled");
+      dropArea.style.pointerEvents = "none"; // Prevent interaction
+      dropArea.style.opacity = "0.5"; // Visual feedback
+    } else {
+      dropArea.classList.remove("disabled");
+      dropArea.style.pointerEvents = "auto"; // Enable interaction
+      dropArea.style.opacity = "1"; // Reset visual feedback
+    }
+  }
+
   function updateOrder() {
+    console.log("Update order");
     const orderedImages = Array.from(gallery.children).map((container) => {
-      return container.getAttribute("data-id");
+      return container.getAttribute("data-id"); // Save file names
     });
 
     // Update the hidden input field with the new order
     imageOrderInput.value = orderedImages.join(',');
-    console.log("New Order: ", orderedImages); // This can be removed later
+    console.log("New Order: ", orderedImages); // Debug
+    toggleDropArea();
   }
+
+  document.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest(".delete-chap-icon-btn");
+    if (deleteButton) {
+      const fileName = deleteButton.parentElement.getAttribute("data-id");
+      const url = deleteButton.dataset.url;
+
+      fetch(url, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (data.message) {
+            gallery.removeChild(deleteButton.parentElement);
+            updateOrder(); // Update the order after deletion
+          } else {
+            alert("Échec de la suppression de l'introduction de la photo. Veuillez réessayer.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Une erreur s'est produite. Veuillez réessayer.");
+        });
+    }
+  });
+
 
   // Handle file input changes
   fileInput.addEventListener("change", (event) => handleFiles(event.target.files));
@@ -74,22 +132,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function handleFiles(files) {
-    if (dataTransfer.items.length + files.length > 3) {
+    const images = gallery.getElementsByClassName("old-image-container");
+
+    console.log(dataTransfer.items)
+    if (dataTransfer.items.length + files.length + images.length > 3) {
       alert("You can only upload a maximum of 3 images.");
       return;
     }
-    const images = gallery.getElementsByClassName("edit-image-container");
 
-    while (images.length > 0) {
-      images[0].parentNode.removeChild(images[0]);
-    }
+    // while (images.length > 0) {
+    //   images[0].parentNode.removeChild(images[0]);
+    // }
 
     Array.from(files).forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const imgContainer = document.createElement("div");
         imgContainer.classList.add("edit-image-container");
-        imgContainer.setAttribute("data-id", dataTransfer.items.length + index);
+        imgContainer.setAttribute("data-id", file.name);
 
         const img = document.createElement("img");
         img.src = e.target.result;
@@ -111,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fileInput.files = dataTransfer.files;
+    toggleDropArea(); // Check and update drop area
   }
 
   function removeImage(file, imgContainer) {
@@ -123,51 +184,17 @@ document.addEventListener("DOMContentLoaded", () => {
     gallery.removeChild(imgContainer);
     fileInput.files = dataTransfer.files;
     updateOrder(); // Update the order after removing an image
+    toggleDropArea(); // Check and update drop area
   }
 
-  document.querySelector('form').addEventListener('submit', (event) => {
-    if (dataTransfer.files.length === 0) {
+  form.addEventListener('submit', (event) => {
+    const images = gallery.getElementsByClassName("old-image-container");
+    if (dataTransfer.files.length + images.length === 0) {
       alert("Please select at least one image.");
       event.preventDefault();
     }
+    updateOrder();
     fileInput.files = dataTransfer.files; // Sync files before submit
   });
 });
 </script>
-<style>
-.upload-btn {
-  display: inline-block;
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.gallery {
-  display: flex;
-  gap: 50px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
-.preview-image {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 5px;
-  cursor: pointer;
-  border-radius: 3px;
-}
-</style>

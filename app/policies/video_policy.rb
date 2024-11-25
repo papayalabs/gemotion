@@ -22,6 +22,7 @@ class VideoPolicy < ApplicationPolicy
   def introduction_post?; start_post?; end
   def photo_intro?; start_post?; end
   def photo_intro_post?; start_post?; end
+  def drop_preview?; start_post?; end
   def select_chapters?; start_post?; end
   def select_chapters_post?; start_post?; end
   def music?; start_post?; end

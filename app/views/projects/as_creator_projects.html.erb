@@ -58,7 +58,7 @@
               </div>
           <%unless video.preview_id.nil?%>
             <%preview_img = Preview.find(video.preview_id)%>
-            <%= image_tag preview_img.image, class: "preview-image prev-image preview-prof-img" %>
+            <%= image_tag preview_img.image, class: "prev-image preview-prof-img" %>
           <%end%>
         </div>
         <a href="<%= participants_progress_path(video_id: video.id) %>" class="cta-button">Voir la progression</a>

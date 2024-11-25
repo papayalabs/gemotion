@@ -74,7 +74,14 @@ class ContentDedicaceService
   end
 
   def fetch_preview_assets
-    @video.video_previews.includes(:preview).sort_by(&:order)
+    ordered_filenames = @video.previews_order
+    if ordered_filenames.nil?
+      @video.video_previews.includes(:preview).sort_by(&:order)
+    else
+      @video.video_previews.includes(:preview).sort_by do |video_preview|
+        ordered_filenames.index(video_preview.preview.image.blob.filename.to_s) || Float::INFINITY
+      end
+    end
   end
 
   def fetch_chapter_assets
