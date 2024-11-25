@@ -5,8 +5,8 @@ module ChapterSharedBehavior
     belongs_to :chapter_type
     belongs_to :video
     # has_one_attached :element
-    has_many_attached :videos
-    has_many_attached :photos
+    has_many_attached :videos, dependent: :destroy
+    has_many_attached :photos, dependent: :destroy
     # validates :order, numericality: { only_integer: true }
 
     validates :text, presence: true

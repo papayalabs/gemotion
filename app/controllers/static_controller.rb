@@ -5,6 +5,7 @@ class StaticController < ApplicationController
   def flush_and_reseed
     VideoDestinataire.destroy_all
     Video.destroy_all
+    Collaboration.destroy_all
     redirect_to root_path, notice: 'Reinitialisation effectuée.'
   end
 

@@ -115,14 +115,21 @@ class Video < ApplicationRecord
         (duration_in_seconds.to_f / 60).ceil
     end
 
-    def self.calculate_price(minutes)
-        case minutes
-        when 0..5
-            minutes * 20
-        when 6..15
-            minutes * 15
-        else
-            minutes * 10
-        end
+    def self.calculate_price(duration_in_minutes)
+        p '*'*100
+        p duration_in_minutes
+        p '*'*100
+        total_cost =
+          if duration_in_minutes > 0 && duration_in_minutes <= 5
+            duration_in_minutes * 20
+          elsif duration_in_minutes > 5 && duration_in_minutes <= 15
+            duration_in_minutes * 15
+          elsif duration_in_minutes > 15
+            duration_in_minutes * 10
+          else
+            0
+          end
+
+        total_cost
     end
 end
