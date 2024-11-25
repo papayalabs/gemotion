@@ -28,7 +28,7 @@ class ProjectsController < ApplicationController
     # ContentDedicaceJob.perform_later(@video.id)
     @participants = Collaboration.where(video_id: @video.id)
                                  .includes(:invited_user, :collaborator_chapters, :collaborator_dedicace)
-    @final_video_url = @video&.final_video&.attached? ? url_for(@video.final_video) : nil
+    @final_video_url = @video&.final_video&.attached? ? stream_video_path(@video) : nil
     @video_dedicace = VideoDedicace.find_by(video_id: @video.id)
     @video_chapters = VideoChapter.where(video: @video).order(:order)
     @musics = Music.all

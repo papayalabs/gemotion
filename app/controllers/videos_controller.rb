@@ -2,7 +2,7 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment drop_preview]
+  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment drop_preview stream_video]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -495,7 +495,7 @@ class VideosController < ApplicationController
     end
     # Check if the final video is already attached
     if @video.final_video.attached?
-      @final_video_url = url_for(@video.final_video)
+      @final_video_url = stream_video_path(@video)
     else
       # Start processing if no final video exists
       unless @video.concat_status == 'processing' # Check if not already processing
@@ -505,6 +505,23 @@ class VideosController < ApplicationController
       else
         flash[:notice] = "Le traitement de la vidéo est déjà en cours."
       end
+    end
+  end
+
+  def stream_video
+    video = Video.find(params[:id])
+    authorize video, :content_dedicace?, policy_class: VideoPolicy
+
+    if video.final_video.attached?
+      response.headers['Content-Type'] = video.final_video.content_type
+      response.headers['Content-Disposition'] = 'inline' # Prevent download dialog
+      response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+      response.headers['Pragma'] = 'no-cache'
+      response.headers['X-Content-Type-Options'] = 'nosniff'
+
+      send_data video.final_video.download, disposition: 'inline'
+    else
+      head :not_found
     end
   end
 

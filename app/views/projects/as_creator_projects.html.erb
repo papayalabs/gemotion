@@ -61,7 +61,7 @@
             <%= image_tag preview_img.image, class: "prev-image preview-prof-img" %>
           <%end%>
         </div>
-        <a href="<%= participants_progress_path(video_id: video.id) %>" class="cta-button">Voir la progression</a>
+        <%= link_to "Enregistrer et payer", participants_progress_path(video_id: video.id), class: "cta-button", data: {turbo: false} %>
       </div>
     <%end%>
   </div>
