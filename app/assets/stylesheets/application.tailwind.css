@@ -8,6 +8,10 @@
     font-family: 'Montserrat', sans-serif;
   }
 }
+.image-sides{
+  max-width: 200px;
+  max-height: 700px;
+}
 main{
   background:  rgba(250, 254, 255, 1);
 }
