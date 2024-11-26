@@ -1,21 +1,17 @@
 <section id="testimonials">
-  <h2>TESTIMONIALS</h2>
-  <div class="max-w-[1062px] mx-auto flex gap-[80px]">
-      <%= image_tag 'gemotion-testimonials.png', class:"w-[405px]" %>
+  <%# <h2>TESTIMONIALS</h2> %>
+  <div class="w-80 mx-auto flex gap-[80px]">
+      <div class="relative inline-block w-[405px]">
+        <%= image_tag 'gemotion-testimonials.png', class: "w-[405px] relative mw-none" %>
+
+        <%= image_tag 'icons/3dicons.png', class: "absolute bottom-0 left-0 w-[100px] bottom-left-image" %>
+
+        <%= image_tag 'icons/LetterContainer.png', class: "absolute top-0 right-0 w-[100px] top-right-image" %>
+      </div>
       <div class="swiper">
           <div class="swiper-wrapper">
             <div class="swiper-slide">
-                <p class="testimonial-content">
-                  E Motions-video a fait un film pour les 18 ans de notre fille,
-                  une pure merveille! Ses amis l'ont découverte sous un autre angle,
-                  grâce à un film super entraînant et pleins de clins d'œils très drôles.
-                  C'est un magnifique cadeau qui a animé la soirée et restera pour longtemps un souvenir à regarder encore et encore!
-                  Je ne peux que recommander ses services!!!
-                </p>
-                <span class="testimonial-name">Nathalie Duleux</span>
-            </div>
-            <div class="swiper-slide">
-                <p class="testimonial-content">
+                <p class="testimonial-content p-text-16">
                   E Motions-video nous a fait un film pour notre départ de Dubaï;
                   un film chargé en émotions, une véritable page de vie de notre famille!
                   On y voit un concentré des meilleurs moments de ces 6 années,
@@ -23,10 +19,14 @@
                   orchestrée par E Motions-video avec beaucoup d'humour.
                   Un grand moment de pure émotion diffusé pendant notre soirée de départ et à regarder sans modération une fois rentrés en France.
                 </p>
-                <span class="testimonial-name">Florent D.</span>
+                <%= image_tag 'Rectangle29.png', class: "absolute bottom-0 left-0 testimonial-user" %>
+                <div class="flex flex-col testimonial-name">
+                  <span class="">Valérie A.</span>
+                  <span class="p-text-16">Social Position</span>
+                </div>
             </div>
             <div class="swiper-slide">
-                <p class="testimonial-content">
+                <p class="testimonial-content p-text-16">
                   L'un des plus beaux cadeaux jamais reçu!
                   Quelle émotion de voir se mettre en mouvement ces photos qui me rappellent tellement de beaux souvenirs,
                   proches ou lointain, avec les gens que j'aime! En dernière partie de ce film
@@ -35,31 +35,29 @@
                   je me sens tellement entourée!
                   Merci à E Motions-video qui a été capable avec une magnifique justesse de faire ressortir de si belles émotions.
                 </p>
-                <span class="testimonial-name">Florent D.</span>
+                <%= image_tag 'Rectangle30.png', class: "absolute bottom-0 left-0 testimonial-user" %>
+                <div class="flex flex-col testimonial-name">
+                  <span class="">Florent D.</span>
+                  <span class="p-text-16">Social Position</span>
+                </div>
             </div>
             <div class="swiper-slide">
-                <p class="testimonial-content">
+                <p class="testimonial-content p-text-16">
                   Souvent difficile d'avoir des idées de cadeaux…
                   ce film a été comme une évidence!
                   E Motions-video a tout de suite su cerner notre amie et faire un film à son image!
                   Emotion garantie, pour la personne qui reçoit son cadeau mais aussi pour l'assemblée! la musique,
                   le fil conducteur, le mix entre photos et vidéos,, bref cadeau parfait!
                 </p>
-                <span>Violaine R.</span>
-            </div>
-            <div class="swiper-slide">
-                <p class="testimonial-content">
-                  Très belle prestation de montage video,
-                  beaucoup de talent et de créativité;
-                  le film que nous avions commandé pour l’anniversaire d'une amie a été totalement personnalisé autour des photos et musiques transmises (sans avoir besoin de les trier!),
-                  avec une organisation originale du film par thèmes.
-                  Notre amie a adoré le film et a été extrêmement émue !
-                  Une super idée de cadeau pour des occasions variées (Valerie A)
-                </p>
-                <span class="testimonial-name">Valérie A.</span>
+                <%= image_tag 'Rectangle28.png', class: "absolute bottom-0 left-0 testimonial-user" %>
+                <div class="flex flex-col testimonial-name">
+                  <span class="">Violaine R.</span>
+                  <span class="p-text-16">Social Position</span>
+                </div>
             </div>
           </div>
           <div class="swiper-pagination"></div>
       </div>
+      <%= image_tag 'icons/Rectangle.png', class: "emoji-icon" %>
   </div>
 </section>

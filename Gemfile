@@ -53,6 +53,7 @@ gem 'pundit'
 gem 'sidekiq'
 
 gem 'stripe'
+gem 'sassc-rails'
 
 gem "letter_opener", group: :development
 gem 'dotenv', groups: [:development, :test]

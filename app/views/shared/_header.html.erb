@@ -1,19 +1,19 @@
 <header class="py-4 bg-shared-bg sticky top-0 z-50">
   <div class="w-[1280px] mx-auto flex justify-between items-center">
-    <%= link_to root_path do %>
+    <%= link_to root_path, data: { turbo: false } do %>
       <%= image_tag 'gemotion-logo-header.svg', alt: 'Gemotion Logo' %>
     <% end %>
 
     <nav id="primary_menu" class="flex space-x-8">
       <ul class="flex space-x-8">
         <li>
-          <%= link_to "Accueil", root_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words" %>
+          <%= link_to "Accueil", root_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words", data: { turbo: false }  %>
         </li>
         <li>
-          <%= link_to "Comment ça marche", about_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words" %>
+          <%= link_to "Comment ça marche", about_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words", data: { turbo: false }  %>
         </li>
         <li>
-          <%= link_to "Tarification", pricing_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words" %>
+          <%= link_to "Tarification", pricing_path, class: "text-white text-lg font-montserrat font-bold uppercase leading-7 break-words", data: { turbo: false }  %>
         </li>
       </ul>
     </nav>

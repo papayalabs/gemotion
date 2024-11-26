@@ -1,0 +1,235 @@
+@font-face {
+  font-family: 'Red Hat Display';
+  src: font-url('RedHatDisplay-Regular.ttf') format('truetype'); /* Use font-url for asset pipeline */
+  font-weight: normal;
+  font-style: normal;
+}
+.home{
+  background: var(--Light-Blue-BG, rgba(250, 254, 255, 1));
+}
+.hero-block {
+  position: relative; /* Ensures the link is positioned relative to this container */
+  width: 100%; /* Full width */
+  height: auto; /* Adjusts based on content or image size */
+  padding-bottom: 200px;
+  background-image: image-url("BG.png");
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.hero-block img {
+  display: block; /* Removes extra space below the image */
+  position: static; /* Image remains in the document flow */
+  width: 100%; /* Ensure it scales responsively */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.hero-block a {
+  position: absolute; /* Position relative to .hero-block */
+  bottom: 215px; /* Distance from the bottom of the container */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Correct alignment to the horizontal center */
+}
+.p-18{
+  font-family: 'Red Hat Display', sans-serif; /* Use the custom font */
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  text-align: center;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: rgba(0, 0, 0, 1);
+}
+.black-link{
+  padding: 16px 56px; /* Padding for the button */
+  border-radius: 15px; /* Rounded corners */
+  background: rgba(32, 31, 31, 1); /* Background color */
+  font-family: Montserrat, sans-serif; /* Font family */
+  font-size: 18px; /* Font size */
+  font-weight: 700; /* Bold font */
+  line-height: 22.86px; /* Line height */
+  letter-spacing: -0.011em; /* Letter spacing */
+  text-align: center; /* Center text within the button */
+  text-decoration: none; /* Remove underline */
+  color: rgba(255, 255, 255, 1); /* Text color */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+.read-more{
+  width: 218px;
+  height: 55px;
+}
+
+.how-li {
+  position: relative; /* Needed for positioning the pseudo-element */
+  display: flex;
+  width: 383px;
+  height: 124px;
+  padding: 38px 36.984px;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  text-align: center;
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  border-radius: 15px; /* Block radius */
+  background: #fff; /* Block background */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+  overflow: hidden; /* Ensures the pseudo-element doesn't bleed out */
+}
+
+.how-li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% + 2px); /* Extend slightly to prevent gaps */
+  height: calc(100% + 2px); /* Extend slightly to prevent gaps */
+  border-radius: 15px; /* Matches the block radius */
+  background: linear-gradient(205.68deg, #C9E1FF 19.49%, #0D6783 60.63%, #163F50 90.92%);
+  z-index: 0; /* Place it behind the content */
+}
+
+.how-li > * {
+  position: relative;
+  z-index: 1; /* Ensure content is above the pseudo-element */
+}
+
+.how-li::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: calc(100% - 2px); /* Adjust for border thickness */
+  height: calc(100% - 2px); /* Adjust for border thickness */
+  border-radius: 14px; /* Inner border radius (subtract border thickness) */
+  background: #fff; /* Matches block background to create the "cut-out" */
+  z-index: 0; /* Behind the content, above the gradient */
+}
+
+.pricing-card {
+  position: relative; /* Needed for pseudo-elements positioning */
+  width: 100%;
+  height: 100%;
+  padding: 48px;
+  background: white;
+  border-radius: 20px; /* Match inner block radius */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 1; /* Ensure content stays above the background */
+  overflow: hidden; /* Clip content to respect border-radius */
+}
+
+.pricing-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px; /* Same radius as the block */
+  background: linear-gradient(205.68deg, #C9E1FF 19.49%, #0D6783 60.63%, #163F50 90.92%);
+  z-index: -1; /* Place behind the content */
+}
+
+.pricing-card::after {
+  content: "";
+  position: absolute;
+  top: 2px; /* Matches border thickness */
+  left: 2px;
+  width: calc(100% - 4px); /* Adjust width for border thickness */
+  height: calc(100% - 4px); /* Adjust height for border thickness */
+  border-radius: 18px; /* Inner radius: subtract border thickness */
+  background: white; /* Matches block background */
+  z-index: 0; /* Above the gradient but behind content */
+}
+
+.pricing-card > * {
+  position: relative; /* Ensure content stays above pseudo-elements */
+  z-index: 1;
+}
+
+
+.pricing-card img {
+  margin-bottom: 16px;
+  width: 134px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+.pricing-card .text-xl {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.pricing-card .price {
+  color: black;
+  font-size: 32px;
+  font-family: Montserrat;
+  font-weight: 700;
+  line-height: 37px;
+  word-wrap: break-word;
+  margin-bottom: 24px;
+}
+
+.pricing-card .duration .label {
+  color: #000;
+  text-align: center;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 120% */
+  margin-bottom: 12px;
+}
+
+.pricing-card .duration .value {
+  color: var(--Black, #000);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 166.667% */
+}
+
+.icon-container{
+  width: 29.36px;
+  height: 32.8px;
+  margin-top: 5.35px;
+  margin-left: 9.32px;
+}
+.show-more-features{
+  width: 403px;
+  height: 55px;
+}
+
+.create-video-link{
+  width: 259px;
+  height: 55px;
+}
+.bottom-left-image{
+  width: 116px;
+  height: 116px;
+  left: -94px;
+  bottom: 12px;
+}
+.top-right-image{
+  width: 101px;
+  height: 81.18px;
+  right: -50px;
+  top: 40px;
+}
+.emoji-icon{
+  width: 58.74px;
+  height: 58.74px;
+  margin-top: 246px;
+  left: -65px;
+  position: relative;
+}

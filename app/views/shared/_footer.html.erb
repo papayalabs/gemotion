@@ -5,62 +5,62 @@
         <%= image_tag 'gemotion-logo-footer.svg', alt: 'Gemotion Logo' %>
       <% end %>
       <div id="footer_contacts">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[20px]">Contacts</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[20px] gradient-text">Contacts</p>
         <nav>
           <ul class="flex flex-col gap-[14px]">
             <li class="flex items-center gap-[6px]">
               <%= link_to "mailto:email@gmail.com", aria: { label: "Send an email to email@gmail.com" } do %>
                 <%= image_tag "icons/email.svg", alt: "Email Icon" %>
               <% end %>
-              <%= link_to "email@gmail.com", "mailto:email@gmail.com", aria: { label: "Send an email to email@gmail.com" } %>
+              <%= link_to "email@gmail.com", "mailto:email@gmail.com", class: "p-text-16", aria: { label: "Send an email to email@gmail.com" } %>
             </li>
             <li class="flex items-center gap-[6px]">
               <%= link_to "tel:0000000", aria: { label: "Call 000-000-000" } do %>
                 <%= image_tag "icons/phone.svg", alt: "Phone Icon" %>
               <% end %>
-              <%= link_to "000-000-000", "tel:0000000", aria: { label: "Call 000-000-000" } %>
+              <%= link_to "000-000-000", "tel:0000000", class: "p-text-16", aria: { label: "Call 000-000-000" } %>
             </li>
           </ul>
         </nav>
       </div>
       <div id="footer_inscription">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px]">Inscription</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text">Inscription</p>
         <nav>
           <ul class="flex flex-col gap-[5px]">
-            <li><%= link_to "Créer un compte", root_path %></li>
-            <li><%= link_to "Se connecter", root_path %></li>
+            <li><%= link_to "Créer un compte", root_path, class: "p-text-16" %></li>
+            <li><%= link_to "Se connecter", root_path, class: "p-text-16" %></li>
 
-            <li><%= link_to "Contactez-nous", new_contact_path %></li>
+            <li><%= link_to "Contactez-nous", new_contact_path, class: "p-text-16" %></li>
           </ul>
         </nav>
       </div>
       <div id="footer_video">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px]">Créer une vidéo</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text">Créer une vidéo</p>
         <nav>
           <ul class="flex flex-col gap-[5px]">
-            <li><%= link_to "Démarrer", start_path %></li>
-            <li><%= link_to "Comment ca marche", about_path %></li>
-            <li><%= link_to "Tarification", pricing_path %></li>
+            <li><%= link_to "Démarrer", start_path, class: "p-text-16" %></li>
+            <li><%= link_to "Comment ca marche", about_path, class: "p-text-16" %></li>
+            <li><%= link_to "Tarification", pricing_path, class: "p-text-16" %></li>
           </ul>
         </nav>
       </div>
       <div id="footer_socials">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[23px]">Socials</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[23px] gradient-text">Socials</p>
         <nav>
-          <ul class="flex flex-row gap-[11px]">
+          <ul class="flex flex-row items-center gap-[11px]">
             <li>
               <%= link_to "https://instagram.com", target: "_blank", aria: { label: "Visit our Instagram page" } do %>
-                <%= image_tag "icons/instagram.svg", alt: "Instagram Icon" %>
+                <%= image_tag "icons/InstagramLogo.png", alt: "Instagram Icon", class: "instagram-icon" %>
               <% end %>
             </li>
             <li>
               <%= link_to "https://facebook.com", target: "_blank", aria: { label: "Visit our Facebook page" } do %>
-                <%= image_tag "icons/facebook.svg", alt: "Facebook Icon" %>
+                <%= image_tag "icons/facebook1.png", alt: "Facebook Icon", class: "facebook-icon"  %>
               <% end %>
             </li>
             <li>
               <%= link_to "https://twitter.com", target: "_blank", aria: { label: "Visit our Twitter page" } do %>
-                <%= image_tag "icons/twitter.svg", alt: "Twitter Icon" %>
+                <%= image_tag "icons/twitter1.png", alt: "Twitter Icon", class: "twitter-icon"  %>
               <% end %>
             </li>
           </ul>

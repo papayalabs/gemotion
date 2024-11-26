@@ -1,3 +1,6 @@
+<% content_for :styles do %>
+  <%= stylesheet_link_tag 'home', media: 'all', rel: 'stylesheet' %>
+<% end %>
 <%= render "shared/seo/seocompletion", title: "Accueil", description: "" %>
 <!--
 <div class="swiper">
@@ -15,25 +18,28 @@
 </div>
 -->
 <div class="home">
+  <div class="hero-block">
+    <%= image_tag 'Hero2.png', class: ' w-full h-auto object-center' %>
+    <%= link_to "Démarrer", start_path, class: "black-link" %>
+  </div>
 
-<section class="hero">
+<%# <section class="hero">
   <div class="relative max-w-[1060px] pt-[550px] pb-[18px] mx-auto text-center">
     <h1 class="text-[#201F1F] text-[70px] font-montserrat font-black uppercase leading-[81px] break-words mx-auto mb-[48px]">
       Grâce à E <span class="text-[#0D6783]">motions-video</span> offrez un cadeau unique et personnalisé
     </h1>
 
-    <%= link_to "Démarrer", start_path, class: "cta mx-auto mb-[48px]" %>
     <p class="absolute bottom-[-27px] right-0 hero-p max-w-[370px]">
       Transformez vos vidéos et photos en véritables chefs-d'œuvre en quelques clics seulement.
     </p>
   </div>
-</section>
+</section> %>
 
 <section id="satisfied">
   <div class="relative max-w-[764px]">
     <h2 class="max-w-[740px] mb-[32px]">Vous ne payez que si vous êtes satisfait du résultat!</h2>
     <%= image_tag 'gemotion-home-satisfied-img.png', class: 'absolute top-[-100px] right-[-100px] w-[220px] h-auto object-contain object-center' %>
-    <p class="">E-motions Vidéo est une plateforme innovante qui vous permet de créer à plusieurs des vidéos personnalisées uniques et chargées d'émotions pour toutes les occasions. Offrez un cadeau original et inoubliable à vos proches en retraçant les moments forts de leur vie.</p>
+    <p class="text-center p-18">E-motions Vidéo est une plateforme innovante qui vous permet de créer à plusieurs des vidéos personnalisées uniques et chargées d'émotions pour toutes les occasions. Offrez un cadeau original et inoubliable à vos proches en retraçant les moments forts de leur vie.</p>
   </div>
 </section>
 
@@ -44,10 +50,18 @@
     <div class="mx-auto flex items-center gap-[96px] mb-[48px]">
       <div class="flex-1">
         <ul class="flex flex-col gap-[32px]">
-          <li class="how-li">Choisissez les caractéristiques de votre film</li>
-          <li class="how-li">Invitez des participants</li>
-          <li class="how-li">Chaque participant témoigne avec des vidéos et/ou des photos</li>
-          <li class="how-li">Offrez le film</li>
+          <li class="how-li">
+            <div>Choisissez les caractéristiques de votre film</div>
+          </li>
+          <li class="how-li">
+            <div>Invitez des participants</div>
+          </li>
+          <li class="how-li">
+            <div>Chaque participant témoigne avec des vidéos et/ou des photos</div>
+          </li>
+          <li class="how-li">
+            <div>Offrez le film</div>
+          </li>
         </ul>
       </div>
       <%= image_tag 'gemotion-home-how-img.png', class: 'w-[583px] h-auto object-contain object-center' %>
@@ -55,33 +69,75 @@
 
   </div>
 
-  <%= link_to "Lire la suite", about_path, class: "cta" %>
+  <%= link_to "Lire la suite", about_path, class: "read-more black-link" %>
 </section>
 
 <section id="dedication" style="background-image: url(<%= asset_path 'gemotion-dedication-bg.svg' %>)" >
   <h2 class="max-w-[740px] mb-[32px]">Choisissez la dédicace de fin qui rendra votre film unique</h2>
-  <p class="mb-[48px]">Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
+  <p class="mb-[48px] p-18">Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
 
   <div class="max-w-[1062px] mx-auto flex gap-[41px] items-center mb-[48px]">
     <div class="flex-1">
       <%= image_tag 'gemotion-home-dedication-img.png', alt: 'Image 1', class: 'w-full h-auto' %>
     </div>
     <ul class="min-w-[413px] max-w-[413px] pl-5">
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">01 Danse</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">02 Boulette</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">03 Les Balais</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">04 Carpool</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">05 Ballon</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">06 Messages écrits</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">07 Messages vocaux</li>
-      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">08 Les shots</li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>01 Danse</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>02 Boulette</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>03 Les Balais</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>04 Carpool</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>05 Ballon</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>06 Messages écrits</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>07 Messages vocaux</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
+      <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
+        <div class="flex justify-between items-center">
+          <div>08 Les shots</div>
+          <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
+        </div>
+      </li>
     </ul>
   </div>
 
-  <a class="cta">Afficher plus de fonctionnalités</a>
+  <a class="black-link show-more-features">Afficher plus de fonctionnalités</a>
 </section>
-
-
+<div class="w-full flex justify-center items-center mt-8">
+  <h2>Nos tarifs</h2>
+</div>
+<%= render "shared/pricing" %>
 
 <%= render "shared/testimonials" %>
 

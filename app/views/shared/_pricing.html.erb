@@ -1,5 +1,5 @@
-<section class="pricing-table pt-[104px] pb-[56px]">
-  <p class="max-w-[837px] mx-auto text-center mb-[48px]">
+<section class="pricing-table pb-[56px]">
+  <p class="max-w-[837px] mx-auto text-center mb-[48px] p-18">
     Le coût de votre vidéo est basé sur sa durée. Faites des prévisualisations gratuites et payez seulement à la fin lorsque vous êtes complètement satisfait et prêt à finaliser votre cadeau vidéo.
   </p>
   <div class="w-[1280px] mx-auto flex justify-center items-start gap-[67px]  mb-[48px]">
@@ -15,7 +15,7 @@
     <!-- Card 2 -->
     <div class="pricing-card bg-white shadow-lg rounded-lg p-6 flex flex-col items-center max-w-[309px]">
       <%= image_tag 'gemotion-home-price-img.png', alt: 'Image 2', class: 'mb-4' %>
-      <p class="price text-xl font-bold mb-2">15/min</p>
+      <p class="price text-xl font-bold mb-2">€15/min</p>
       <div class="duration text-center">
         <p class="label text-sm font-medium text-gray-600">Durée</p>
         <p class="value text-lg font-bold text-gray-900">5:00-15:00 min</p>
@@ -31,5 +31,5 @@
       </div>
     </div>
   </div>
-  <a class="cta">Créer une vidéo</a>
+  <%= link_to "Créer une vidéo", start_path, class: "black-link create-video-link" %>
 </section>
