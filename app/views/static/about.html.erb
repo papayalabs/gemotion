@@ -3,9 +3,9 @@
         <h1 class="pt-[135px] pb-[118px]">Comment ça marche</h1>
     </section>
 
-    <section id="about_steps" class="bg-[#FAFEFF]">
+    <section id="about_steps" class="bg-[#FAFEFF] hero-block about-block">
         <div class="m-auto max-w-[1062px] steps-container">
-            <p class="text-center">Créer votre vidéo personnalisée, il n'y a rien de plus simple</p>
+            <p class="text-center p-text-18">Créer votre vidéo personnalisée, il n'y a rien de plus simple</p>
             <%= render "shared/about/step1" %>
             <%= render "shared/about/step2" %>
             <%= render "shared/about/step3" %>
@@ -17,14 +17,15 @@
     </section>
 
     <section id="watch">
-        <h2 class="mb-[48px]">Regardez notre court tutoriel</h2>
+        <h2 class="mb-[48px] index-1">Regardez notre court tutoriel</h2>
         <div class="flex w-[1062px] p-[40px] relative items-center gap-[61px] rounded-[20px] border border-custom-border bg-custom-white shadow-custom mb-[56px]">
             <%= video_tag asset_path('about.mp4'), id: 'about-video-element', controls: false, width: 982, height: 425, poster: asset_path('gemotion-about-video-poster.svg') %>
             <div id="play-button" class="absolute inset-0 flex items-center justify-center cursor-pointer">
+                <%= image_tag 'icons/AboutPlayIcon.png', alt: 'Play Button Icon', class: 'absolute play-button-icon' %>
                 <%= image_tag 'icons/about-video-play.svg', alt: 'Play Button' %>
             </div>
         </div>
-        <%= link_to 'Créer une vidéo', start_path, class:"cta" %>
+        <%= link_to 'Créer une vidéo', start_path, class:"black-link" %>
     </section>
 
     <%= render "shared/faq" %>
@@ -86,7 +87,21 @@ document.addEventListener("DOMContentLoaded", function() {
   background-repeat: no-repeat;
   background-size: cover;
 }
-
+.about-block{
+  padding-bottom: 450px;
+}
+#watch{
+  margin-top:-380px!important;
+}
+.index-1{
+  z-index:1;
+}
+.play-button-icon{
+  width: 151.01px;
+  height: 95.58px;
+  top: -44px;
+  right: -62px;
+}
 /*
 .hidden {
   opacity: 0;
