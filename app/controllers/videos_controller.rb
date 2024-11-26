@@ -28,13 +28,15 @@ class VideosController < ApplicationController
   # un lien fonctionnel
   def go_back
     @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
-    p @video
     authorize @video, :go_back?, policy_class: VideoPolicy
     redirect_to start_path, alert: "Aucune vidéo trouvé." if @video.nil?
-
-    @video.stop_at = @video.previous_step
+    @video.stop_at = @video.current_step == "start" ? "start_edit" : @video.previous_step
     if @video.save
-      redirect_to send("#{@video.current_step}_path")
+      if @video.stop_at == "start_edit"
+        redirect_to start_path
+      else
+        redirect_to send("#{@video.current_step}_path")
+      end
     else
       redirect_to send("#{@video.current_step}_path"), alert: "Impossible de revenir en arrière"
     end
@@ -47,7 +49,6 @@ class VideosController < ApplicationController
   end
 
   def start_post
-
     if current_user.videos.where.not(project_status: [:finished, :closed]).count == 0 || current_user.videos.count == 0
       @video = Video.new(user: current_user)
       @video.user = current_user
@@ -61,6 +62,7 @@ class VideosController < ApplicationController
     else
       authorize @video, :start_post?, policy_class: VideoPolicy
       @video.video_type = params[:video_type].downcase
+      @video.stop_at = @video.way.first
     end
 
     if @video.validate_start && @video.save
@@ -869,6 +871,8 @@ class VideosController < ApplicationController
     if @video.nil?
       redirect_to start_path, alert: "Aucune vidéo trouvé." unless request.path == start_path
     # Si une vidéo existe, on doit être sur la bonne étape
+    elsif @video.current_step == "start"
+      return
     elsif ![@video.next_step.downcase, "#{@video.next_step.downcase}_post",
             "skip_#{@video.next_step.downcase}"].include?(params[:action].downcase)
       redirect_to send("#{@video.next_step}_path"),

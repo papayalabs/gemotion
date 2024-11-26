@@ -1,50 +1,68 @@
 <div id="video_occasion">
   <section class="hero">
-    <h1 class="h1-video">Choisissez l'occasion</h1>
+    <h1 class="h1-video">Pour quelle occasion?</h1>
   </section>
 
-  <section>
+  <div class="flex flex-row justify-center w-full">
+    <%= image_tag 'left-with-star.png', class: 'image-sides left-image' %>
+    <div class="content">
+      <div class="information mb-[72px] w-full">
+        <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
+      </div>
 
-    <div class="information mb-[72px]">
-      <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
-    </div>
+      <div class="flex justify-center">
 
-    <div>
+        <%= form_with url: occasion_post_path, method: :post do |f| %>
 
-      <%= form_with url: occasion_post_path, method: :post do |f| %>
+          <div class="occasion mb-[48px] relative inline-block w-full">
 
-        <div class="occasion mb-[48px] relative inline-block w-full">
+            <div class="relative inline-block w-full mb-[199px]">
+              <%= f.select :occasion, options_for_select(Video.occasions.map {|k, v| [k.humanize.capitalize, k]}), {}, class: "appearance-none w-full px-4 py-2 pr-10 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500" %>
+              <%= inline_svg_tag 'icons/select-down.svg', class: 'absolute right-[40px] top-1/2 transform -translate-y-1/2 w-[15px] h-[15px] object-contain object-center pointer-events-none' %>
+            </div>
 
-          <div class="relative inline-block w-full mb-[199px]">
-            <%= f.select :occasion, options_for_select(Video.occasions.map {|k, v| [k.humanize.capitalize, k]}), {}, class: "appearance-none w-full px-4 py-2 pr-10 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500" %>
-            <%= inline_svg_tag 'icons/select-down.svg', class: 'absolute right-[40px] top-1/2 transform -translate-y-1/2 w-[15px] h-[15px] object-contain object-center pointer-events-none' %>
+            <div class="flex items-center gap-[23px]">
+                <%= image_tag "icons/attention.svg" %>
+                <p>Bientôt disponible : de nouvelles occasions pour votre film</p>
+            </div>
           </div>
 
-          <div class="flex items-center gap-[23px]">
-              <%= image_tag "icons/attention.svg" %>
-              <p>Bientôt disponible : de nouvelles occasions pour votre film</p>
+          <div class="flex justify-between">
+            <%= render "videos/shared/back_button" %>
+            <%= f.submit "Étape suivante", class: "cta" %>
           </div>
-        </div>
 
-        <div class="flex justify-between">
-          <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class: "cta" %>
-        </div>
+        <% end %>
 
-      <% end %>
-
+      </div>
     </div>
-
-  </section>
+    <%= image_tag 'right-no-star.png', class: 'image-sides right-image' %>
+  </div>
 
 </div>
 
 
 <style>
+.image-sides {
+  width: 15%; /* Allocate 15% to the images */
+  object-fit: cover; /* Ensure the images fill the allocated space properly */
+}
 
+.content {
+  width: 70%; /* Allocate 70% to the content block */
+  padding-bottom: 150px;
+}
+
+.left-image {
+  margin-right: 2.5%; /* Optional: Space between the left image and content */
+}
+
+.right-image {
+  margin-left: 2.5%; /* Optional: Space between the content and right image */
+}
 #video_occasion .information {
   display: flex;
-  width: 1062px;
+  width: 100%%;
   padding: 49px 197px;
   justify-content: center;
   align-items: center;
