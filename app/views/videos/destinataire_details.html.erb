@@ -114,41 +114,41 @@
 
       <%end%>
 
-<%= form_with url: destinataire_details_post_path, method: :post, html: { data: { auto_submit: true, turbo: false } } do |f| %>
-  <div>
-    <div class="w-[1006px] h-[386px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
-      <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">
-        Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !
-      </h3>
-      <p class="w-100 mb-[32px] p-text-center-16">
-        * Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.
-      </p>
-      <%= f.text_area :special_request_destinataire,
-                      id: "special_request_destinataire",
-                      placeholder: "Décrivez ici vos attentes, votre scénario, votre thème .... pour une vidéo sur mesure",
-                      rows: 3,
-                      value: @video.theme_specific_request,
-                      class: "flex w-100i px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
-      <div class="flex justify-center items-center gap-[16px] w-100 mt-4">
-        <%= image_tag "icons/attention.svg" %>
-        <p class="w-100 p-text-center-16">
-          Veuillez noter que des frais supplémentaires seront appliqués pour une vidéo sur mesure.
-        </p>
-      </div>
-    </div>
+      <%= form_with url: destinataire_details_post_path, method: :post, html: { data: { auto_submit: true, turbo: false } } do |f| %>
+        <div>
+          <div class="w-[1006px] h-[386px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
+            <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">
+              Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !
+            </h3>
+            <p class="w-100 mb-[32px] p-text-center-16">
+              * Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.
+            </p>
+            <%= f.text_area :special_request_destinataire,
+                            id: "special_request_destinataire",
+                            placeholder: "Décrivez ici vos attentes, votre scénario, votre thème .... pour une vidéo sur mesure",
+                            rows: 3,
+                            value: @video.theme_specific_request,
+                            class: "flex w-100i px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            <div class="flex justify-center items-center gap-[16px] w-100 mt-4">
+              <%= image_tag "icons/attention.svg" %>
+              <p class="w-100 p-text-center-16">
+                Veuillez noter que des frais supplémentaires seront appliqués pour une vidéo sur mesure.
+              </p>
+            </div>
+          </div>
 
-    <div class="flex justify-between">
-      <%= render "videos/shared/back_button" %>
-      <%= f.submit "Étape suivante", class: "black-link", data: { action: "dialog#open" } %>
-      <dialog id="confirmationDialog" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full w-1006 popup-theme-modal bg-transparent">
-        <div class="text-with-image-block w-100i flex justify-center items-center mt-65 mb-[72px] px-[27px] w-full p-text-center-16">
-          Merci ! Nous traitons déjà votre demande de thème vidéo personnalisé. Cela peut prendre jusqu'à 2 jours. Nous vous enverrons une confirmation par e-mail.
-          <%= image_tag 'icons/plus.png', class: 'image-from-image-text-block' %>
+          <div class="flex justify-between">
+            <%= render "videos/shared/back_button" %>
+            <%= f.submit "Étape suivante", class: "black-link", data: { action: "dialog#open" } %>
+            <dialog id="confirmationDialog" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full w-1006 popup-theme-modal bg-transparent">
+              <div class="text-with-image-block w-100i flex justify-center items-center mt-65 mb-[72px] px-[27px] w-full p-text-center-16">
+                Merci ! Nous traitons déjà votre demande de thème vidéo personnalisé. Cela peut prendre jusqu'à 2 jours. Nous vous enverrons une confirmation par e-mail.
+                <%= image_tag 'icons/plus.png', class: 'image-from-image-text-block' %>
+              </div>
+            </dialog>
+          </div>
         </div>
-      </dialog>
-    </div>
-  </div>
-<% end %>
+      <% end %>
 
       </div>
     </div>
