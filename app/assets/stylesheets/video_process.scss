@@ -1,0 +1,98 @@
+.image-sides {
+  width: 15%; /* Allocate 15% to the images */
+  object-fit: cover; /* Ensure the images fill the allocated space properly */
+}
+
+.content {
+  width: 70%; /* Allocate 70% to the content block */
+  padding-bottom: 150px;
+}
+
+.left-image {
+  margin-right: 2.5%; /* Optional: Space between the left image and content */
+}
+
+.right-image {
+  margin-left: 2.5%; /* Optional: Space between the content and right image */
+}
+.info_destinataire .information {
+  display: flex;
+  width: 1060px;
+  padding: 49px 197px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+}
+
+.info_destinataire .information p {
+  color: #000;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 25px;
+}
+
+.info_destinataire .destinataire {
+  width: 1006px;
+  height: 380px;
+  padding: 54px 124px 45px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+
+}
+.info_destinataire .bigger-destinataire{
+  width: 1006px;
+  padding: 54px 124px 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 20px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+
+}
+
+.info_destinataire .information::before {
+  position: absolute;
+  content: "";
+  background-image: image-url('icons/emoj.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 137px;
+  height: 137px;
+  top: 190px;
+  left: 50%;
+  transform: translateX(-50%);
+
+}
+
+.text-with-image-block {
+  width: 1062px;
+  min-height: 128px; /* Ensure content pushes beyond this */
+  border-radius: 10px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  position: relative;
+  box-sizing: border-box; /* Ensures padding/borders are included in dimensions */
+}
+
+.image-from-image-text-block{
+  position: absolute;
+  top: -55px;
+  width: 110px;
+  height: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+}

@@ -9,13 +9,18 @@
     <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
 
     <div class="content flex flex-col justify-center items-center">
-      <div class="start-choices-text relative mb-[72px]">
+
+      <div class="text-with-image-block-start flex flex-col justify-center items-center mb-[72px] w-full p-text-16">
         <p class="p-text-16">Plusieurs choix de vidéos :</p>
         <ul class="flex flex-col justify-center items-center">
           <li class="p-text-16">Pour un cadeau unique: Réalisez à plusieurs une vidéo collaborative, personnalisée riche en émotions</li>
           <li class="p-text-16">Pour une vidéo à réaliser en solo: Créez un film personnel facilement à partir de vos propres photos et vidéos.</li>
         </ul>
+        <%= image_tag 'icons/target.png', class: 'image-from-image-text-block-start' %>
       </div>
+
+
+
 
       <div class="start-choices-choose">
         <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[40px]">Je choisis:</h3>
@@ -118,58 +123,47 @@ input[type="radio"]:checked + .custom-radio-label::before {
   background: linear-gradient(205.68deg, rgba(13, 103, 131, 0.5) 19.49%, rgba(13, 103, 131, 0.5) 60.63%, rgba(22, 63, 80, 0.5) 90.92%); /* Adjusted gradient for checked state */
 }
 
-  .start-choices-text {
-    display: flex;
-    flex-direction: column;
-    width: 1062px;
-    padding: 49px 118.5px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
 
-    border-radius: 10px;
-    border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
-    background: var(--White, #FFF);
+.text-with-image-block-start p {
+  color: #000;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 25px; /* 156.25% */
+}
 
-    /* Style */
-    box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+.text-with-image-block-start ul {
+  color: #000;
+  text-align: center;
 
-  }
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 25px; /* 156.25% */
+  list-style-type: disc;
+}
 
-  .start-choices-text p {
-    color: #000;
-    text-align: center;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 25px; /* 156.25% */
-  }
+.text-with-image-block-start {
+  width: 1062px;
+  height: 173px; /* Ensure content pushes beyond this */
+  border-radius: 10px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  position: relative;
+  box-sizing: border-box; /* Ensures padding/borders are included in dimensions */
+  padding: 49px 120px;
+  text-align: center;
+}
 
-  .start-choices-text ul {
-    color: #000;
-    text-align: center;
-
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 25px; /* 156.25% */
-    list-style-type: disc;
-  }
-
-
-  .start-choices-text::before {
-    position: absolute;
-    content: "";
-    background-image: url('<%= asset_path('icons/target.png') %>');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 137px;
-    height: 137px;
-    top: -75px;
-    left: 50%;
-    transform: translateX(-50%);
-
-  }
+.image-from-image-text-block-start{
+  position: absolute;
+  top: -55px;
+  width: 110px;
+  height: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 </style>
 

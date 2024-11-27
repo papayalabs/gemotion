@@ -2,7 +2,9 @@ require "fileutils"
 require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
-  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type concat_status delete_video_chapter purge_chapter_attachment drop_preview stream_video]
+  before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type
+                                          concat_status delete_video_chapter purge_chapter_attachment
+                                          drop_preview stream_video delete_destinataire update_destinataire]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -13,9 +15,15 @@ class VideosController < ApplicationController
     # authorize @video, :start?, policy_class: VideoPolicy
 
     return if @video.nil?
-    return unless @video.current_step != "start"
+    return unless @video.stop_at != "start_edit"
 
-    redirect_to send("#{@video.current_step}_path"), notice: "Reprenez votre vidéo en cours." if @video.current_step != "start"
+    if @video.stop_at == "start_edit"
+      redirect_to start_path
+    elsif @video.stop_at == "start"
+      redirect_to occasion_path
+    else
+      redirect_to send("#{@video.current_step}_path"), notice: "Reprenez votre vidéo en cours." if @video.current_step != "start"
+    end
 
     # TODO: delete current video if user confirmation
   end
@@ -34,8 +42,10 @@ class VideosController < ApplicationController
     if @video.save
       if @video.stop_at == "start_edit"
         redirect_to start_path
+      elsif @video.stop_at == "start"
+          redirect_to occasion_path
       else
-        redirect_to send("#{@video.current_step}_path")
+        redirect_to send("#{@video.next_step}_path")
       end
     else
       redirect_to send("#{@video.current_step}_path"), alert: "Impossible de revenir en arrière"
@@ -100,17 +110,52 @@ class VideosController < ApplicationController
 
   def info_destinataire
     authorize @video, :info_destinataire?, policy_class: VideoPolicy
+    @video_destinataires = @video.video_destinataires.order(created_at: :asc)
   end
 
   def info_destinataire_post
     authorize @video, :info_destinataire_post?, policy_class: VideoPolicy
     # for skip destinataire page
-    @vd = @video.video_destinataires.create(genre: 2)
+    @vd = VideoDestinataire.new(genre: 2, video: @video)
     ##############################
-    @vd = @video.video_destinataires.last
     @vd.age = params[:age_destinataire]
     @vd.name = params[:name_destinataire]
     @vd.more_info = params[:more_info_destinataire]
+    @vd.passions_and_hobbies = params[:passions_and_hobbies]
+    @vd.personality_description = params[:personality_description]
+    @vd.favorite_quotes = params[:favorite_quotes]
+
+    unless params[:add_more_destinataire].present? && params[:add_more_destinataire]
+      @video.stop_at = @video.next_step
+    end
+
+    if @video.validate_info_destinataire(@vd)
+      if @vd.save && @video.save
+        redirect_to send("#{@video.next_step}_path"), turbo: false
+      else
+        @video.update(stop_at: @video.current_step)
+        return render info_destinataire_path, status: :unprocessable_entity
+      end
+    else
+      if params[:add_more_destinataire].present? && params[:add_more_destinataire]
+        return render info_destinataire_path, status: :unprocessable_entity
+      else
+        @video.update(stop_at: @video.current_step)
+        redirect_to destinataire_details_path, turbo: false
+      end
+    end
+
+    nil if params[:special_request_destinataire].nil?
+    # TODO: send email to PO.
+  end
+
+  def destinataire_details
+    authorize @video, :destinataire_details?, policy_class: VideoPolicy
+    @video_destinataires = @video.video_destinataires.order(created_at: :asc)
+  end
+
+  def destinataire_details_post
+    # authorize @video, :skip_share?
     if params[:special_request_destinataire].present?
       @video.theme = "specific_request"
       @video.theme_specific_request = params[:special_request_destinataire]
@@ -118,15 +163,42 @@ class VideosController < ApplicationController
 
     @video.stop_at = @video.next_step
 
-    if @video.validate_info_destinataire(@vd) && @vd.save && @video.save
-      redirect_to send("#{@video.next_step}_path")
+    if @video.save
+      redirect_to send("#{@video.next_step}_path"), turbo: false
     else
       @video.update(stop_at: @video.current_step)
-      return render info_destinataire_path, status: :unprocessable_entity
+      return render destinataire_details_path, status: :unprocessable_entity
     end
+  end
 
-    nil if params[:special_request_destinataire].nil?
-    # TODO: send email to PO.
+  def delete_destinataire
+    destinataire = VideoDestinataire.find(params[:id]) # Use the appropriate ID from the params
+    video = Video.find(destinataire.video_id)
+    authorize video, :delete_destinataire?, policy_class: VideoPolicy
+    if destinataire.destroy
+      redirect_to destinataire_details_path, notice: 'Destinataire deleted successfully.', turbo: false
+    else
+      redirect_to destinataire_details_path, alert: "Vous n'êtes pas autorisé à supprimer ce destinataire.", turbo: false
+    end
+  end
+
+  def update_destinataire
+    destinataire = VideoDestinataire.find(params[:id]) # Use the appropriate ID from the params
+    video = Video.find(destinataire.video_id)
+    authorize video, :update_destinataire?, policy_class: VideoPolicy
+
+    destinataire.age = params[:age_destinataire]
+    destinataire.name = params[:name_destinataire]
+    destinataire.more_info = params[:more_info_destinataire]
+    destinataire.passions_and_hobbies = params[:passions_and_hobbies]
+    destinataire.personality_description = params[:personality_description]
+    destinataire.favorite_quotes = params[:favorite_quotes]
+
+    if destinataire.save
+      redirect_to destinataire_details_path, notice: 'Le destinataire a été mis à jour avec succès.', turbo: false
+    else
+      redirect_to destinataire_details_path, alert: "Vous n'êtes pas autorisé à mettre à jour ce destinataire.", turbo: false
+    end
   end
 
   def date_fin_post
@@ -195,9 +267,6 @@ class VideosController < ApplicationController
       @video.video_previews.create(preview: p, order: existing_previews.size + index)
     end
 
-    p "*"*100
-    p ordered_previews
-    p "*"*100
     @video.previews_order = ordered_previews
     @video.stop_at = @video.next_step if @video.validate_photo_intro
 
@@ -868,6 +937,7 @@ class VideosController < ApplicationController
   def select_video
     @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
     # On check si une vidéo existe
+
     if @video.nil?
       redirect_to start_path, alert: "Aucune vidéo trouvé." unless request.path == start_path
     # Si une vidéo existe, on doit être sur la bonne étape
@@ -875,8 +945,7 @@ class VideosController < ApplicationController
       return
     elsif ![@video.next_step.downcase, "#{@video.next_step.downcase}_post",
             "skip_#{@video.next_step.downcase}"].include?(params[:action].downcase)
-      redirect_to send("#{@video.next_step}_path"),
-                  alert: "Vous devez finaliser cette étape avant de passer à la prochaine."
+      redirect_to send("#{@video.next_step}_path"), alert: "Vous devez finaliser cette étape avant de passer à la prochaine.", turbo: false
     end
   end
 

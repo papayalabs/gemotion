@@ -75,6 +75,36 @@ main{
   text-decoration-skip-ink: none;
   color: rgba(0, 0, 0, 1);
 }
+.p-text-16-bold{
+  font-family: Red Hat Display;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 25px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: rgba(0, 0, 0, 1);
+}
+.p-text-center-16{
+  font-family: Red Hat Display;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  text-align: center;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: rgba(0, 0, 0, 1);
+}
+.p-text-center-bold-16{
+  font-family: Red Hat Display;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 25px;
+  text-align: center;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: rgba(0, 0, 0, 1);
+}
 .small-text{
   font-size: 12px;
 }
@@ -214,7 +244,18 @@ main{
 .mb-45{
   margin-bottom: 45px!important;
 }
-
+.mb-15{
+  margin-bottom: 15px;
+}
+.w-300{
+  width: 300px;
+}
+.w-434{
+  width: 434px;
+}
+.w-1006{
+  width: 1006px;
+}
 .mb-150{
   margin-bottom: 150px!important;
 }
@@ -264,6 +305,9 @@ main{
 }
 .pr-20{
   padding-right: 20px;
+}
+.bg-transparent{
+  background: transparent !important;;
 }
 .placeholder-text-12::placeholder {
   font-size: 12px!important;
@@ -939,6 +983,15 @@ h2 {
   z-index: 2; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
 }
+.edit-destinataire-video-icon{
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  width: 24px;
+  height: 24px;
+  z-index: 2; /* Ensure the icon is on top */
+  display: block; /* Make sure the icon is visible */
+}
 .project-main-block{
   height: 299px;
 }
@@ -953,6 +1006,14 @@ h2 {
 }
 .popup-chap-modal{
   height: 820px;
+  border-radius: 20px;
+}
+.popup-destinataire-modal{
+  height: 783px;
+  border-radius: 20px;
+}
+.popup-theme-modal{
+  height: 200px;
   border-radius: 20px;
 }
 .disabled-input{
@@ -1159,6 +1220,17 @@ h2 {
   padding-left: 25px;
   padding-right: 25px;
 }
+.more-destinataire-block{
+  width: 1006px;
+  height: 115px;
+  border-radius: 10px;
+  border: 1px dotted rgba(32, 31, 31, 0.5);
+  background-color: rgba(255, 255, 255, 1);
+  margin-top: 50px;
+  padding-left: 25px;
+  padding-right: 25px;
+  margin-bottom: 60px;
+}
 .upload-attachment-block{
   width: 100%;
   height: 150px;
@@ -1192,13 +1264,25 @@ h2 {
   background: rgba(255, 255, 255, 0.1);
   transition: background 0.2s ease;
 }
+.add-more-circle {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  border: 1px solid rgba(32, 31, 31, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease;
+}
 
 .upload-circle:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
 .plus-sign {
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: #666;
 }
 .frame-grey{

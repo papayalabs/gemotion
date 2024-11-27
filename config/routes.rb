@@ -19,11 +19,16 @@ Rails.application.routes.draw do
   get 'videos/occasion', to: "videos#occasion", as: "occasion"
   post 'videos/occasion', to: "videos#occasion_post", as: "occasion_post"
 
-  get 'videos/destinataire', to: "videos#destinataire", as: "destinataire"
-  post 'videos/destinataire', to: "videos#destinataire_post", as: "destinataire_post"
+  # get 'videos/destinataire', to: "videos#destinataire", as: "destinataire"
+  # post 'videos/destinataire', to: "videos#destinataire_post", as: "destinataire_post"
 
   get 'videos/info_destinataire', to: "videos#info_destinataire", as: "info_destinataire"
   post 'videos/info_destinataire', to: "videos#info_destinataire_post", as: "info_destinataire_post"
+
+  get 'videos/destinataire_details', to: "videos#destinataire_details", as: "destinataire_details"
+  post 'videos/destinataire_details_post', to: "videos#destinataire_details_post", as: "destinataire_details_post"
+  delete 'videos/delete_destinataire/:id', to: 'videos#delete_destinataire', as: 'delete_destinataire'
+  patch 'videos/update_destinataire/:id', to: "videos#update_destinataire", as: "update_destinataire"
 
   get 'videos/date_fin', to: "videos#date_fin", as: "date_fin"
   post 'videos/date_fin', to: "videos#date_fin_post", as: "date_fin_post"

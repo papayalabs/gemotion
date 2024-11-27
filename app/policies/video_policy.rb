@@ -16,6 +16,10 @@ class VideoPolicy < ApplicationPolicy
   def destinataire_post?; start_post?; end
   def info_destinataire?; start_post?; end
   def info_destinataire_post?; start_post?; end
+  def destinataire_details?; start_post?; end
+  def destinataire_details_post?; start_post?; end
+  def delete_destinataire?; start_post?; end
+  def update_destinataire?; start_post?; end
   def date_fin?; start_post?; end
   def date_fin_post?; start_post?; end
   def introduction?; start_post?; end

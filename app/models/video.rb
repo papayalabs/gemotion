@@ -29,8 +29,8 @@ class Video < ApplicationRecord
     belongs_to :music, optional: true
     belongs_to :dedicace, optional: true
 
-    SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'deadline', 'edit_video', 'content_dedicace', 'payment', 'render_final_page']
-    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'deadline', 'edit_video', 'content_dedicace', 'payment', 'render_final_page']
+    SOLO_WAY = ['start', 'occasion', 'info_destinataire', 'destinataire_details', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'share', 'content', 'deadline', 'edit_video', 'content_dedicace', 'payment', 'render_final_page']
+    COLAB_WAY = ['start', 'occasion', 'info_destinataire', 'destinataire_details', 'date_fin', 'introduction', 'photo_intro', 'select_chapters', 'music', 'dedicace', 'share', 'content', 'dedicace_de_fin', 'confirmation', 'deadline', 'edit_video', 'content_dedicace', 'payment', 'render_final_page']
 
     def video_destinataire
         self.video_destinataires.last
@@ -60,7 +60,10 @@ class Video < ApplicationRecord
     def validate_info_destinataire(video_destinataire)
         return false if video_destinataire.name.empty?
         return false if video_destinataire.age.nil? || !video_destinataire.age.is_a?(Numeric)
-        return false if video_destinataire.more_info.empty?
+        # return false if video_destinataire.more_info.empty?
+        return false if video_destinataire.passions_and_hobbies.empty?
+        return false if video_destinataire.personality_description.empty?
+        return false if video_destinataire.favorite_quotes.empty?
         return false unless self.way.include?(self.stop_at)
         return true
     end

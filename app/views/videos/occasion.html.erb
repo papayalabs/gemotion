@@ -1,18 +1,19 @@
 <div id="video_occasion">
   <section class="hero">
-    <h1 class="h1-video">Pour quelle occasion?</h1>
+    <h1 class="h1-video gradient-text">Pour quelle occasion?</h1>
   </section>
 
   <div class="flex flex-row justify-center w-full">
     <%= image_tag 'left-with-star.png', class: 'image-sides left-image' %>
-    <div class="content">
-      <div class="information mb-[72px] w-full">
-        <p>Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.</p>
+    <div class="content w-full flex flex-col justify-center items-center">
+      <div class="text-with-image-block-occasion flex justify-center items-center mb-[72px] w-full p-text-16">
+        Ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.
+        <%= image_tag 'icons/occasion-icon.png', class: 'image-from-image-text-block-occasion' %>
       </div>
 
       <div class="flex justify-center">
 
-        <%= form_with url: occasion_post_path, method: :post do |f| %>
+        <%= form_with url: occasion_post_path, method: :post, html: { data: { turbo: false } }  do |f| %>
 
           <div class="occasion mb-[48px] relative inline-block w-full">
 
@@ -23,13 +24,13 @@
 
             <div class="flex items-center gap-[23px]">
                 <%= image_tag "icons/attention.svg" %>
-                <p>Bientôt disponible : de nouvelles occasions pour votre film</p>
+                <p class="p-text-16">Bientôt disponible : de nouvelles occasions pour votre film</p>
             </div>
           </div>
 
           <div class="flex justify-between">
             <%= render "videos/shared/back_button" %>
-            <%= f.submit "Étape suivante", class: "cta" %>
+            <%= f.submit "Étape suivante", class: "black-link" %>
           </div>
 
         <% end %>
@@ -60,27 +61,6 @@
 .right-image {
   margin-left: 2.5%; /* Optional: Space between the content and right image */
 }
-#video_occasion .information {
-  display: flex;
-  width: 100%%;
-  padding: 49px 197px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 10px;
-  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
-  background: var(--White, #FFF);
-  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
-}
-
-#video_occasion .information p {
-  color: #000;
-  text-align: center;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 25px;
-}
 
 #video_occasion .occasion {
   width: 1006px;
@@ -106,7 +86,36 @@
   border-radius: 8px;
   border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
   background: var(--Blue, #F2FCFF);
+  color: rgba(32, 31, 31, 0.5);
 
+}
+
+#video_occasion .occasion select option {
+  color: var(--text-gray, #6B7280); /* Set gray text color */
+  background: var(--Blue, #F2FCFF); /* Ensure options have the same background */
+}
+
+
+.text-with-image-block-occasion {
+  width: 1062px;
+  height: 198px; /* Ensure content pushes beyond this */
+  border-radius: 10px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  position: relative;
+  box-sizing: border-box; /* Ensures padding/borders are included in dimensions */
+  padding: 49px 120px;
+  text-align: center;
+}
+
+.image-from-image-text-block-occasion{
+  position: absolute;
+  top: -55px;
+  width: 110px;
+  height: 110px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 </style>

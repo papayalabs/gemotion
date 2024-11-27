@@ -1,71 +1,124 @@
-<div id="info_destinataire">
+<div class="info_destinataire">
   <section class="hero">
-    <h1 class="video-h1">Dites nous en plus sur le, la, les destinataires du film</h1>
-    <p class="video-desc">
-      Dites nous en plus sur le ou les destinataires
-    </p>
+    <h1 class="h1-video gradient-text">Dites nous en plus sur le, la, les destinataires du film</h1>
   </section>
 
-  <section>
-
-    <%= form_with url: info_destinataire_post_path, method: :post do |f| %>
-
-      <div class="form step-1">
-
-        <div class="form step-1 row-1 flex gap-[23px] mb-[26px]">
-          <%= f.label :age_destinataire, "1", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-          <%= f.number_field :age_destinataire, placeholder: "Indiquez l'âge du destinataire", value: @video.video_destinataire&.age, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
-        </div>
-
-        <div class="form step-1 row-2 flex gap-[23px] mb-[26px]">
-          <%= f.label :name_destinataire, "2", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-          <%= f.text_field :name_destinataire, placeholder: "Indiquez le nom du destinataire", value: @video.video_destinataire&.name, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
-        </div>
-
-        <div class="form step-1 row-3 flex gap-[23px] mb-[26px]">
-          <%= f.label :more_info_destinataire, "3", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-          <%= f.text_area :more_info_destinataire, placeholder: "Indiquez le nombre d'enfants et les prénoms des enfants (facultatif)", value: @video.video_destinataire&.more_info, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
-        </div>
-
+  <div class="flex flex-row justify-center w-full">
+    <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
+    <div class="content w-full flex flex-col justify-center items-center">
+      <div class="text-with-image-block flex justify-center items-center mt-65 mb-[72px] w-full p-text-16">
+        Dites nous en plus sur le ou les destinataires
+        <%if @video_destinataires.count > 0%>
+          <%= image_tag 'icons/emojis.png', class: 'image-from-image-text-block' %>
+        <%else%>
+          <%= image_tag 'icons/emoj.png', class: 'image-from-image-text-block' %>
+        <%end%>
       </div>
 
-      <div class="form step-2">
+      <div class="flex flex-col justify-center">
+      <%@video_destinataires.each_with_index do |video_destinataire, index|%>
+        <div class="bigger-destinataire flex flex-col justify-start mb-[48px] relative inline-block w-full">
+          <div class="flex flex-row justify-start items-start p-text-16">
+            <div class="p-text-16-bold mr-4"><%=index+1%></div>
+
+            <div class="flex flex-col w-full">
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">Nom du destinataire (pour qui nous préparons le film) :</div>
+                <div class="p-text-16 w-434"><%=video_destinataire.name%></div>
+              </div>
+
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">Occasion :</div>
+                <div class="p-text-16 w-434"><%=@video.occasion.humanize%></div>
+              </div>
+
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">L'âge du destinataire</div>
+                <div class="p-text-16 w-434"><%=video_destinataire.age%></div>
+              </div>
+
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">Le nombre et les noms des enfants*</div>
+                <div class="p-text-16 w-434"><%=video_destinataire.more_info%></div>
+              </div>
 
 
-      </div>
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">Les loisirs du destinataire</div>
+                <div class="p-text-16 w-434"><%=video_destinataire.passions_and_hobbies%></div>
+              </div>
 
-      <div class="w-[1006px] h-[386px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
-        <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">
-          Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !
-        </h3>
-        <p class="text-black text-center font-red-hat-display text-[16px] font-normal leading-[25px] mb-[32px]">
-          * Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.
-        </p>
-        <%= f.label :special_request_destinataire, "4", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-        <%= f.text_area :special_request_destinataire, placeholder: "Décrivez votre théme", value: @video.theme_specific_request, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
-        <div class="flex items-center gap-[16px]">
-          <%= image_tag "icons/attention.svg" %>
-          <p class="text-black font-red-hat-display text-[16px] font-normal leading-[25px]">
-            Veuillez noter que des frais supplémentaires seront appliqués pour une vidéo sur mesure.
-          </p>
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">La description du destinataire</div>
+                <div class="p-text-16 w-434"><%=video_destinataire.personality_description%></div>
+              </div>
+
+              <div class="flex flex-row justify-start w-full mb-15">
+                <div class="p-text-16-bold mr-4 w-300">Les citations et phrases préférées du destinataire</div>
+                <div class="p-text-16 w-434"><%=video_destinataire.favorite_quotes%></div>
+              </div>
+            </div>
+          </div>
         </div>
+      <%end%>
+
+        <%= form_with url: info_destinataire_post_path, method: :post, html: { data: { turbo: false } } do |f| %>
+
+          <div class="destinataire flex flex-col justify-center mb-[48px] relative inline-block w-full">
+            <div class="form step-1 row-1 flex gap-[23px] mb-[26px]">
+              <%= f.label :age_destinataire, "1", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+              <%= f.number_field :age_destinataire, placeholder: "Indiquez l'âge du destinataire", class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            </div>
+
+            <div class="form step-1 row-2 flex gap-[23px] mb-[26px]">
+              <%= f.label :name_destinataire, "2", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+              <%= f.text_field :name_destinataire, placeholder: "Indiquez le nom du destinataire", class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            </div>
+
+            <div class="form step-1 row-3 flex gap-[23px] mb-[26px]">
+              <%= f.label :more_info_destinataire, "3", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+              <%= f.text_area :more_info_destinataire, placeholder: "Indiquez le nombre d'enfants et les prénoms des enfants (facultatif)",rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            </div>
+          </div>
+
+          <div class="bigger-destinataire mb-[48px] relative inline-block w-full">
+            <div class="form step-1 row-1 flex gap-[23px] mb-[26px]">
+              <%= f.label :passions_and_hobbies, "4", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+              <%= f.text_area :passions_and_hobbies, placeholder: "Décrivez ses passions et ses hobbies",rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            </div>
+
+            <div class="form step-1 row-2 flex gap-[23px] mb-[26px]">
+              <%= f.label :personality_description, "5", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+              <%= f.text_area :personality_description, placeholder: "Décrivez sa personnalité",rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            </div>
+
+            <div class="form step-1 row-3 flex gap-[23px] mb-[26px]">
+              <%= f.label :favorite_quotes, "6", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
+              <%= f.text_area :favorite_quotes, placeholder: "Nommez ses citations ou phrases préférées",rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+            </div>
+          </div>
+
+
+          <div class="w-100i more-destinataire-block flex flex-col justify-center items-center">
+            <%= button_tag(type: :submit, name: "add_more_destinataire", value: true, class: "flex flex-col justify-center items-center w-full") do %>
+              <span>Soumettre et ajouter un autre destinataire</span>
+              <div class="add-more-circle mt-2">
+                <span class="plus-sign">+</span>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex justify-between">
+            <%= render "videos/shared/back_button" %>
+            <%= f.submit "Étape suivante", class: "black-link" %>
+          </div>
+
+        <% end %>
+
       </div>
-      <div class="video-steps">
-        <%= render "videos/shared/back_button" %>
-        <%= f.submit "Étape suivante", class:"cta" %>
-      </div>
-    <% end %>
-
-
-
-  </section>
+    </div>
+    <%= image_tag 'right-with-star.png', class: 'image-sides right-image' %>
+  </div>
 
 </div>
 
-<style>
-
-#info_destinataire .hero {
-
-}
-
-</style>
