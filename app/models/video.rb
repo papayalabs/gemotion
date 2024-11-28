@@ -40,6 +40,13 @@ class Video < ApplicationRecord
         ActiveStorage::Analyzer::VideoAnalyzer.new(self.final_video.blob).metadata[:duration]
     end
 
+    def get_preview()
+        if video.previewable? # => true
+           img_preview = video.preview(resize: "800x1400").processed # Returns an active storage instance with the file type mp4 instead of the expected png thumbnail
+           return img_preview.service_url # Fails with exception (see next snippet)
+        end
+    end
+
     def generate_token
         self.token = SecureRandom.urlsafe_base64(20)
         generate_token if Video.exists?(token: self.token)

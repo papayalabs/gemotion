@@ -269,6 +269,9 @@ main{
 .w-100i{
   width: 100%!important;
 }
+.w-120i{
+  width: 120px !important;
+}
 
 .mr-2 {
   margin-right: .5rem
@@ -1535,4 +1538,58 @@ h2 {
   height: 200px;
   object-fit: cover;
   border-radius: 5px;
+}
+.steps-container {
+  position: relative;
+}
+
+.step {
+  position: relative;
+  margin: 20px 0; /* Adjust spacing as needed */
+}
+
+.step:nth-child(even):not(:last-child)::after {
+  content: url('<%= asset_path("gemotion-next-step-left.svg") %>');
+  position: absolute;
+  left: -120px; /* Adjust positioning as needed */
+  top: 100%;
+  transform: translateY(-50%);
+}
+
+.step:nth-child(odd):not(:last-child)::after {
+  content: url('<%= asset_path("gemotion-next-step-right.svg") %>');
+  position: absolute;
+  right: -120px; /* Adjust positioning as needed */
+  top: 100%;
+  transform: translateY(-50%);
+}
+
+/* Specific rule to hide the arrow on the last element if it's even */
+.step:nth-child(even):last-child::after {
+  content: none;
+}
+#about_hero {
+  background-image: url('<%= asset_path("gemotion-about-hero-bg.png") %>');
+  background-position: center 80%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.about-block{
+  padding-bottom: 450px;
+}
+#watch{
+  margin-top:-380px!important;
+}
+.index-1{
+  z-index:1;
+}
+.play-button-icon{
+  width: 151.01px;
+  height: 95.58px;
+  top: -44px;
+  right: -62px;
+}
+.video-bottom-icon{
+  bottom: 80px;
+  width: 85%;
 }
