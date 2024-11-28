@@ -239,38 +239,47 @@ class VideosController < ApplicationController
   def photo_intro_post
     authorize @video, :photo_intro_post?, policy_class: VideoPolicy
 
-    # Check for maximum preview count
-    new_previews = params[:previews]&.reject(&:blank?) || []
-    current_preview_count = @video.video_previews.count
+    # Normalize uploaded previews into an array
+    uploaded_previews = if params[:previews].is_a?(ActionDispatch::Http::UploadedFile)
+                          [params[:previews]]
+                        elsif params[:previews].respond_to?(:values)
+                          params[:previews].values
+                        else
+                          []
+                        end.reject(&:blank?)
 
-    if current_preview_count + new_previews.size > 3
+    # Parse the images order
+    ordered_previews = params[:images_order]&.split(',') || []
+    current_previews = @video.video_previews.includes(:preview).to_a
+
+    # Ensure the total number of previews does not exceed the limit
+    if current_previews.size + uploaded_previews.size > 3
       flash[:alert] = "Vous ne pouvez pas ajouter plus de 3 aperçus."
       redirect_to photo_intro_path and return
     end
 
-    # Handle reordering
-    ordered_previews = params[:images_order]&.split(',') || []
-    existing_previews = @video.video_previews.to_a
-
-    # Update order of existing previews
-    existing_previews.each do |preview|
-      if (new_order_index = ordered_previews.index(preview.preview.image.filename.to_s))
-        preview.update(order: new_order_index)
+    # Update the order of existing previews
+    current_previews.each do |video_preview|
+      filename = video_preview.preview.image.filename.to_s
+      if (new_order_index = ordered_previews.index(filename))
+        video_preview.update(order: new_order_index)
       end
     end
 
-    # Handle new uploads
-    new_previews.each_with_index do |preview_file, index|
+    # Add new previews and assign order based on their position in `images_order`
+    uploaded_previews.each do |preview_file|
       next if preview_file.blank?
 
-      p = Preview.create(image: preview_file)
-      @video.video_previews.create(preview: p, order: existing_previews.size + index)
+      preview = Preview.create(image: preview_file)
+      order_index = ordered_previews.index(preview_file.original_filename)
+      @video.video_previews.create(preview: preview, order: order_index) if order_index
     end
 
+    # Re-assign previews_order for the video model
     @video.previews_order = ordered_previews
     @video.stop_at = @video.next_step if @video.validate_photo_intro
 
-    # Save video and handle navigation
+    # Save and navigate to the next step
     if @video.validate_photo_intro && @video.save
       redirect_to send("#{@video.next_step}_path")
     else

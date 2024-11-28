@@ -280,3 +280,40 @@
   background: linear-gradient(205.68deg, #C9E1FF 19.49%, #0D6783 60.63%, #163F50 90.92%);
   color: white;
 }
+.preview-big-image-block{
+  width: 756px;
+  height: 423px;
+  border-radius: 20px;
+  // border: 1px solid black;
+}
+.add-more-preview-circle{
+  width: 108px;
+  height: 108px;
+  // border-radius: 50%;
+  // border: 1px solid rgba(32, 31, 31, 1);
+  cursor: pointer;
+  // background: rgba(255, 255, 255, 0.1);
+  // transition: background 0.2s ease;
+}
+.preview-small-image-block{
+  width: 108px;
+  height: 108px;
+  border: 1px dotted black;
+  border-radius: 5px;
+}
+.w-108{
+  width: 108px;
+}
+.big-preview-image {
+  width: 756px; /* Fit within the block */
+  height: 100%; /* Fit within the block */
+  display: block;
+  border-radius: 20px;
+}
+.delete-preview-icon-btn{
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin-left: 90px;
+  margin-top: -95px;
+}
