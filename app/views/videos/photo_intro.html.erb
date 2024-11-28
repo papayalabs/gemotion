@@ -87,7 +87,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const sortableContainer = document.getElementById("sortable-container");
   const imageOrderInput = document.getElementById("image_order");
-  const fileInputs = document.querySelectorAll(".image-input");
   const bigImageBlock = document.querySelector(".preview-big-image-block");
 
   // Initialize Sortable.js
@@ -113,8 +112,52 @@ document.addEventListener("DOMContentLoaded", () => {
     bigImageBlock.appendChild(bigImage);
   };
 
-  // Handle file uploads and previews
-  fileInputs.forEach((input) => {
+  // Add drag-and-drop functionality for each preview-small-image-block
+  document.querySelectorAll(".preview-small-image-block").forEach((block) => {
+    const position = block.dataset.position;
+    const fileInput = block.querySelector(".image-input");
+
+    // Highlight block on dragover
+    block.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      block.classList.add("drag-over");
+    });
+
+    // Remove highlight on dragleave
+    block.addEventListener("dragleave", () => {
+      block.classList.remove("drag-over");
+    });
+
+    // Handle file drop
+    block.addEventListener("drop", (event) => {
+      event.preventDefault();
+      block.classList.remove("drag-over");
+
+      const file = event.dataTransfer.files[0]; // Get the first dropped file
+      if (file) {
+        // Use DataTransfer API to assign the file to the input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          // Update only parts of the block visually, keeping the input intact
+          block.querySelector(".preview-image").src = e.target.result;
+          block.querySelector(".preview-image").classList.remove("hidden");
+          block.querySelector(".add-more-preview-circle").classList.add("hidden");
+          block.querySelector(".delete-preview-icon-btn").classList.remove("hidden");
+          block.dataset.filename = file.name; // Save filename
+          updateOrder(); // Update order with new filename
+          displayInBigPreview(e.target.result); // Show the uploaded image in the big preview block
+        };
+        reader.readAsDataURL(file); // Read the dropped file
+      }
+    });
+  });
+
+  // Handle file uploads and previews via input click
+  document.querySelectorAll(".image-input").forEach((input) => {
     input.addEventListener("change", (event) => {
       const position = event.target.dataset.position;
       const previewImg = document.getElementById(`preview_${position}`);
@@ -155,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+
   // Handle image deletion for existing and new images
   document.addEventListener("click", (event) => {
     const deleteButton = event.target.closest(".delete-preview-icon-btn");
@@ -169,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const handleImageDeletion = async (url, parentBlock, position) => {
-    console.log(url)
     try {
       if (url) {
         // Handle deletion for existing previews (server-side)
@@ -226,9 +269,14 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   };
 
+
+
+
+
+
   // Ensure at least one image is uploaded before form submission
   document.getElementById("previews-form").addEventListener("submit", (event) => {
-    const filledInputs = Array.from(fileInputs).filter((input) => input.files.length > 0);
+    const filledInputs = Array.from(document.querySelectorAll(".image-input")).filter((input) => input.files.length > 0);
     const existingPreviews = Array.from(sortableContainer.children).filter((child) => child.dataset.filename);
 
     if (filledInputs.length === 0 && existingPreviews.length === 0) {
