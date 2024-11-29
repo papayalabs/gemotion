@@ -8,6 +8,40 @@
     font-family: 'Montserrat', sans-serif;
   }
 }
+.custom-select {
+  height: 57px;
+  padding: 16px 40px 16px 20px;
+  border-radius: 8px;
+  background: var(--Blue, rgba(242, 252, 255, 1));
+  appearance: none; /* Remove the default arrow for consistent styling */
+  -webkit-appearance: none; /* For WebKit browsers (Safari, Chrome) */
+  padding-right: 50px; /* Add space for the dropdown arrow */
+  font-family: 'Red Hat Display', sans-serif; /* Ensure proper font-family */
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  text-align: left;
+  text-decoration-skip-ink: none;
+
+  border: 1px solid; /* Add solid border to support gradient */
+  border-image-source: linear-gradient(205.68deg, rgba(201, 225, 255, 0.2) 19.49%, rgba(13, 103, 131, 0.2) 60.63%, rgba(22, 63, 80, 0.2) 90.92%);
+  border-image-slice: 1; /* Ensure the gradient applies across the border evenly */
+
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 5"%3E%3Cpath fill="%23000000" d="M0 0L5 5L10 0Z"/%3E%3C/svg%3E'); /* Custom downward arrow */
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center; /* Position arrow with spacing */
+  background-size: 10px; /* Size of the arrow */
+}
+.custom-select::placeholder {
+  font-family: Red Hat Display;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  text-align: left;
+  text-decoration-skip-ink: none;
+}
+
+
 
 .image-sides{
   max-width: 200px;
@@ -241,7 +275,9 @@ main{
 .mt-65{
   margin-top: 65px!important;
 }
-
+.ml-15{
+  margin-left: 15px;
+}
 .mb-45{
   margin-bottom: 45px!important;
 }
@@ -606,8 +642,8 @@ h2 {
 .video-textarea {
   @apply flex w-[677px] h-[99px] p-[15px] px-[27px] items-start gap-[10px];
 }
-.h-1461{
-  height: 1461px;
+.h-1482{
+  height: 1482px;
 }
 .frame {
   display: flex;
@@ -691,6 +727,18 @@ h2 {
   display: block;
   position: absolute;
   left: 16px;
+  bottom: 80px;
+  color: #fff;
+
+  /* Body 16 Bold */
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 25px; /* 156.25% */
+}
+.video-chapter-thumb-wrapper-text{
+  position: absolute;
+  left: 16px;
   bottom: 16px;
   color: #fff;
 
@@ -718,7 +766,7 @@ h2 {
   border: 1px solid var(--Black, rgba(32, 31, 31, 1));
 }
 
-.video-chapter-thumb-wrapper div {
+.video-chapter-thumb-wrapper-simpletext {
   display: block;
   position: relative;
 }
@@ -1009,7 +1057,8 @@ h2 {
   border-radius: 20px;
 }
 .popup-chap-modal{
-  height: 820px;
+  width: 730px !important;
+  height: 900px !important;
   border-radius: 20px;
 }
 .popup-destinataire-modal{
@@ -1120,13 +1169,43 @@ h2 {
   display: flex;
   justify-content: flex-start;
 }
-.chapter-popup-block{
+
+.chapter-popup-block {
+  position: relative;
   width: 480px;
-  height: 720px;
-  border: 1px solid black;
-  border-radius: 20px;
+  height: 760px;
+  border-radius: 20px; /* The radius for the block */
   padding: 20px;
+  background: #fff; /* The inner background color */
+  z-index: 1; /* Ensure the content stays above the pseudo-elements */
+  overflow: hidden; /* To avoid content leaking outside */
 }
+
+.chapter-popup-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px; /* Same border-radius as the main block */
+  background: linear-gradient(205.68deg, #C9E1FF 19.49%, #0D6783 60.63%, #163F50 90.92%);
+  z-index: -2; /* Place the pseudo-element farthest behind */
+  box-sizing: border-box; /* Match dimensions of the parent block */
+}
+
+.chapter-popup-block::after {
+  content: "";
+  position: absolute;
+  top: 2px; /* Matches border thickness */
+  left: 2px;
+  width: calc(100% - 4px); /* Adjust width for border thickness */
+  height: calc(100% - 4px); /* Adjust height for border thickness */
+  border-radius: 18px; /* Inner radius: subtract border thickness */
+  background: #fff; /* Matches block background */
+  z-index: -1; /* Above the gradient but behind content */
+}
+
 .color-picker {
   display: flex;
   gap: 10px;
@@ -1144,29 +1223,30 @@ h2 {
   border: 2px solid transparent;
 }
 
-.color-circle.black { background-color: black; }
-.color-circle.grey { background-color: grey; }
+/* .color-circle.black { background-color: black; }
+.color-circle.grey { background-color: grey; } */
 .color-circle.white { background-color: white; border: 0.5px solid black; }
+.color-circle.red { background-color: red; border: 0.5px solid black; }
+.color-circle.orange { background-color: orange; border: 0.5px solid black; }
+.color-circle.yellow { background-color: yellow; border: 0.5px solid black; }
+.color-circle.green { background-color: green; border: 0.5px solid black; }
+.color-circle.lightblue { background-color: lightblue; border: 0.5px solid black; }
+.color-circle.dodgerblue { background-color: dodgerblue; border: 0.5px solid black; }
+.color-circle.violet { background-color: violet; border: 0.5px solid black; }
 
-.color-picker input[type="radio"]:checked + .color-circle.black {
-  border: 2px solid lightseagreen;
+
+.color-picker input[type="radio"]:checked + .color-circle {
+  border: 1px solid #333;
 }
 
-.color-picker input[type="radio"]:checked + .color-circle.grey {
-  border: 2px solid #333;
-}
-
-.color-picker input[type="radio"]:checked + .color-circle.white {
-  border: 2px solid #333;
-}
 .prev-your-text{
   padding-left: 10px;
-  margin-top: 5px;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
   width: 100%;
-  height: 47px;
+  height: 45px;
   border: 1px dotted black;
-  background-color: rgba(217, 217, 217, 1);
+  /* background-color: rgba(217, 217, 217, 1); */
 }
 
 .chapter-popup-select{

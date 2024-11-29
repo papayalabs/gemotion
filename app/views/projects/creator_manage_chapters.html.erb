@@ -22,7 +22,7 @@
                 <div class="video-chapter-wrapper">
                   <%= f.check_box "chapters[#{res[:ct].id}][select]", {checked: res[:select], 'data-testid': checkbox_test_id }, true, false %>
                   <div class="video-chapter-thumb-wrapper">
-                    <div>
+                    <div class="video-chapter-thumb-wrapper-simpletext">
                       <div data-controller="dialog" data-action="click->dialog#clickOutside">
                         <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Icon", class: "edit-prof-video-icon", data: { action: "click->dialog#open" } %>
                         <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 popup-chap-modal">
@@ -30,7 +30,7 @@
                           <div class="w-full flex-im flex-row justify-center items-start">
                             <div class="chapter-popup-block">
                               <div class="video-chapter-thumb-wrapper">
-                                <div>
+                                <div class="video-chapter-thumb-wrapper-simpletext">
                                   <% if res[:ct].image.attached? %>
                                     <%= image_tag res[:ct].image, class: "video-chapter-thumb" %>
                                   <% else %>
