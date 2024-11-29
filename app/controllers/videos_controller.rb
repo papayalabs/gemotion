@@ -980,6 +980,7 @@ class VideosController < ApplicationController
         text_style: k["text_style"], text_size: k["text_size"],
         select: k["text"].present? }
     end
+    @chapterstype += @chapterstype
   end
 
   def define_music

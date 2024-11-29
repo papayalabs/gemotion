@@ -8,6 +8,7 @@
     font-family: 'Montserrat', sans-serif;
   }
 }
+
 .image-sides{
   max-width: 200px;
   max-height: 700px;
@@ -605,11 +606,28 @@ h2 {
 .video-textarea {
   @apply flex w-[677px] h-[99px] p-[15px] px-[27px] items-start gap-[10px];
 }
-
+.h-1461{
+  height: 1461px;
+}
 .frame {
   display: flex;
   width: 1006px;
   padding: 40px 116px;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+  margin: auto;
+}
+.frame-small-border {
+  display: flex;
+  width: 1006px;
+  padding: 40px 40px;
   flex-direction: column;
   align-items: center;
   gap: 48px;
@@ -683,25 +701,6 @@ h2 {
   line-height: 25px; /* 156.25% */
 }
 
-.video-chapter input[type="text"] {
-  padding: 15px 27px;
-  align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  border: 1px solid #c9e1ff;
-  background: #fff;
-  color: rgba(32, 31, 31, 0.5);
-
-  /* Body 16 */
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 25px; /* 156.25% */
-
-  width: 100%;
-  margin-top: 16px;
-}
-
 .video-chapter-wrapper {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -715,6 +714,8 @@ h2 {
   position: relative;
   width: 18px;
   height: 18px;
+  border-radius: 3px;
+  border: 1px solid var(--Black, rgba(32, 31, 31, 1));
 }
 
 .video-chapter-thumb-wrapper div {
