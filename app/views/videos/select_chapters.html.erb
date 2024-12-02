@@ -9,7 +9,7 @@
       </div>
 
       <div class="">
-        <%= form_with url: select_chapters_post_path, method: :post do |f| %>
+        <%= form_with url: select_chapters_post_path, method: :post, html: {data: { turbo: false }} do |f| %>
           <div class="frame-small-border h-1482">
             <h3 class="video-h3">Choisissez les chapitres qui figureront dans le film ( 12 chapitres max )</h3>
             <p class="p-text-center-16">L'introduction de votre vidéo dépendra de l'option que vous avez sélectionné</p>

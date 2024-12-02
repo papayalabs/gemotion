@@ -371,7 +371,9 @@ class VideosController < ApplicationController
       chapter_to_delete.destroy_all
 
       @video.update(stop_at: @video.next_step)
-      redirect_to send("#{@video.next_step}_path")
+      p '*'*1000
+      redirect_to send("#{@video.next_step}_path"), turbo: false
+
     else
       @video.update(stop_at: @video.current_step)
       @chapterstype = ChapterType.all
@@ -983,7 +985,14 @@ class VideosController < ApplicationController
   end
 
   def define_music
-    @musics = Music.all
+    @musics = Music.with_attached_music.map do |music|
+      {
+        id: music.id,
+        name: music.name,
+        url: music.music.attached? ? url_for(music.music) : nil
+      }
+    end
+    # @musics = Music.all
   end
 
   def define_dedicace
