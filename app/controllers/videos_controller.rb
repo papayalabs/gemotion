@@ -389,6 +389,8 @@ class VideosController < ApplicationController
       return render music_path, status: :unprocessable_entity
     end
 
+    @video.special_request_music = params[:special_request_music] if params[:special_request_music]
+
     # Handle the "whole video" case
     if params[:music]
       music = Music.find_by(id: params[:music])
@@ -985,14 +987,14 @@ class VideosController < ApplicationController
   end
 
   def define_music
-    @musics = Music.with_attached_music.map do |music|
-      {
-        id: music.id,
-        name: music.name,
-        url: music.music.attached? ? url_for(music.music) : nil
-      }
-    end
-    # @musics = Music.all
+    # @musics = Music.with_attached_music.map do |music|
+    #   {
+    #     id: music.id,
+    #     name: music.name,
+    #     url: music.music.attached? ? url_for(music.music) : nil
+    #   }
+    # end
+    @musics = Music.all
   end
 
   def define_dedicace
