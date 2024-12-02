@@ -7,8 +7,8 @@ export default class extends Controller {
     const audioSrc = this.element.dataset.audioSrc;
     const waveformData = JSON.parse(this.element.dataset.waveform).data;
 
-    // Process waveform: Trim zeros and downsample
-    const processedWaveform = this.processWaveform(waveformData, 64); // Target 64 bars
+    // Process waveform: Trim zeros and downsample to 32 bars (half of 64)
+    const processedWaveform = this.processWaveform(waveformData, 48); // Target 32 bars
 
     const canvas = this.waveformCanvasTarget;
     const playPauseButton = this.playPauseButtonTarget;
@@ -20,39 +20,47 @@ export default class extends Controller {
     canvas.height = 60; // Height for visual appearance
 
     // Create gradient for waveform
-    const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
-    gradient.addColorStop(0, "#163F50");
-    gradient.addColorStop(0.5, "#0D6783");
-    gradient.addColorStop(1, "#C9E1FF");
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0.1949, "#C9E1FF"); // 19.49% from top
+    gradient.addColorStop(0.6063, "#0D6783"); // 60.63% from top
+    gradient.addColorStop(0.9092, "#163F50"); // 90.92% from top
 
     // Render the static waveform
     const drawStaticWaveform = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const barWidth = canvas.width / processedWaveform.length - 1; // Space between bars
+      const barWidth = (canvas.width / processedWaveform.length) - 4; // Space between bars
       const maxBarHeight = canvas.height * 0.7; // Max bar height (70% of canvas height)
       let x = 0;
 
       for (let value of processedWaveform) {
-        const barHeight = (Math.abs(value) / 255) * maxBarHeight * 2; // Scale down
+        const barHeight = (Math.abs(value) / 255) * maxBarHeight * 2.7; // Scale down
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.roundRect(x, canvas.height - barHeight, barWidth, barHeight, 2); // Rounded bars
         ctx.fill();
-        x += barWidth + 1; // Move to the next bar with spacing
+        x += barWidth + 4; // Increase gap between bars
       }
     };
 
     // Play/Pause functionality
     const togglePlayPause = () => {
+      const iconElement = playPauseButton.querySelector(".play-button-icon, .stop-button-icon");
+
       if (audio.paused) {
         audio.play();
         playPauseButton.classList.add("playing");
-        playPauseButton.innerHTML = "&#10074;&#10074;"; // Pause icon
+        if (iconElement) {
+          iconElement.classList.remove("play-button-icon");
+          iconElement.classList.add("stop-button-icon");
+        }
       } else {
         audio.pause();
         playPauseButton.classList.remove("playing");
-        playPauseButton.innerHTML = "&#9658;"; // Play icon
+        if (iconElement) {
+          iconElement.classList.remove("stop-button-icon");
+          iconElement.classList.add("play-button-icon");
+        }
       }
     };
 

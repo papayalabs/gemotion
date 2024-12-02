@@ -1,9 +1,3 @@
-@font-face {
-  font-family: 'Red Hat Display';
-  src: font-url('RedHatDisplay-Regular.ttf') format('truetype'); /* Use font-url for asset pipeline */
-  font-weight: normal;
-  font-style: normal;
-}
 .home{
   background: var(--Light-Blue-BG, rgba(250, 254, 255, 1));
 }

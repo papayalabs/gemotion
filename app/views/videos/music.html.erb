@@ -10,7 +10,7 @@
   </div>
   <div class="">
 
-    <div class="frame">
+    <div class="frame w-50i">
       <div class='w-full'>
         <%= form_with model: @video, url: update_video_music_type_path(id: @video.id), method: :patch, remote: true, html: { id: 'music-type-form', class: 'w-full' } do |f| %>
           <div class='flex justify-between items-center'>
@@ -35,17 +35,15 @@
           <div class="video-musics">
             <% @musics.each do |music| %>
               <div class="video-music">
-                <div class="music-name"><%= music.name %></div>
+                <div class="music-name p-text-16"><%= music[:name] %></div>
                 <div class="music-audio">
-                  <%= f.radio_button "music", music.id, {checked: music == @video.music}%>
-                  <% if music.music.attached? %>
-                    <div class="audio-visualizer" data-controller="audio-visualizer" data-audio-src="<%= url_for(music.music) %>" data-waveform="<%= music.waveform.to_json %>">
-                      <div class="play-icon" data-audio-visualizer-target="playPauseButton">&#9658;</div> <!-- Play icon -->
-                      <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                  <%= f.radio_button "music", music[:id], {checked: music[:id] == @video.music.id}%>
+                  <div class="audio-visualizer" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
+                    <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                      <div class="play-button-icon"></div>
                     </div>
-                  <% else %>
-                    <p>Pas d'audio</p>
-                  <% end %>
+                    <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -74,78 +72,182 @@
       <% end %>
     </div>
 
+<div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
+  <%= form_with url: music_post_path, method: :post do |f| %>
+    <div class="music-frame">
+      <div class="video-musics">
+        <% @video.video_chapters.each do |video_chapter| %>
+          <div class="video-music">
+            <div class="video-music-thumb-wrapper">
+              <% if video_chapter.chapter_type.image.attached? %>
+                <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
+              <% else %>
+                <p>Pas d'image</p>
+              <% end %>
+              <div class="video-music-thumb-wrapper-text flex flex-row justify-start items-center">
+                <div><%= "#{video_chapter.chapter_type.name} : " %></div>
+                <div class="ml-2"><%= video_chapter.text %></div>
+                <%= image_tag "icons/music_edit.png", alt: "Edit Icon", class: "edit-music-video-icon ml" %>
 
-    <div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
-      <%= form_with url: music_post_path, method: :post, html: { data: { turbo: false } } do |f| %>
-        <div class="frame">
-          <div class="video-memories">
-            <% @video.video_chapters.each do |video_chapter| %>
-              <div class="video-memory">
-                <div class="video-memory-thumb-wrapper">
-                  <% if video_chapter.chapter_type.image.attached? %>
-                      <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
-                  <% else %>
-                      <p>Pas d'image</p>
-                  <% end %>
-                  <span><%= video_chapter.chapter_type.name %></span>
-                </div>
-                <p class="video-memory-alert"><%=video_chapter.text%></p>
-                <div class="music-selection">
-                  <% selected_music_id = video_chapter.video_music&.music_id %>
-                  <%= f.select "music_#{video_chapter.id}", @musics.map { |music| [music.name, music.id] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select' } %>
-                </div>
+              </div>
+            </div>
+          <div class="w-100i upload-music-block flex flex-col justify-center items-center">
+            <%= button_tag(type: :submit, name: "custom_music_#{video_chapter.id}", value: true, class: "flex flex-col justify-center items-center w-full") do %>
+              <span>Ajoutez votre piste de musique (lien youtube, mp3)</span>
+              <div class="add-more-circle mt-2">
+                <span class="plus-sign">+</span>
               </div>
             <% end %>
           </div>
-        </div>
 
-        <div class="w-full flex justify-center items-center mt-6">
-          <div class="w-[1006px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
-            <p class="w-100 mb-[32px] p-text-center-16">
-              Ou décrivez la musique que vous aimeriez entendre dans votre film et nous vous la fournirons.
-            </p>
-            <%= f.text_area :special_request_music,
-                            id: "special_request_music",
-                            placeholder: "Décrivez votre musique...",
-                            rows: 3,
-                            value: @video.special_request_music,
-                            class: "flex w-100i px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+          <div class="w-full flex justify-center items-center p-text-center-bold-16">ou</div>
+            <div class="music-selection w-full">
+              <% selected_music_id = video_chapter.video_music&.music_id %>
+              <div class="custom-music-dropdown flex justify-between items-center" data-selected-music="<%= selected_music_id %>">
+                <div class="dropdown-toggle w-100i">
+                  <%if selected_music_id.present?%>
+                    <span><%=video_chapter.video_music&.music&.name%></span>
+                  <%else%>
+                    <span>Choisissez la musique dans la liste ci-dessous</span>
+                  <%end%>
+                  <div class="dropdown-arrow">&#9662;</div>
+                </div>
+                <div class="dropdown-menu">
+                  <% @musics.each do |music| %>
+                    <label class="dropdown-option flex justify-center items-center" data-music-id="<%= music[:id] %>">
+                      <input type="radio" class="mr-6 music-dropdown-radio hidden" name="music_<%= video_chapter.id %>" value="<%= music[:id] %>" <%= selected_music_id == music[:id] ? 'checked' : '' %> />
+                      <div class="flex flex-col w-full">
+                        <span><%= music[:name] %></span>
+                        <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
+                          <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                            <div class="play-button-icon"></div>
+                          </div>
+                          <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                        </div>
+                      </div>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+              <%= f.hidden_field "music_#{video_chapter.id}", value: selected_music_id, class: "selected-music-id" %>
+            </div>
           </div>
-        </div>
-
-        <div class="video-steps">
-          <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class: "black-link" %>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
+
+    <div class="video-steps">
+      <%= render "videos/shared/back_button" %>
+      <%= f.submit "Étape suivante", class: "black-link" %>
+    </div>
+  <% end %>
+</div>
+
+
+
+
+
+
   </div>
 </div>
 <script>
-  document.addEventListener("turbo:load", () => {
-    const radioButtons = document.querySelectorAll('input[name="video[music_type]"]');
-    const wholeVideoForm = document.getElementById('whole-video-form');
-    const byChaptersForm = document.getElementById('by-chapters-form');
+document.addEventListener("turbo:load", () => {
+  let currentAudioPlayer = null; // Track the currently playing audio player
+  const radioButtons = document.querySelectorAll('input[name="video[music_type]"]');
+  const wholeVideoForm = document.getElementById('whole-video-form');
+  const byChaptersForm = document.getElementById('by-chapters-form');
 
-    radioButtons.forEach(radio => {
-      radio.addEventListener('change', () => {
-        // Show or hide forms based on selected radio button
-        if (radio.value === 'whole_video') {
-          wholeVideoForm.style.display = 'block';
-          byChaptersForm.style.display = 'none';
-        } else {
-          wholeVideoForm.style.display = 'none';
-          byChaptersForm.style.display = 'block';
-        }
-      });
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', () => {
+      // Show or hide forms based on selected radio button
+      if (radio.value === 'whole_video') {
+        wholeVideoForm.style.display = 'block';
+        byChaptersForm.style.display = 'none';
+      } else {
+        wholeVideoForm.style.display = 'none';
+        byChaptersForm.style.display = 'block';
+      }
+    });
+  });
+
+  // Trigger the change event for the currently selected radio button
+  const checkedRadio = document.querySelector('input[name="video[music_type]"]:checked');
+  if (checkedRadio) {
+    checkedRadio.dispatchEvent(new Event('change'));
+  }
+
+  document.querySelectorAll(".custom-music-dropdown").forEach((dropdown) => {
+    const toggle = dropdown.querySelector(".dropdown-toggle");
+    const menu = dropdown.querySelector(".dropdown-menu");
+    const hiddenInput = dropdown.nextElementSibling; // Hidden input for the selected music ID
+
+    // Toggle dropdown menu visibility
+    toggle.addEventListener("click", () => {
+      menu.classList.toggle("visible");
     });
 
-    // Trigger the change event for the currently selected radio button
-    const checkedRadio = document.querySelector('input[name="video[music_type]"]:checked');
-    if (checkedRadio) {
-      checkedRadio.dispatchEvent(new Event('change'));
+    // Handle selection of a music option
+    menu.querySelectorAll(".dropdown-option input[type='radio']").forEach((radioButton) => {
+      const option = radioButton.closest(".dropdown-option");
+      const audioSrc = option.querySelector(".custom-audio-player").dataset.audioSrc;
+
+      // Create an audio element dynamically for playback
+      let audio = new Audio(audioSrc);
+
+      option.querySelector(".play-button").addEventListener("click", () => {
+        // Initialize and resume AudioContext when a user interacts
+
+        // Stop the currently playing audio player, if any
+        if (currentAudioPlayer && currentAudioPlayer !== audio) {
+          currentAudioPlayer.pause();
+          currentAudioPlayer.currentTime = 0; // Reset to the beginning
+        }
+
+        // Play the new audio or toggle pause/play for the current one
+        if (audio.paused) {
+          audio.play();
+          currentAudioPlayer = audio; // Update the current audio player
+        } else {
+          audio.pause();
+        }
+      });
+
+      radioButton.addEventListener("change", () => {
+        const musicId = option.dataset.musicId;
+
+        // Update hidden input value
+        hiddenInput.value = musicId;
+
+        // Update toggle text
+        const musicName = option.querySelector("span").innerText;
+        toggle.querySelector("span").innerText = musicName;
+
+        // Close dropdown
+        menu.classList.remove("visible");
+      });
+    });
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (event) => {
+    document.querySelectorAll(".dropdown-menu.visible").forEach((menu) => {
+      if (!menu.parentElement.contains(event.target)) {
+        menu.classList.remove("visible");
+      }
+    });
+  });
+
+  // Stop audio when clicking outside
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest('.dropdown-menu')) {
+      if (currentAudioPlayer) {
+        currentAudioPlayer.pause();
+        currentAudioPlayer.currentTime = 0; // Reset the current audio
+        currentAudioPlayer = null;
+      }
     }
   });
+});
 </script>
 <style>
 .audio-visualizer {
@@ -160,9 +262,88 @@
 
 .waveform-canvas {
   width: 100%;
-  height: 100%;
-  border-radius: 10px; /* Rounded waveform edges */
+  height: 32px;
   overflow: hidden;
 }
+.custom-music-dropdown {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+  height: 57px;
+  padding: 16px 40px 16px 20px;
+  border-radius: 8px;
+  background: var(--Blue, rgba(242, 252, 255, 1));
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 50px;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  text-align: left;
+  text-decoration-skip-ink: none;
+  border: 1px solid;
+  border-image-source: linear-gradient(205.68deg, rgba(201, 225, 255, 0.2) 19.49%, rgba(13, 103, 131, 0.2) 60.63%, rgba(22, 63, 80, 0.2) 90.92%);
+  border-image-slice: 1;
+  background-image: url(data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 5"%3E%3Cpath fill="%23000000" d="M0 0L5 5L10 0Z"/%3E%3C/svg%3E);
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center;
+  background-size: 10px;
+}
+.music-dropdown-radio{
+  margin-top: 20px;
+}
+.dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+}
 
+.dropdown-arrow {
+  margin-left: 10px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.dropdown-menu.visible {
+  display: block;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.dropdown-option:hover {
+  background: rgba(201, 225, 255, 0.5);
+}
+.edit-music-video-icon{
+  width: 24px !important;
+  height: 24px  !important;
+  border: none !important;
+  margin-left: 15px !important;
+}
 </style>

@@ -989,14 +989,15 @@ class VideosController < ApplicationController
   end
 
   def define_music
-    # @musics = Music.with_attached_music.map do |music|
-    #   {
-    #     id: music.id,
-    #     name: music.name,
-    #     url: music.music.attached? ? url_for(music.music) : nil
-    #   }
-    # end
-    @musics = Music.all
+    @musics = Music.with_attached_music.map do |music|
+      {
+        id: music.id,
+        name: music.name,
+        waveform: music.waveform.to_json,
+        url: music.music.attached? ? url_for(music.music) : nil
+      }
+    end
+    # @musics = Music.all
   end
 
   def define_dedicace
