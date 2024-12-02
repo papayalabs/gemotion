@@ -441,6 +441,8 @@ class VideosController < ApplicationController
       return render dedicace_path, status: :unprocessable_entity
     end
 
+    @video.special_request_dedicace = params[:special_request_dedicace] if params[:special_request_dedicace]
+
     # Utilisation de find_by pour avoir un objet nil si pas trouvé.
     dedicace = Dedicace.find_by(id: params[:dedicace])
     if dedicace.nil?

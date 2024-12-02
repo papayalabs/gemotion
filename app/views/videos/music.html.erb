@@ -30,7 +30,7 @@
     <br>
 
     <div id="whole-video-form" style="<%= @video.whole_video? ? '' : 'display: none;' %>">
-      <%= form_with url: music_post_path, method: :post do |f| %>
+      <%= form_with url: music_post_path, method: :post, html: { data: { turbo: false } } do |f| %>
         <div class="frame">
           <div class="video-musics">
             <% @musics.each do |music| %>
@@ -73,7 +73,7 @@
 
 
     <div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
-      <%= form_with url: music_post_path, method: :post do |f| %>
+      <%= form_with url: music_post_path, method: :post, html: { data: { turbo: false } } do |f| %>
         <div class="frame">
           <div class="video-memories">
             <% @video.video_chapters.each do |video_chapter| %>
