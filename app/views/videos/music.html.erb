@@ -39,7 +39,10 @@
                 <div class="music-audio">
                   <%= f.radio_button "music", music.id, {checked: music == @video.music}%>
                   <% if music.music.attached? %>
-                    <%= audio_tag music.music, controls: true %>
+                    <div class="audio-visualizer" data-controller="audio-visualizer" data-audio-src="<%= url_for(music.music) %>" data-waveform="<%= music.waveform.to_json %>">
+                      <div class="play-icon" data-audio-visualizer-target="playPauseButton">&#9658;</div> <!-- Play icon -->
+                      <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                    </div>
                   <% else %>
                     <p>Pas d'audio</p>
                   <% end %>
@@ -144,3 +147,22 @@
     }
   });
 </script>
+<style>
+.audio-visualizer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 30px; /* Rounded container */
+  background: rgba(242, 252, 255, 1); /* Light blue */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.waveform-canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px; /* Rounded waveform edges */
+  overflow: hidden;
+}
+
+</style>
