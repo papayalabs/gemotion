@@ -389,11 +389,15 @@ class ContentDedicaceService
   end
 
   def generate_watermarked_video(video_path)
-    watermark_image_path = Rails.root.join("app", "assets", "images", "watermark.png")
+    watermark_image_path = Rails.root.join("app", "assets", "images", "bigger-watermark.png")
     watermarked_video_path = Rails.root.join("tmp", "watermarked_#{@video.id}.mp4")
+
     ffmpeg_command = <<~CMD
-      ffmpeg -i "#{video_path}" -i "#{watermark_image_path}" -filter_complex "overlay=10:10" -c:a copy "#{watermarked_video_path}"
+      ffmpeg -i "#{video_path}" -i "#{watermark_image_path}" -i "#{watermark_image_path}" -filter_complex "
+        [0:v][1:v]overlay=10:10[video1];
+        [video1][2:v]overlay=W-w-10:H-h-10" -c:a copy "#{watermarked_video_path}"
     CMD
+
     system(ffmpeg_command)
     watermarked_video_path
   end

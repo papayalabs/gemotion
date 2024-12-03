@@ -16,16 +16,17 @@
             <%duration_in_minutes = Video.calculate_duration(@video.final_video_duration) %>
             <%=Video.calculate_price(duration_in_minutes)%>
           </div>
-
         </div>
-        <video id="video-player" style="max-width: 100%; height: auto;" oncontextmenu="return false;">
+        <div class="flex justify-start items-center mt-8">
+          <div class="mr-2 font-bold">Thème:</div>
+          <div class="flex justify-start items-center">
+            <%=@video.dedicace.name%>
+          </div>
+        </div>
+        <video controls style="max-width: 100%; height: auto; border-radius: 20px; margin-top: 20px;">
           <source src="<%= url_for(@video.final_video_with_watermark) %>" type="video/mp4">
           Votre navigateur ne prend pas en charge l'élément vidéo.
         </video>
-        <div class="custom-controls flex justify-center">
-          <button id="play-pause" class="cta mt-2 with-play-icon">Play</button>
-        </div>
-        <br>
       </div>
       <%= link_to "Actualiser la vidéo", content_dedicace_path(@video, refresh: true), class: "cta", data: { disable_with: "Refreshing..." } %>
     <% elsif @video.processing? %>

@@ -1,7 +1,54 @@
 <h1 class="video-h1">Ici, vous pouvez éditer la vidéo</h1>
 <div class="w-full flex-col justify-center items-center">
   <%= form_with url: edit_video_post_path, method: :post, html: { class: "flex flex-col justify-center items-center w-full", id: "edit_video_form", data: { turbo: false } } do |f| %>
-    <div class="edit_video_form_block mt-6 flex flex-col justify-center items-center">
+    <div class="edit-video-frame mt-6 flex flex-col justify-center items-center">
+
+
+
+      <div class="w-full flex flex-col justify-start" >
+        <div class="flex justify-start items-center">
+          <div class="mr-2">Vos médias</div>
+          <div class="flex justify-start items-center">
+            <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
+            <%= format_time(@video.final_video_duration) %>
+          </div>
+          <div class="ml-50">Coût de votre film</div>
+          <div class="flex justify-start items-center">
+            <%= image_tag 'icons/ant-design_euro-outlined', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
+            <%duration_in_minutes = Video.calculate_duration(@video.final_video_duration) %>
+            <%=Video.calculate_price(duration_in_minutes)%>
+          </div>
+        </div>
+        <div class="flex justify-start items-center mt-8">
+          <div class="mr-2 font-bold">Thème:</div>
+          <div class="flex justify-start items-center">
+            <%=@video.dedicace.name%>
+          </div>
+        </div>
+      </div>
+      <% if @video.completed? %>
+        <div>
+          <div class="w-full flex justify-center items-center">
+            <video controls style="max-width: 100%; height: auto; border-radius: 20px;">
+              <source src="<%= url_for(@video.final_video_with_watermark) %>" type="video/mp4">
+              Votre navigateur ne prend pas en charge l'élément vidéo.
+            </video>
+          </div>
+        </div>
+      <% else%>
+          <div class="flex relative items-center gap-[61px]">
+            <%= video_tag asset_path('about.mp4'), id: 'about-video-element', controls: false, width: 982, height: 425, poster: asset_path('gemotion-about-video-poster.svg') %>
+            <div id="play-button" class="absolute inset-0 flex items-center justify-center cursor-pointer">
+                <%= image_tag 'icons/about-video-play.svg', alt: 'Play Button' %>
+                <%= image_tag 'icons/video-bottom.png', alt: 'Play Button Icon', class: 'absolute video-bottom-icon' %>
+            </div>
+          </div>
+      <% end %>
+
+
+
+
+
       <div id="chapters-list" class="chapters-grid mt-8">
         <% @chapters.each do |chapter| %>
           <div class="project-main-block flex flex-col justify-between items-center chapter-item" data-id="<%= chapter.id %>">
@@ -93,8 +140,8 @@
       </div>
       <input type="hidden" name="chapter_order" id="chapter_order" />
       <div class="video-steps w-full">
-        <%= link_to "Ajouter un chapitre", go_to_select_chapters_path, class: "cta-transparent", data: {turbo: false} %>
-        <%= f.submit "Confirmer les modifications", class: "cta" %>
+        <%= link_to "Ajouter un chapitre", go_to_select_chapters_path, class: "p-text-center-bold-16 text-decoration-underline", data: {turbo: false} %>
+        <%= f.submit "Confirmer les modifications", class: "black-link" %>
       </div>
     </div>
 
@@ -104,7 +151,7 @@
 
   <div class="video-steps">
     <%= render "videos/shared/back_button" %>
-    <%= link_to "Enregistrer et payer", skip_edit_video_path, class: "cta", data: {turbo: false} %>
+    <%= link_to "Enregistrer et payer", skip_edit_video_path, class: "black-link", data: {turbo: false} %>
   </div>
 
 

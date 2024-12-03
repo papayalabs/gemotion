@@ -681,10 +681,28 @@ h2 {
 .h-1482{
   height: 1482px;
 }
+.w-1360{
+  width: 1360px;
+}
 .music-frame {
   display: flex;
   width: 1060px;
   padding: 30px 30px;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+  margin: auto;
+}
+.edit-video-frame{
+  display: flex;
+  width: 1060px;
+  padding: 60px 60px;
   flex-direction: column;
   align-items: center;
   gap: 30px;
@@ -1854,12 +1872,12 @@ h2 {
   padding-bottom: 450px;
 }
 #watch{
-  margin-top:-380px!important;
+  margin-top:-250px!important;
 }
 .index-1{
   z-index:1;
 }
-.play-button-icon{
+.play-button-icon-home{
   width: 151.01px;
   height: 95.58px;
   top: -44px;
@@ -1952,4 +1970,13 @@ h2 {
   width: 100%;
   height: 100%;
   display: block;
+}
+.inviter-des-amis{
+  width: 214px;
+  height: 39px;
+  padding: 8px 16px;
+  gap: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--Black-Transparent, rgba(32, 31, 31, 0.5));
+  background: var(--White, rgba(255, 255, 255, 1));
 }

@@ -8,7 +8,17 @@
       <%= image_tag 'icons/file.png', class: 'image-from-image-text-block' %>
     </div>
   </div>
-  <div class="">
+  <div class="w-full flex justify-center items-center">
+    <div class="w-1360 flex flex-col justify-start items-start">
+      <div class="p-text-16">Vos médias</div>
+      <%= link_to step_back_path, class: "inviter-des-amis p-text-center-bold-16 flex flex-row items-center mt-4", data: { turbo: false } do %>
+        <%= image_tag "icons/inviter.png", alt: "Icon", class: "icon-class" %>
+        Inviter des amis
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mt-6">
     <div>
       <%= form_with url: content_post_path, method: :post, html: {data: {turbo: false}} do |f| %>
         <div class="content-frame">
@@ -71,7 +81,7 @@
           </div>
         </div>
 
-        <div class="video-steps">
+        <div class="video-steps w-full">
           <%= render "videos/shared/back_button" %>
           <%= f.submit "Étape suivante", class: "black-link" %>
         </div>
