@@ -31,6 +31,7 @@ class VideoPolicy < ApplicationPolicy
   def select_chapters_post?; start_post?; end
   def music?; start_post?; end
   def music_post?; start_post?; end
+  def drop_custom_music?; start_post?; end
   def update_video_music_type?; start_post?; end
   def dedicace?; start_post?; end
   def dedicace_post?; start_post?; end

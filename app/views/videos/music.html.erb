@@ -37,7 +37,7 @@
               <div class="video-music">
                 <div class="music-name p-text-16"><%= music[:name] %></div>
                 <div class="music-audio">
-                  <%= f.radio_button "music", music[:id], {checked: music[:id] == @video.music.id}%>
+                  <%= f.radio_button "music", music[:id], {checked: music[:id] == @video.music&.id}%>
                   <div class="audio-visualizer" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
                     <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
                       <div class="play-button-icon"></div>
@@ -75,9 +75,9 @@
     <div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
       <%= form_with url: music_post_path, method: :post, multipart: true, html: {data: {turbo: false}} do |f| %>
         <div class="music-frame">
-          <div class="video-musics">
+          <div class="video-musics mb-minus-125 pb-40">
             <% @video.video_chapters.each do |video_chapter| %>
-              <div class="video-music">
+              <div class="video-music pb-240i">
                 <div class="video-music-thumb-wrapper">
                   <% if video_chapter.chapter_type.image.attached? %>
                     <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
@@ -91,11 +91,15 @@
                   </div>
                 </div>
                 <%if video_chapter.custom_music.attached? && video_chapter.waveform.present?%>
-                  <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(video_chapter.custom_music) %>" data-waveform="<%= video_chapter.waveform.to_json %>">
+                  <div class="relative audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(video_chapter.custom_music) %>" data-waveform="<%= video_chapter.waveform.to_json %>">
                     <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
                       <div class="play-button-icon"></div>
                     </div>
                     <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                      <div class="delete-music-icon-btn"
+                          data-url="<%= drop_custom_music_path(video_chapter, video_id: @video.id) %>">
+                        <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "purge-music-icon" %>
+                      </div>
                   </div>
                 <%end%>
                 <div class="w-100i text-center h-170i upload-music-block flex flex-col justify-center items-center">
@@ -113,7 +117,7 @@
                 </div>
 
               <div class="w-full flex justify-center items-center p-text-center-bold-16">ou</div>
-                <div class="music-selection w-full">
+                <div class="w-full">
                   <% selected_music_id = video_chapter.video_music&.music_id %>
                   <div class="custom-music-dropdown flex justify-between items-center" data-selected-music="<%= selected_music_id %>">
                     <div class="dropdown-toggle w-100i">
@@ -124,17 +128,21 @@
                       <%end%>
                       <div class="dropdown-arrow">&#9662;</div>
                     </div>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu visible mt-2">
                       <% @musics.each do |music| %>
                         <label class="dropdown-option flex justify-center items-center" data-music-id="<%= music[:id] %>">
-                          <input type="radio" class="mr-6 music-dropdown-radio hidden" name="music_<%= video_chapter.id %>" value="<%= music[:id] %>" <%= selected_music_id == music[:id] ? 'checked' : '' %> />
-                          <div class="flex flex-col w-full">
-                            <span><%= music[:name] %></span>
-                            <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
-                              <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
-                                <div class="play-button-icon"></div>
+                          <div class="flex flex-col">
+                            <span class="p-text-16"><%= music[:name] %></span>
+                            <div class="flex flex-row justify-start items-center">
+                              <input type="radio" class="mr-6" name="music_<%= video_chapter.id %>" value="<%= music[:id] %>" <%= selected_music_id == music[:id] ? 'checked' : '' %> />
+                              <div class="flex flex-col w-full">
+                                <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
+                                  <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                                    <div class="play-button-icon"></div>
+                                  </div>
+                                  <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                                </div>
                               </div>
-                              <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
                             </div>
                           </div>
                         </label>
@@ -188,9 +196,9 @@ document.addEventListener("turbo:load", () => {
     const hiddenInput = dropdown.nextElementSibling; // Hidden input for the selected music ID
 
     // Toggle dropdown menu visibility
-    toggle.addEventListener("click", () => {
-      menu.classList.toggle("visible");
-    });
+    // toggle.addEventListener("click", () => {
+    //   menu.classList.toggle("visible");
+    // });
 
     // Handle selection of a music option
     menu.querySelectorAll(".dropdown-option input[type='radio']").forEach((radioButton) => {
@@ -229,7 +237,7 @@ document.addEventListener("turbo:load", () => {
         toggle.querySelector("span").innerText = musicName;
 
         // Close dropdown
-        menu.classList.remove("visible");
+        // menu.classList.remove("visible");
       });
     });
   });
@@ -238,7 +246,7 @@ document.addEventListener("turbo:load", () => {
   document.addEventListener("click", (event) => {
     document.querySelectorAll(".dropdown-menu.visible").forEach((menu) => {
       if (!menu.parentElement.contains(event.target)) {
-        menu.classList.remove("visible");
+        // menu.classList.remove("visible");
       }
     });
   });
@@ -253,9 +261,79 @@ document.addEventListener("turbo:load", () => {
       }
     }
   });
+
+  document.addEventListener("click", (event) => {
+    const deleteMusicButton = event.target.closest(".delete-music-icon-btn");
+    if (deleteMusicButton) {
+      const parentBlock = deleteMusicButton.closest(".audio-visualizer");
+      const url = deleteMusicButton.dataset.url;
+
+      handleMusicDeletion(url, parentBlock);
+    }
+  });
+
+  const handleMusicDeletion = async (url, parentBlock) => {
+    try {
+      if (url) {
+        // Handle deletion for existing music files (server-side)
+        const response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+          throw new Error("Server-side deletion failed.");
+        }
+
+        const data = await response.json();
+        if (data.message) {
+          resetMusicBlock(parentBlock);
+        } else {
+          console.warn("Server did not confirm deletion.");
+        }
+      } else {
+        // Handle deletion for newly added music files
+        resetMusicBlock(parentBlock);
+      }
+    } catch (error) {
+      console.error("Error during music deletion:", error);
+    } finally {
+      // Optional: Reload the page to ensure state is consistent
+      location.reload();
+    }
+  };
+
+  const resetMusicBlock = (parentBlock) => {
+    // Remove the block visually
+    if (parentBlock) {
+      parentBlock.remove();
+    }
+  };
+
 });
 </script>
 <style>
+.delete-music-icon-btn{
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  top: 0;
+  right: 0;
+}
+.purge-music-icon{
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 40px !important;
+  height: 40px !important;
+  z-index: 2 !important;
+  display: block !important;
+}
 .audio-visualizer {
   display: flex;
   align-items: center;
@@ -274,27 +352,41 @@ document.addEventListener("turbo:load", () => {
 .custom-music-dropdown {
   position: relative;
   width: 100%;
-  cursor: pointer;
   height: 57px;
   padding: 16px 40px 16px 20px;
   border-radius: 8px;
   background: var(--Blue, rgba(242, 252, 255, 1));
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 50px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 25px;
   text-align: left;
-  text-decoration-skip-ink: none;
-  border: 1px solid;
-  border-image-source: linear-gradient(205.68deg, rgba(201, 225, 255, 0.2) 19.49%, rgba(13, 103, 131, 0.2) 60.63%, rgba(22, 63, 80, 0.2) 90.92%);
-  border-image-slice: 1;
-  background-image: url(data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 5"%3E%3Cpath fill="%23000000" d="M0 0L5 5L10 0Z"/%3E%3C/svg%3E);
-  background-repeat: no-repeat;
-  background-position: calc(100% - 16px) center;
-  background-size: 10px;
+  background-clip: padding-box;
+  z-index: 1;
+}
+
+.custom-music-dropdown::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px;
+  padding: 1px; /* Border thickness */
+  background: linear-gradient(
+    205.68deg,
+    rgba(201, 225, 255, 0.2) 19.49%,
+    rgba(13, 103, 131, 0.2) 60.63%,
+    rgba(22, 63, 80, 0.2) 90.92%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  z-index: -1; /* Place below the dropdown content */
 }
 .music-dropdown-radio{
   margin-top: 20px;
@@ -321,7 +413,7 @@ document.addEventListener("turbo:load", () => {
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 200px;
+  max-height: 215px;
   overflow-y: auto;
   z-index: 1000;
   display: none;

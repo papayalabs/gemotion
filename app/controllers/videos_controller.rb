@@ -3,7 +3,7 @@ require "zip"
 class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
   before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type
-                                          concat_status delete_video_chapter purge_chapter_attachment
+                                          concat_status delete_video_chapter purge_chapter_attachment drop_custom_music
                                           drop_preview stream_video delete_destinataire update_destinataire]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
@@ -410,7 +410,8 @@ class VideosController < ApplicationController
         video_chapter = @video.video_chapters.find_by(id: chapter_id)
         if video_chapter
           music = Music.find_by(id: music_id)
-          if music
+          if video_chapter.custom_music.attached? || (params["custom_music_#{video_chapter.id}"].is_a?(ActionDispatch::Http::UploadedFile) && params["custom_music_#{video_chapter.id}"].present?)
+          elsif music
             video_chapter.video_music&.destroy
             VideoMusic.create(music: music, video_chapter: video_chapter)
           else
@@ -444,6 +445,20 @@ class VideosController < ApplicationController
       @video.update(stop_at: @video.current_step)
       render music_path, status: :unprocessable_entity
     end
+  end
+
+  def drop_custom_music
+    @video = Video.find(params[:video_id])
+    authorize @video, :drop_custom_music?, policy_class: VideoPolicy
+
+    video_chapter = VideoChapter.find(params[:id])
+
+    if video_chapter.custom_music.attached?
+      video_chapter.custom_music.purge # Purge the attached file
+      video_chapter.update(waveform: nil) # Clear the waveform field
+    end
+
+    render json: { message: "Music and waveform deleted successfully." }, status: :ok
   end
 
   def dedicace_post

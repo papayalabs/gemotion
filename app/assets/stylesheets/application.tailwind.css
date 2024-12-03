@@ -271,7 +271,9 @@ main{
 .mt-0{
   margin-top: 0!important;
 }
-
+.pb-240i{
+  padding-bottom: 240px !important;
+}
 .mt-65{
   margin-top: 65px!important;
 }
@@ -336,6 +338,9 @@ main{
 }
 .ml-50{
   margin-left: 50px;
+}
+.mb-minus-125{
+  margin-bottom: -125px;
 }
 .h-45{
   height: 45px !important;
