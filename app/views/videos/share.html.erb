@@ -1,43 +1,73 @@
 <div>
-  <h1 class="video-h1">Invitez vos proches à participer à votre projet</h1>
 
-  <p class="video-desc">Vos proches vont pouvoir ajouter leurs propres photos et/ou vidéos et participer à la dédicace de fin</p>
+  <%if @video.colab?%>
+    <h1 class="video-h1">Invitez vos proches à participer  à votre projet</h1>
+  <%else%>
+    <h1 class="video-h1">Invitez des amis à collaborer sur  votre projet !</h1>
+  <%end%>
 
-  <div class="">
-
-    <div class="frame">
-
-      <h4 class="video-h4">Envoyez une invitation via un lien  whatsapp, facebook, instagram ou en envoyant un email</h4>
-
-      <%= form_with url: share_post_path, method: :post do |f| %>
-        <div class="share-wrapper">
-          <%= f.email_field :email, placeholder: "Email", class:"share-email" %>
-          <%= f.submit "Inviter", class:"share-submit" %>
-        </div>
-      <% end %>
-
-      <p>Ou partagez le lien</p>
-
-      <div class="share-clipboard" data-controller="clipboard">
-        <div class="share-clipboard-wrapper">
-          <%= image_tag "icons/link.svg" %>
-          <span><%= join_url(@video.token) %></span>
-        </div>
-        <span data-action="click->clipboard#copy" data-clipboard-value-param="<%= join_url(@video.token) %>" class="share-clipboard-btn">Copier</span>
+  <div class="flex flex-row justify-center w-full">
+    <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
+    <div class="content w-full flex flex-col justify-center items-center">
+      <div class="text-with-image-block flex justify-center items-center mb-[72px] w-full p-text-16">
+        <%if @video.colab?%>
+          Vos proches vont pouvoir ajouter leurs propres photos et/ou vidéos et participer à la dédicace de fin
+        <%else%>
+          Si vous invitez des amis, vous aurez accès à la fonction 'Dédicace', où chacun des amis invités pourra enregistrer une conclusion vidéo pour le film collectif.
+        <%end%>
+        <%= image_tag 'icons/green-plus.png', class: 'image-from-image-text-block' %>
       </div>
 
-    </div>
 
-    <div class="video-alert">
-      <%= image_tag "icons/alert.svg" %>
-      <p>Vous pouvez sauter cette étape maintenant et ajouter des collaborateurs aux étapes suivantes.</p>
-    </div>
+      <div class="">
 
-    <div class="video-steps">
-      <%= render "videos/shared/back_button" %>
-      <%= link_to "Étape suivante", skip_share_path, data: {turbo: false}, class: "cta" %>
-    </div>
+        <div class="frame">
 
+          <h4 class="video-h4">Envoyez une invitation via un lien  whatsapp, facebook, instagram ou en envoyant un email</h4>
+
+          <%= form_with url: share_post_path, method: :post do |f| %>
+            <div class="share-wrapper">
+              <%= f.email_field :email, placeholder: "Email", class:"share-email" %>
+              <%= f.submit "Inviter", class:"share-submit" %>
+            </div>
+          <% end %>
+
+          <p class="p-text-16">Ou partagez le lien</p>
+
+          <div class="share-clipboard" data-controller="clipboard">
+            <div class="share-clipboard-wrapper">
+              <%= image_tag "icons/tabler_link.png" %>
+              <span><%= join_url(@video.token) %></span>
+            </div>
+            <span data-action="click->clipboard#copy" data-clipboard-value-param="<%= join_url(@video.token) %>" class="share-clipboard-btn">Copier</span>
+          </div>
+
+          <div class="flex flex-row justify-center items-center">
+            <%= image_tag "icons/whats-share.png", class: 'share-icon-whats'%>
+            <%= image_tag "icons/facebook-share.png", class: 'share-icon-facebook' %>
+          </div>
+        </div>
+
+        <div class="video-alert">
+          <%= image_tag "icons/alert.svg" %>
+          <p class="p-text-16">Vous pouvez sauter cette étape maintenant et ajouter des collaborateurs aux étapes suivantes.</p>
+        </div>
+
+        <div class="video-steps">
+          <%= render "videos/shared/back_button" %>
+          <%= link_to "Étape suivante", skip_share_path, data: {turbo: false}, class: "black-link" %>
+        </div>
+
+      </div>
+
+
+
+
+
+    </div>
+    <%= image_tag 'right-with-star.png', class: 'image-sides right-image' %>
   </div>
 
+
 </div>
+
