@@ -340,6 +340,9 @@ main{
 .h-45{
   height: 45px !important;
 }
+.h-170i{
+  height: 170px !important;
+}
 .pl-20{
   padding-left: 20px;
 }
@@ -654,7 +657,7 @@ h2 {
 }
 .music-frame {
   display: flex;
-  width: 75%;
+  width: 1060px;
   padding: 30px 30px;
   flex-direction: column;
   align-items: center;
@@ -1146,17 +1149,50 @@ h2 {
 }
 
 .video-music {
+  position: relative;
   display: flex;
   padding: 32px;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
   gap: 12px;
-
   border-radius: 20px;
-  border: 1px solid #c9e1ff;
   background: #fff;
+  z-index: 1; /* Ensure the content stays above the pseudo-elements */
+  overflow: hidden; /* To avoid content leaking outside */
 }
+
+.video-music::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px; /* Same border-radius as the main block */
+  background: linear-gradient(205.68deg, #C9E1FF 19.49%, #0D6783 60.63%, #163F50 90.92%);
+  z-index: -2; /* Place the pseudo-element farthest behind */
+  box-sizing: border-box; /* Match dimensions of the parent block */
+}
+
+.video-music::after {
+  content: "";
+  position: absolute;
+  top: 2px; /* Matches border thickness */
+  left: 2px;
+  width: calc(100% - 4px); /* Adjust width for border thickness */
+  height: calc(100% - 4px); /* Adjust height for border thickness */
+  border-radius: 18px; /* Inner radius: subtract border thickness */
+  background: #fff; /* Matches block background */
+  z-index: -1; /* Above the gradient but behind content */
+}
+
+
+
+
+
+
+
 
 .video-music-thumb-wrapper {
   display: block;
@@ -1786,7 +1822,7 @@ h2 {
 
 .play-button {
   position: relative;
-  width: 50px;
+  width: 47px;
   height: 40px;
   border: none;
   border-radius: 50%;

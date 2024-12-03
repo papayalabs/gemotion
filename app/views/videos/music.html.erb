@@ -14,14 +14,14 @@
       <div class='w-full'>
         <%= form_with model: @video, url: update_video_music_type_path(id: @video.id), method: :patch, remote: true, html: { id: 'music-type-form', class: 'w-full' } do |f| %>
           <div class='flex justify-between items-center'>
-            <div>
+            <div class='flex justify-between items-center'>
               <%= f.radio_button :music_type, 'whole_video', checked: @video.whole_video?, onchange: 'this.form.submit();' %>
-              <%= f.label :music_type_whole_video, "Vidéo complète", for: 'video_music_type_whole_video' %>
+              <%= f.label :music_type_whole_video, "Vidéo complète", for: 'video_music_type_whole_video', class: "ml-2 p-text-16" %>
             </div>
 
-            <div>
+            <div class='flex justify-between items-center'>
               <%= f.radio_button :music_type, 'by_chapters', checked: @video.by_chapters?, onchange: 'this.form.submit();' %>
-              <%= f.label :music_type_by_chapters, "Par chapitres", for: 'video_music_type_by_chapters' %>
+              <%= f.label :music_type_by_chapters, "Par chapitres", for: 'video_music_type_by_chapters', class: "ml-2 p-text-16" %>
             </div>
           </div>
         <% end %>
@@ -31,7 +31,7 @@
 
     <div id="whole-video-form" style="<%= @video.whole_video? ? '' : 'display: none;' %>">
       <%= form_with url: music_post_path, method: :post, html: { data: { turbo: false } } do |f| %>
-        <div class="frame">
+        <div class="music-frame">
           <div class="video-musics">
             <% @musics.each do |music| %>
               <div class="video-music">
@@ -67,87 +67,93 @@
 
         <div class="video-steps">
           <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class:"cta" %>
+          <%= f.submit "Étape suivante", class:"black-link" %>
         </div>
       <% end %>
     </div>
 
-<div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
-  <%= form_with url: music_post_path, method: :post do |f| %>
-    <div class="music-frame">
-      <div class="video-musics">
-        <% @video.video_chapters.each do |video_chapter| %>
-          <div class="video-music">
-            <div class="video-music-thumb-wrapper">
-              <% if video_chapter.chapter_type.image.attached? %>
-                <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
-              <% else %>
-                <p>Pas d'image</p>
-              <% end %>
-              <div class="video-music-thumb-wrapper-text flex flex-row justify-start items-center">
-                <div><%= "#{video_chapter.chapter_type.name} : " %></div>
-                <div class="ml-2"><%= video_chapter.text %></div>
-                <%= image_tag "icons/music_edit.png", alt: "Edit Icon", class: "edit-music-video-icon ml" %>
+    <div id="by-chapters-form" style="<%= @video.by_chapters? ? '' : 'display: none;' %>">
+      <%= form_with url: music_post_path, method: :post, multipart: true, html: {data: {turbo: false}} do |f| %>
+        <div class="music-frame">
+          <div class="video-musics">
+            <% @video.video_chapters.each do |video_chapter| %>
+              <div class="video-music">
+                <div class="video-music-thumb-wrapper">
+                  <% if video_chapter.chapter_type.image.attached? %>
+                    <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
+                  <% else %>
+                    <p>Pas d'image</p>
+                  <% end %>
+                  <div class="video-music-thumb-wrapper-text flex flex-row justify-start items-center">
+                    <div><%= "#{video_chapter.chapter_type.name} : " %></div>
+                    <div class="ml-2"><%= video_chapter.text %></div>
+                    <%= image_tag "icons/music_edit.png", alt: "Edit Icon", class: "edit-music-video-icon ml" %>
+                  </div>
+                </div>
+                <%if video_chapter.custom_music.attached? && video_chapter.waveform.present?%>
+                  <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(video_chapter.custom_music) %>" data-waveform="<%= video_chapter.waveform.to_json %>">
+                    <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                      <div class="play-button-icon"></div>
+                    </div>
+                    <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                  </div>
+                <%end%>
+                <div class="w-100i text-center h-170i upload-music-block flex flex-col justify-center items-center">
+                  <label for="custom_music_<%= video_chapter.id %>" class="cursor-pointer flex flex-col justify-center items-center w-full">
+                    <span>Ajoutez votre piste de musique (lien youtube, mp3)</span>
+                    <div class="add-more-circle mt-6">
+                      <span class="plus-sign">+</span>
+                    </div>
+                  </label>
+                  <input type="file"
+                        id="custom_music_<%= video_chapter.id %>"
+                        name="custom_music_<%= video_chapter.id %>"
+                        class="hidden custom-music-file-input"
+                        accept="audio/*">
+                </div>
 
-              </div>
-            </div>
-          <div class="w-100i upload-music-block flex flex-col justify-center items-center">
-            <%= button_tag(type: :submit, name: "custom_music_#{video_chapter.id}", value: true, class: "flex flex-col justify-center items-center w-full") do %>
-              <span>Ajoutez votre piste de musique (lien youtube, mp3)</span>
-              <div class="add-more-circle mt-2">
-                <span class="plus-sign">+</span>
+              <div class="w-full flex justify-center items-center p-text-center-bold-16">ou</div>
+                <div class="music-selection w-full">
+                  <% selected_music_id = video_chapter.video_music&.music_id %>
+                  <div class="custom-music-dropdown flex justify-between items-center" data-selected-music="<%= selected_music_id %>">
+                    <div class="dropdown-toggle w-100i">
+                      <%if selected_music_id.present?%>
+                        <span><%=video_chapter.video_music&.music&.name%></span>
+                      <%else%>
+                        <span>Choisissez la musique dans la liste ci-dessous</span>
+                      <%end%>
+                      <div class="dropdown-arrow">&#9662;</div>
+                    </div>
+                    <div class="dropdown-menu">
+                      <% @musics.each do |music| %>
+                        <label class="dropdown-option flex justify-center items-center" data-music-id="<%= music[:id] %>">
+                          <input type="radio" class="mr-6 music-dropdown-radio hidden" name="music_<%= video_chapter.id %>" value="<%= music[:id] %>" <%= selected_music_id == music[:id] ? 'checked' : '' %> />
+                          <div class="flex flex-col w-full">
+                            <span><%= music[:name] %></span>
+                            <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
+                              <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                                <div class="play-button-icon"></div>
+                              </div>
+                              <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                            </div>
+                          </div>
+                        </label>
+                      <% end %>
+                    </div>
+                  </div>
+                  <%= f.hidden_field "music_#{video_chapter.id}", value: selected_music_id, class: "selected-music-id" %>
+                </div>
               </div>
             <% end %>
           </div>
+        </div>
 
-          <div class="w-full flex justify-center items-center p-text-center-bold-16">ou</div>
-            <div class="music-selection w-full">
-              <% selected_music_id = video_chapter.video_music&.music_id %>
-              <div class="custom-music-dropdown flex justify-between items-center" data-selected-music="<%= selected_music_id %>">
-                <div class="dropdown-toggle w-100i">
-                  <%if selected_music_id.present?%>
-                    <span><%=video_chapter.video_music&.music&.name%></span>
-                  <%else%>
-                    <span>Choisissez la musique dans la liste ci-dessous</span>
-                  <%end%>
-                  <div class="dropdown-arrow">&#9662;</div>
-                </div>
-                <div class="dropdown-menu">
-                  <% @musics.each do |music| %>
-                    <label class="dropdown-option flex justify-center items-center" data-music-id="<%= music[:id] %>">
-                      <input type="radio" class="mr-6 music-dropdown-radio hidden" name="music_<%= video_chapter.id %>" value="<%= music[:id] %>" <%= selected_music_id == music[:id] ? 'checked' : '' %> />
-                      <div class="flex flex-col w-full">
-                        <span><%= music[:name] %></span>
-                        <div class="audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= music[:url] %>" data-waveform="<%= music[:waveform] %>">
-                          <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
-                            <div class="play-button-icon"></div>
-                          </div>
-                          <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
-                        </div>
-                      </div>
-                    </label>
-                  <% end %>
-                </div>
-              </div>
-              <%= f.hidden_field "music_#{video_chapter.id}", value: selected_music_id, class: "selected-music-id" %>
-            </div>
-          </div>
-        <% end %>
-      </div>
+        <div class="video-steps">
+          <%= render "videos/shared/back_button" %>
+          <%= f.submit "Étape suivante", class: "black-link" %>
+        </div>
+      <% end %>
     </div>
-
-    <div class="video-steps">
-      <%= render "videos/shared/back_button" %>
-      <%= f.submit "Étape suivante", class: "black-link" %>
-    </div>
-  <% end %>
-</div>
-
-
-
-
-
-
   </div>
 </div>
 <script>
@@ -328,7 +334,7 @@ document.addEventListener("turbo:load", () => {
 .dropdown-option {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 10px 25px;
   cursor: pointer;
   border-bottom: 1px solid #eee;
 }

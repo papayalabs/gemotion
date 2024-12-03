@@ -1,6 +1,7 @@
 class VideoChapter < ApplicationRecord
   include ChapterSharedBehavior
 
+  has_one_attached :custom_music
   has_one :video_music, dependent: :destroy
   before_destroy :remove_video_music
 

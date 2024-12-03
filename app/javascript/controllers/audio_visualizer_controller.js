@@ -5,6 +5,7 @@ export default class extends Controller {
 
   connect() {
     const audioSrc = this.element.dataset.audioSrc;
+    console.log(audioSrc);
     const waveformData = JSON.parse(this.element.dataset.waveform).data;
 
     // Process waveform: Trim zeros and downsample to 32 bars (half of 64)

@@ -411,15 +411,27 @@ class VideosController < ApplicationController
         if video_chapter
           music = Music.find_by(id: music_id)
           if music
-            # Delete the old VideoMusic object if it exists
             video_chapter.video_music&.destroy
-
-            # Create a new VideoMusic object
             VideoMusic.create(music: music, video_chapter: video_chapter)
           else
             flash[:alert] = "Musique non trouvée pour le chapitre #{chapter_id}."
             return render music_path, status: :unprocessable_entity
           end
+        end
+      elsif key.start_with?('custom_music_')
+        chapter_id = key.split('_').last.to_i
+        music_file = value
+        video_chapter = @video.video_chapters.find_by(id: chapter_id)
+        if video_chapter
+          # Save the custom music to a persistent location
+          music_path = Rails.root.join("tmp", "custom_music_#{video_chapter.id}.mp3")
+          File.open(music_path, 'wb') do |file|
+            file.write(music_file.read)
+          end
+
+          # Attach the file to the video chapter and enqueue the job
+          video_chapter.custom_music.attach(io: File.open(music_path), filename: music_file.original_filename)
+          MusicProcessingJob.perform_later(video_chapter.id, music_path.to_s)
         end
       end
     end
