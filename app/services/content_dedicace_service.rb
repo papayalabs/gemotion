@@ -89,7 +89,7 @@ class ContentDedicaceService
       {
         videos: vc.ordered_videos,
         photos: vc.ordered_photos,
-        music: vc.video_music.nil? ? nil : vc.video_music.music,
+        music: vc.custom_music.attached? ? vc.custom_music : (vc.video_music.nil? ? nil : vc.video_music.music),
         chapter_type_image: vc.chapter_type.image,
         text: vc.text,
         text_family: vc.text_family,
