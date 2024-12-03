@@ -618,6 +618,7 @@ class VideosController < ApplicationController
 
   def content_dedicace
     authorize @video, :content_dedicace?, policy_class: VideoPolicy
+    # ContentDedicaceJob.perform_later(@video.id)
 
     # Check if a refresh has been requested
     if params[:refresh]
@@ -636,8 +637,8 @@ class VideosController < ApplicationController
       redirect_to content_dedicace_path(@video) and return
     end
     # Check if the final video is already attached
-    if @video.final_video.attached?
-      @final_video_url = stream_video_path(@video)
+    if @video.final_video_with_watermark.attached?
+      @final_video_url = url_for(@video.final_video_with_watermark)
     else
       # Start processing if no final video exists
       unless @video.concat_status == 'processing' # Check if not already processing
@@ -1072,7 +1073,7 @@ class VideosController < ApplicationController
     @video.stop_at = @video.next_step
 
     if @video.save
-      redirect_to send("#{@video.next_step}_path")
+      redirect_to send("#{@video.next_step}_path"), turbo: false
     else
       @video.update(stop_at: @video.current_step)
       render error_path, status: :unprocessable_entity

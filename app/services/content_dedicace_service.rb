@@ -154,7 +154,11 @@ class ContentDedicaceService
 
   def fetch_chapter_music(assets)
     if @video.by_chapters?
-      ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if assets[:music]
+      if assets[:music].is_a?(ActiveStorage::Attached::One)
+        ActiveStorage::Blob.service.send(:path_for, assets[:music].key)
+      elsif assets[:music] # For other types of music assets
+        ActiveStorage::Blob.service.send(:path_for, assets[:music].music.key) if assets[:music]
+      end
     end
   end
 
@@ -373,9 +377,25 @@ class ContentDedicaceService
   def attach_final_video(final_video_path)
     @video.final_video.attach(io: File.open(final_video_path), filename: "final_video.mp4")
 
+    watermarked_video_path = generate_watermarked_video(final_video_path)
+    if File.exist?(watermarked_video_path)
+      @video.final_video_with_watermark.attach(io: File.open(watermarked_video_path), filename: "final_video_with_watermark.mp4")
+      File.delete(watermarked_video_path) # Clean up the temporary file
+    end
+
     if File.exist?(@archive_path)
       @video.final_video_xml.attach(io: File.open(@archive_path), filename: "video_mlt.zip")
     end
+  end
+
+  def generate_watermarked_video(video_path)
+    watermark_image_path = Rails.root.join("app", "assets", "images", "watermark.png")
+    watermarked_video_path = Rails.root.join("tmp", "watermarked_#{@video.id}.mp4")
+    ffmpeg_command = <<~CMD
+      ffmpeg -i "#{video_path}" -i "#{watermark_image_path}" -filter_complex "overlay=10:10" -c:a copy "#{watermarked_video_path}"
+    CMD
+    system(ffmpeg_command)
+    watermarked_video_path
   end
 
   def time_to_seconds(time_str)

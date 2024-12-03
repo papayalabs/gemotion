@@ -9,7 +9,7 @@
 
       <div class="p-text-18">Invitez des amis par e-mail, lien simple, lien WhatsApp, lien Facebook Messenger.</div>
 
-      <%= form_with url: confirmation_post_path, method: :post do |f| %>
+      <%= form_with url: confirmation_post_path, method: :post, html: { data: {turbo: false}} do |f| %>
         <div class="share-wrapper">
           <%= f.email_field :email, placeholder: "Email", class:"share-email" %>
           <%= f.submit "Inviter", class:"share-submit" %>

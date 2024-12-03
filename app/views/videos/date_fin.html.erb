@@ -22,10 +22,10 @@
               <p class="p-text-center-16 text-center font-red-hat-display text-[16px] font-normal leading-[25px]">La vidéo se terminera automatiquement 5 jours avant.</p>
               <%# <%= f.date_field :end_date, value: @video.end_date %>
               <div class="flex justify-center">
-                <div class="custom-calendar-container mt-65">
-                  <%= hidden_field_tag 'end_date', @video.end_date, id: 'customDateField' %>
-                  <div id="customCalendar" class="custom-calendar">
-                    <!-- The custom calendar will be rendered here by JavaScript -->
+                <div class="custom-calendar-container mt-65" data-controller="custom-calendar" data-custom-calendar-end-date="<%= @video.end_date %>">
+                  <%= hidden_field_tag 'end_date', @video.end_date, id: 'customDateField', data: { custom_calendar_target: "hiddenField" } %>
+                  <div id="customCalendar" class="custom-calendar" data-custom-calendar-target="calendarContainer">
+                    <!-- The custom calendar will be rendered here by the controller -->
                   </div>
                 </div>
               </div>
@@ -43,108 +43,4 @@
     <%= image_tag 'right-with-star.png', class: 'image-sides right-image' %>
   </div>
 </div>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const calendarContainer = document.getElementById("customCalendar");
-  const hiddenDateField = document.getElementById("customDateField");
-
-  const initialDate = hiddenDateField.value ? new Date(hiddenDateField.value) : new Date();
-  let selectedDate = new Date(initialDate);
-
-  function formatDateToLocalISO(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  function renderCalendar(date) {
-    calendarContainer.innerHTML = ""; // Clear existing calendar
-
-    const year = date.getFullYear();
-    const month = date.getMonth();
-
-    // Create calendar header
-    const header = document.createElement("div");
-    header.className = "calendar-header";
-    const monthName = date.toLocaleString("default", { month: "long" });
-    header.innerHTML = `
-      <button class="prev-month">&lt;</button>
-      <span class="month-year">${monthName} ${year}</span>
-      <button class="next-month">&gt;</button>
-    `;
-    calendarContainer.appendChild(header);
-
-    // Event listeners for navigation
-    header.querySelector(".prev-month").addEventListener("click", () => {
-      renderCalendar(new Date(year, month - 1, 1));
-    });
-    header.querySelector(".next-month").addEventListener("click", () => {
-      renderCalendar(new Date(year, month + 1, 1));
-    });
-
-    // Create days of the week row
-    const daysRow = document.createElement("div");
-    daysRow.className = "calendar-days";
-    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
-      const dayElement = document.createElement("div");
-      dayElement.className = "day-name";
-      dayElement.textContent = day;
-      daysRow.appendChild(dayElement);
-    });
-    calendarContainer.appendChild(daysRow);
-
-    // Get the first and last days of the month
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-
-    // Get the start and end dates for rendering
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
-
-    const endDate = new Date(lastDay);
-    endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
-
-    // Create the calendar grid
-    const grid = document.createElement("div");
-    grid.className = "calendar-grid";
-
-    for (let tempDate = new Date(startDate); tempDate <= endDate; tempDate.setDate(tempDate.getDate() + 1)) {
-      const currentDate = new Date(tempDate); // Clone tempDate for event listener
-      const dayCell = document.createElement("div");
-      dayCell.className = "calendar-day";
-      dayCell.textContent = currentDate.getDate();
-
-      if (currentDate.getMonth() !== month) {
-        dayCell.classList.add("other-month");
-      }
-
-      // Highlight the selected date
-      if (
-        currentDate.getFullYear() === selectedDate.getFullYear() &&
-        currentDate.getMonth() === selectedDate.getMonth() &&
-        currentDate.getDate() === selectedDate.getDate()
-      ) {
-        dayCell.classList.add("selected");
-      }
-
-      // Event listener for selecting a date
-      dayCell.addEventListener("click", () => {
-        selectedDate = new Date(currentDate); // Clone the current date
-        hiddenDateField.value = formatDateToLocalISO(selectedDate);
-        renderCalendar(date); // Re-render calendar with updated selection
-      });
-
-      grid.appendChild(dayCell);
-    }
-
-    calendarContainer.appendChild(grid);
-  }
-
-  renderCalendar(initialDate);
-});
-</script>
-
-
-
 
