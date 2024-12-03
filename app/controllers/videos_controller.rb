@@ -546,36 +546,65 @@ class VideosController < ApplicationController
 
   def content_post
     authorize @video, :content_post?, policy_class: VideoPolicy
-    @video_chapter = @video.video_chapters.find(params[:id])
 
-    # Attach videos
-    if params[:videos].present? && params[:videos] != [""]
-      @video_chapter.videos.purge
-      params[:videos].reject(&:blank?).each do |video|
-        @video_chapter.videos.attach(video)
+    # Check if all chapters in params have empty inputs, but records already exist in the DB
+    all_empty = params.keys.grep(/^\d+$/).all? do |key|
+      video_chapter = @video.video_chapters.find_by(id: key)
+      next true unless video_chapter # Skip if video chapter doesn't exist
+
+      # Check if the DB already has videos, photos, or orders
+      db_has_content = video_chapter.videos.attached? || video_chapter.photos.attached? ||
+                       video_chapter.ordered_images_ids.present? || video_chapter.ordered_videos_ids.present?
+
+      # Compare database content with incoming empty params
+      params_empty = params[key]["videos"] == [""] && params[key]["photos"] == [""] &&
+                     params[:images_order].blank? && params[:videos_order].blank?
+
+      db_has_content && params_empty
+    end
+
+    if all_empty
+      flash[:notice] = "No changes made. Proceeding to the next step."
+      return skip_element(content_path)
+    end
+
+    # Iterate over chapter-specific keys (e.g., "28", "29", "30")
+    params.each do |key, value|
+      # Skip unrelated keys
+      next unless key.match?(/^\d+$/)
+
+      video_chapter = @video.video_chapters.find_by(id: key)
+      next unless video_chapter
+
+      # Attach videos
+      if value["videos"].present? && value["videos"] != [""]
+        video_chapter.videos.purge
+        value["videos"].reject(&:blank?).each do |video|
+          video_chapter.videos.attach(video)
+        end
       end
-    end
 
-    # Attach photos
-    if params[:photos].present? && params[:photos] != [""]
-      @video_chapter.photos.purge
-      params[:photos].reject(&:blank?).each do |photo|
-        @video_chapter.photos.attach(photo)
+      # Attach photos
+      if value["photos"].present? && value["photos"] != [""]
+        video_chapter.photos.purge
+        value["photos"].reject(&:blank?).each do |photo|
+          video_chapter.photos.attach(photo)
+        end
       end
-    end
 
-    # Handle ordering for photos
-    if params[:images_order].present?
-      image_ids = parse_order(params[:images_order], @video_chapter.photos)
-      @video_chapter.ordered_images_ids = image_ids
-      @video_chapter.save
-    end
+      # Handle ordering for photos
+      if params[:images_order].present?
+        image_ids = parse_order(params[:images_order], video_chapter.photos)
+        video_chapter.ordered_images_ids = image_ids
+      end
 
-    # Handle ordering for videos
-    if params[:videos_order].present?
-      video_ids = parse_order(params[:videos_order], @video_chapter.videos)
-      @video_chapter.ordered_videos_ids = video_ids
-      @video_chapter.save
+      # Handle ordering for videos
+      if params[:videos_order].present?
+        video_ids = parse_order(params[:videos_order], video_chapter.videos)
+        video_chapter.ordered_videos_ids = video_ids
+      end
+
+      video_chapter.save
     end
 
     flash[:notice] = "Content added."

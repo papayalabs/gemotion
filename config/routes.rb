@@ -56,7 +56,7 @@ Rails.application.routes.draw do
   get 'videos/skip_share', to: "videos#skip_share", as: "skip_share"
 
   get 'videos/content', to: "videos#content", as: "content"
-  post 'videos/content/:id', to: "videos#content_post", as: "content_post"
+  post 'videos/content', to: "videos#content_post", as: "content_post"
   get 'videos/skip_content', to: "videos#skip_content", as: "skip_content"
 
   get 'videos/content_dedicace', to: "videos#content_dedicace", as: "content_dedicace"

@@ -1,15 +1,31 @@
 <%= form_with url: dedicace_de_fin_post_path(@video_dedicace), method: :patch, multipart: true, local: true do |f| %>
+
+  <div>
+
+    <h1 class="video-h1">Ajoutez votre partie vidéo  à la dédicace finale</h1>
+
+    <div class="flex flex-row justify-center w-full">
+      <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
+      <div class="content w-full flex flex-col justify-center items-center">
+        <div class="text-with-image-block flex justify-center items-center mb-[72px] w-full p-text-16">
+          Filmez vous directement sur notre plateforme (via votre tablette, téléphone, ordinateur)
+          <%= image_tag 'icons/three-stars.png', class: 'image-from-image-text-block' %>
+        </div>
+
+
+
+
+
+
+
+
+
   <div class="flex flex-col justify-start items-center">
-    <h2 class='mb-[48px]'>Ajoutez votre partie vidéo à la dédicace finale</h2>
-    <div class="film-yourself-block flex justify-center items-center mt-65">
-      Filmez vous directement sur notre plateforme (via votre tablette, téléphone, ordinateur)
-      <%= image_tag 'img_placeholder.png', class: 'top-image' %>
-    </div>
-    <div class="dedicace_de_fin_form_block mt-6 flex flex flex-col">
+    <div class="dedicace-de-fin-frame mt-6 flex flex-col  justify-start items-start">
       <div class="flex justify-start items-center">
-        <div class="mr-2">Vos médias</div>
-        <div class="flex justify-start items-center">
-          <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2', style: 'height: 24px; width: 24px;' %>
+        <div class="mr-2 p-text-16">Vos médias</div>
+        <div class="flex justify-start items-center p-text-16">
+          <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-15 mr-2', style: 'height: 24px; width: 24px;' %>
           <% if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? %>
             <%= @video_dedicace.video_duration%>
           <% else %>
@@ -19,8 +35,8 @@
       </div>
 
       <div class="flex justify-start items-center mt-8">
-        <div class="mr-2 font-bold">Thème:</div>
-        <div class="flex justify-start items-center">
+        <div class="mr-2 font-bold p-text-bold-16">Thème:</div>
+        <div class="flex justify-start items-center p-text-16">
           <%=@dedicace.name%>
         </div>
       </div>
@@ -29,62 +45,59 @@
           <%if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached?%>
             <%= video_tag @video_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded" %>
          <%end%>
-          <span id="videoPreviewText" style="<%=@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>">La vue depuis la caméra frontale s'ouvre ici</span>
+          <span id="videoPreviewText" style="<%=@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>" class="p-text-16">La vue depuis la caméra frontale s'ouvre ici</span>
           <%= image_tag 'f7_person-alt.png', class: "#{@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'd-none' : ''} video-recording-block-img", id: 'videoPreviewImg' %>
           <video id="videoPreview" controls style="display: none;width: 100%; height:100%; border-radius:15px;"></video>
         </div>
 
       </div>
-      <div class="flex justify-center items-center mt-4">
-        <button type="button" id="startRecording" class="cta-transparent w-370i">
+      <div class="flex justify-center items-center mt-4 w-full">
+        <button type="button" id="startRecording" class="record-transparent w-370i">
           <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
           Commencer l'enregistrement vidéo
         </button>
 
-        <button type="button" id="stopRecording" class="cta-transparent w-370i" style="display: none;">
+        <button type="button" id="stopRecording" class="record-transparent w-370i" style="display: none;">
           <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
           Arrêter l'enregistrement vidéo
         </button>
       </div>
       <input type="file" id="recordedVideoFile" name="dedicace[creator_end_dedication_video]" style="display: none;" />
-      <%
-=begin%>
- <div class="form-group">
-        <h3>Choose Your Position in the Car</h3>
-        <%= select_tag 'position', options_for_select(['Driver', 'Passenger', 'Back Seat Left', 'Back Seat Right']), prompt: 'Select your position', class: 'form-control', id: 'positionSelect' %>
-      </div>
-<%
-=end%>
-
       <div class="upload-video-block flex flex-col justify-center items-center">
-        <span>Faites glisser ou appuyez pour ajouter vos médias</span>
+        <span class="p-text-center-16">Faites glisser ou appuyez pour ajouter vos médias</span>
         <div class="upload-circle mt-2" id="customUploadButton">
           <span class="plus-sign">+</span>
         </div>
         <%= f.file_field "dedicace[creator_end_dedication_video_uploaded]", accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInput' %>
       </div>
-
-
-
-
-      <%
-=begin%>
- <%= f.hidden_field :car_position, id: 'carPosition' %>
-<%
-=end%>
-
   </div>
 
 
   </div>
-<div class="video-steps">
+<div class="video-steps w-full">
   <%= render "videos/shared/back_button" %>
   <div>
-    <%= link_to "Continuer plus tard", skip_dedicace_de_fin_path, class: "cta-transparent" %>
-    <%= f.submit "Étape suivante", class: "cta" %>
+    <%= link_to "Continuer plus tard", skip_dedicace_de_fin_path, class: "p-text-16-bold text-decoration-underline mr-4" %>
+    <%= f.submit "Étape suivante", class: "black-link" %>
   </div>
 
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+      <%= image_tag 'right-with-star.png', class: 'image-sides right-image' %>
+    </div>
+  </div>
 <% end %>
 <script>
 document.addEventListener("DOMContentLoaded", () => {

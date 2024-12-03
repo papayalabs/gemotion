@@ -473,7 +473,28 @@ h2 {
   word-wrap: break-word;
 }
 /* HEADER */
-
+.record-transparent{
+  width: 386px;
+  cursor: pointer;
+  height: 54px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background: transparent;
+  border-radius: 15px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  display: inline-flex;
+  color: black;
+  border: 1px solid black;
+  font-size: 16px;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  line-height: 22.86px;
+  word-wrap: break-word;
+}
 .sticky {
   position: -webkit-sticky;
   position: sticky;
@@ -663,6 +684,33 @@ h2 {
 .music-frame {
   display: flex;
   width: 1060px;
+  padding: 30px 30px;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+  margin: auto;
+}
+.dedicace-de-fin-frame{
+  width: 1060px;
+  padding: 30px 78px;
+  gap: 30px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+  margin: auto;
+}
+.content-frame{
+  display: flex;
+  width: 1360px;
   padding: 30px 30px;
   flex-direction: column;
   align-items: center;
@@ -1166,7 +1214,8 @@ h2 {
   padding: 32px;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: start;
+
   gap: 12px;
   border-radius: 20px;
   background: #fff;
@@ -1387,11 +1436,11 @@ h2 {
 }
 .video-recording-block{
   position: relative;
-  height: 366px;
+  height: 438px;
   border: 1px solid rgba(0, 0, 0, 1);
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(242, 252, 255, 1);
   border-radius: 15px;
-  width: 60%;
+  width: 902px;
 }
 .video-recording-block-img{
   position: absolute;
@@ -1755,7 +1804,7 @@ h2 {
 
 .gallery {
   display: flex;
-  gap: 50px;
+  gap: 30px;
   margin-top: 10px;
   flex-wrap: wrap;
 }

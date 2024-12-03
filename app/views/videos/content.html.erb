@@ -1,40 +1,32 @@
 <div>
-  <h1 class="video-h1">Ajoutez 2 vidéos et 2 photos pour chaque chapitre</h1>
-
-  <div class='big-spaces-on-sides'>
-    <div class="content-grid w-100i">
-      <% @video_chapters.sort_by(&:order).each do |video_chapter| %>
-        <div class="w-100i">
-          <div class="content-block flex justify-start w-100i">
-            <%= form_with url: content_post_path(video_chapter), method: :post, html: { class: "pl-20 pr-20 mt-8 w-100i flex flex-col justify-start items-center", data: { turbo: false } } do |f| %>
-              <div class="" id="drop-area-<%= video_chapter.id %>">
-                <div class="video-memory-thumb-wrapper">
+  <h1 class="video-h1">
+    Il est temps de remplir vos chapitres de merveilleux souvenirs !
+  </h1>
+  <div class="w-full flex flex-col justify-center items-center">
+    <div class="text-with-image-block flex justify-center items-center mb-[72px] w-full p-text-16">
+      Faites glisser ou ajouter vos photos et/ou vidéos dans les chapitres ci-dessous
+      <%= image_tag 'icons/file.png', class: 'image-from-image-text-block' %>
+    </div>
+  </div>
+  <div class="">
+    <div>
+      <%= form_with url: content_post_path, method: :post, html: {data: {turbo: false}} do |f| %>
+        <div class="content-frame">
+          <div class="video-musics mb-minus-125 pb-40">
+            <% @video.video_chapters.sort_by(&:order).each do |video_chapter| %>
+              <div class="video-music">
+                <div class="video-music-thumb-wrapper">
                   <% if video_chapter.chapter_type.image.attached? %>
-                    <%= image_tag video_chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
+                    <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
                   <% else %>
                     <p>Pas d'image</p>
                   <% end %>
-                  <span><%= video_chapter.chapter_type.name %></span>
+                  <div class="video-music-thumb-wrapper-text flex flex-row justify-start items-center">
+                    <div class="ml-2"><%= video_chapter.text %></div>
+                  </div>
                 </div>
 
-                <!-- Separate Buttons for Video and Photo Upload -->
-                <div class="drop-area flex justify-between items-center">
-                  <button type="button" class="cta" id="video-upload-<%= video_chapter.id %>">
-                    Upload Video
-                  </button>
-                  <%= f.file_field :videos, multiple: true, style: "display: none;",
-                                  id: "videoElem-#{video_chapter.id}", accept: "video/*" %>
-
-                  <button type="button" class="cta" id="photo-upload-<%= video_chapter.id %>">
-                    Upload Photo
-                  </button>
-                  <%= f.file_field :photos, multiple: true, style: "display: none;",
-                                  id: "photoElem-#{video_chapter.id}", accept: "image/*" %>
-
-                </div>
-              </div>
-              <div class='mt-8'>
-                <div id="video-gallery-<%= video_chapter.id %>" class="gallery flex flex-row items-center space-x-8 mb-8">
+                <div id="video-gallery-<%= video_chapter.id %>" class="gallery flex flex-row justify-start items-center">
                   <% video_chapter.ordered_videos.each_with_index do |video, index| %>
                     <div class="edit-video-container old-video-container" data-file-name="<%= video.filename.to_s %>">
                       <%= video_tag video, controls: true, autobuffer: true %>
@@ -42,30 +34,54 @@
                   <% end %>
                 </div>
 
-                <div id="photo-gallery-<%= video_chapter.id %>" class="gallery flex flex-row items-center space-x-8">
-                <% video_chapter.ordered_photos.each_with_index do |photo, index| %>
-                  <div class="edit-image-container old-image-container"  data-file-name="<%= photo.filename.to_s %>">
-                      <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "preview-image prev-image" %>
-                  </div>
-                <% end %>
+                <div class="w-100i text-center upload-music-block flex flex-col justify-center items-center">
+                  <label for="custom_music_<%= video_chapter.id %>" class="cursor-pointer flex flex-col justify-center items-center w-full" id="video-upload-<%= video_chapter.id %>">
+                    <span>Ajouter 2 vidéos maximum</span>
+                    <div class="add-more-circle mt-6">
+                      <span class="plus-sign">+</span>
+                    </div>
+                  </label>
+                  <%= f.file_field "#{video_chapter.id}[videos]", multiple: true, class: "hidden",
+                                  id: "videoElem-#{video_chapter.id}", accept: "video/*" %>
                 </div>
-              </div>
-              <%= f.hidden_field :images_order, id: "images_order_#{video_chapter.id}" %>
-              <%= f.hidden_field :videos_order, id: "videos_order_#{video_chapter.id}" %>
 
-              <%= f.submit "Mettre en ligne", class:"cta h-45 mt-8" %>
+                <div id="photo-gallery-<%= video_chapter.id %>" class="gallery flex flex-row justify-start items-center">
+                  <% video_chapter.ordered_photos.each_with_index do |photo, index| %>
+                    <div class="edit-image-container old-image-container"  data-file-name="<%= photo.filename.to_s %>">
+                        <%= image_tag photo, class: "preview-image prev-image" %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="w-100i text-center upload-music-block flex flex-col justify-center items-center">
+                  <label for="custom_music_<%= video_chapter.id %>" class="cursor-pointer flex flex-col justify-center items-center w-full" id="photo-upload-<%= video_chapter.id %>">
+                    <span>Ajouter 2 photos maximum</span>
+                    <div class="add-more-circle mt-6">
+                      <span class="plus-sign">+</span>
+                    </div>
+                  </label>
+                  <%= f.file_field "#{video_chapter.id}[photos]", multiple: true, class: "hidden",
+                                  id: "photoElem-#{video_chapter.id}", accept: "image/*" %>
+                </div>
+
+                <%= f.hidden_field :images_order, id: "images_order_#{video_chapter.id}" %>
+                <%= f.hidden_field :videos_order, id: "videos_order_#{video_chapter.id}" %>
+              </div>
             <% end %>
+          </div>
         </div>
+
+        <div class="video-steps">
+          <%= render "videos/shared/back_button" %>
+          <%= f.submit "Étape suivante", class: "black-link" %>
         </div>
       <% end %>
     </div>
   </div>
-
-  <div class="video-steps">
-    <%= render "videos/shared/back_button" %>
-    <%= link_to "Étape suivante", skip_content_path, data: { turbo: false }, class: "cta" %>
-  </div>
 </div>
+
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>

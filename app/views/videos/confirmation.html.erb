@@ -1,13 +1,13 @@
 <div class="flex flex-col justify-start items-center">
   <div class="film-yourself-block flex flex-col justify-center items-center mt-65 pt-40 pb-40">
-    <span class="mt-8">Veuillez confirmer que tout est en ordre et maintenant c'est aux invités de participer.</span>
-    <%= image_tag 'img_placeholder.png', class: 'top-image' %>
+    <h4 class="mt-65 video-h4">Vous pouvez sauter cette étape maintenant et ajouter des collaborateurs aux étapes suivantes</h4>
+    <%= image_tag 'icons/plus.png', class: 'image-from-image-text-block' %>
 
   <div class="mt-8">
 
-    <div class="frame-grey">
+    <div class="frame">
 
-      <h4 class="video-h4">Invitez des amis par e-mail, lien simple, lien WhatsApp, lien Facebook Messenger.</h4>
+      <div class="p-text-18">Invitez des amis par e-mail, lien simple, lien WhatsApp, lien Facebook Messenger.</div>
 
       <%= form_with url: confirmation_post_path, method: :post do |f| %>
         <div class="share-wrapper">
@@ -16,11 +16,11 @@
         </div>
       <% end %>
 
-      <p>Ou partagez le lien</p>
+      <p class="p-text-16">Ou partagez le lien</p>
 
       <div class="share-clipboard" data-controller="clipboard">
         <div class="share-clipboard-wrapper">
-          <%= image_tag "icons/link.svg" %>
+          <%= image_tag "icons/tabler_link.png" %>
           <span><%= join_url(@video.token) %></span>
         </div>
         <span data-action="click->clipboard#copy" data-clipboard-value-param="<%= join_url(@video.token) %>" class="share-clipboard-btn">Copier</span>
@@ -31,7 +31,7 @@
 
     <div class="video-steps">
       <%= render "videos/shared/back_button" %>
-      <%= link_to "Étape suivante", skip_confirmation_path, class: "cta" %>
+      <%= link_to "Étape suivante", skip_confirmation_path, class: "black-link" %>
     </div>
 
   </div>
