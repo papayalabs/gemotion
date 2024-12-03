@@ -19,7 +19,7 @@
 
         </div>
         <video id="video-player" style="max-width: 100%; height: auto;" oncontextmenu="return false;">
-          <source src="<%= @final_video_url %>" type="video/mp4">
+          <source src="<%= url_for(@video.final_video_with_watermark) %>" type="video/mp4">
           Votre navigateur ne prend pas en charge l'élément vidéo.
         </video>
         <div class="custom-controls flex justify-center">
