@@ -61,7 +61,8 @@
                     <%= image_tag "icons/tdesign_more_white.png", alt: "Edit Icon", class: "edit-video-icon", data: { action: "click->dialog#open" } %>
                     <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 edit-chap-modal">
                       <div class="w-full h-full flex flex-col justify-start items-center">
-                        <div class="video-memory">
+                        <h3 class="video-h3 tt-uppercase mt-8">Modifier un chapitre</h3>
+                        <div class="video-memory mb-8">
                           <div class="video-memory-thumb-wrapper">
                             <% if chapter.chapter_type.image.attached? %>
                                 <%= image_tag chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
@@ -112,6 +113,21 @@
                             <%= f.file_field "chapters[#{chapter.id}][photos]", multiple: true, accept: 'image/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputPhotos' %>
                           </div>
                           <%if @video.by_chapters?%>
+                            <%if chapter.custom_music.attached? && chapter.waveform.present?%>
+                              <div class="relative audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(chapter.custom_music) %>" data-waveform="<%= chapter.waveform.to_json %>">
+                                <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                                  <div class="play-button-icon"></div>
+                                </div>
+                                <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                                  <div class="delete-music-icon-btn"
+                                      data-url="<%= drop_custom_music_path(chapter, video_id: @video.id) %>">
+                                    <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "purge-music-icon" %>
+                                  </div>
+                              </div>
+                            <%end%>
+
+
+
                             <div class="music-selection w-full">
                               <% selected_music_id = chapter.video_music&.music_id %>
                               <%= f.select "chapters[#{chapter.id}][music_id]", @musics.map { |music| [music[:name], music[:id]] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select w-full br-10' } %>
