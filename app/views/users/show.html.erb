@@ -3,42 +3,44 @@
 
   <%= render "shared/profile_tabs", page_count: 0 %>
 
-  <%= form_for @user, html: { class: 'prof-form-update'} do |f| %>
-    <div class="flex flex-row items-center justify-between">
-      <div class="form-group w-250">
-        <%= f.text_field :first_name, class: "form-input" %>
-        <%= f.label :first_name, class: "form-label" %>
+  <div class="profile-frame mt-8">
+    <%= form_for @user, html: { class: 'prof-form-update w-full'} do |f| %>
+      <div class="flex flex-row items-center justify-between">
+        <div class="form-group w-250">
+          <%= f.text_field :first_name, class: "form-input" %>
+          <%= f.label "name", class: "form-label" %>
+        </div>
+
+        <div class="form-group w-250">
+          <%= f.text_field :last_name, class: "form-input" %>
+          <%= f.label "surname", class: "form-label" %>
+        </div>
       </div>
 
-      <div class="form-group w-250">
-        <%= f.text_field :last_name, class: "form-input" %>
-        <%= f.label :last_name, class: "form-label" %>
+      <div class="flex flex-row items-center justify-between">
+        <div class="form-group w-250">
+          <%= f.email_field :email, class: "form-input" %>
+          <%= f.label :email, class: "form-label" %>
+        </div>
+
+        <div class="form-group w-250">
+          <%= f.telephone_field :phone, class: "form-input" %>
+          <%= f.label "phone number", class: "form-label" %>
+        </div>
       </div>
-    </div>
 
-    <div class="flex flex-row items-center justify-between">
-      <div class="form-group w-250">
-        <%= f.email_field :email, class: "form-input" %>
-        <%= f.label :email, class: "form-label" %>
+      <div class="flex flex-row items-center justify-center mt-8">
+        <%= f.submit "Edit", class: "transparent-link" %>
       </div>
 
-      <div class="form-group w-250">
-        <%= f.telephone_field :phone, class: "form-input" %>
-        <%= f.label :phone, class: "form-label" %>
-      </div>
-    </div>
-
-    <div class="flex flex-row items-center justify-center mt-65">
-      <%= f.submit "Update", class: "cta-transparent" %>
-    </div>
-
-  <% end %>
+    <% end %>
+  </div>
 </div>
 
 <style>
 .prof-form-update{
-  width:45%;
-  margin-top: 60px;
+  /* width:45%;
+  margin-top: 60px; */
 }
 .form-group {
   margin-bottom: 20px; /* Space between fields */
@@ -48,17 +50,29 @@
 }
 
 .form-input {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
   border: none; /* Remove all borders */
-  border-bottom: 1px solid #000; /* Add only bottom border */
+  border-bottom: 1px solid rgba(32, 31, 31, 0.5); /* Add only bottom border */
   width: 100%; /* Full width */
   padding: 10px 0; /* Vertical padding */
-  font-size: 16px; /* Font size */
 }
 
 .form-label {
+  font-family: Red Hat Display;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: rgba(32, 31, 31, 0.5);
   display: block; /* Make label take up full width */
-  margin-bottom: 5px; /* Space between label and input */
-  font-weight: bold; /* Make the label bold */
 }
 
 .btn-update {

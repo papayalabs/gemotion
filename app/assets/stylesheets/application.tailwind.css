@@ -172,10 +172,18 @@ main{
 .shadow-lg {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-.hello-block{
+.hello-block {
   width: 100%;
-  height: 175px;
-  background-color: rgba(217, 217, 217, 1);
+  height: 168px;
+  background-color: rgba(255, 255, 255, 1);
+  position: relative;
+  border-bottom: 1px solid transparent; /* Ensure the border is visible */
+  border-image: linear-gradient(
+    205.68deg,
+    rgba(201, 225, 255, 0.2) 19.49%,
+    rgba(13, 103, 131, 0.2) 60.63%,
+    rgba(22, 63, 80, 0.2) 90.92%
+  ) 1;
 }
 .close-proj-grey-block{
   background-color: rgba(247, 247, 247, 1);
@@ -187,13 +195,38 @@ main{
   margin-bottom: 30px;
 }
 
-.choose-prof-block{
+.choose-prof-block {
+  position: relative;
   width: 800px;
   height: 100px;
-  background-color: rgba(217, 217, 217, 1);
-  border-radius: 20px;
-  padding-left: 28px;
-  padding-right: 28px;
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 15px;
+  padding-left: 35px;
+  padding-right: 35px;
+  z-index: 1;
+  overflow: hidden; /* Ensures the gradient border is clipped to the rounded corners */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+}
+
+.choose-prof-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  padding: 1px; /* Thickness of the border */
+  background: linear-gradient(
+    205.68deg,
+    rgba(201, 225, 255, 0.2) 19.49%,
+    rgba(13, 103, 131, 0.2) 60.63%,
+    rgba(22, 63, 80, 0.2) 90.92%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  z-index: -1;
 }
 
 .choose-prof-block-child{
@@ -242,7 +275,15 @@ main{
   text-align: left;
 }
 .choose-prof-block-child-highlight{
-  background-color: rgba(107, 107, 107, 1);
+  background: linear-gradient(247.64deg, #0D6783 0%, #163F50 100%);
+  font-family: Montserrat;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 22.86px;
+  letter-spacing: -0.011em;
+  text-align: center;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
   color: rgba(255, 255, 255, 1)!important;
 }
 
@@ -698,6 +739,20 @@ h2 {
   /* Style */
   box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
   margin: auto;
+}
+.profile-frame {
+  display: flex;
+  width: 732px;
+  padding: 50px 50px;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
 }
 .edit-video-frame{
   display: flex;
