@@ -5,109 +5,94 @@
 
 <div class=''>
   <%= form_with url: collaborator_dedicace_de_fin_post_path(video_id: @video.id), method: :post, multipart: true do |f| %>
-
-
-
-        <div class="frame-no-border">
-            <div class="dedications">
-              <% @dedicaces.each do |dedicace| %>
-                <div class="dedication">
-                  <%= f.radio_button "collaborator_dedicace", dedicace.id, {checked: dedicace == @collaborator_dedicace&.dedicace}%>
-                  <div class="dedication-wrapper">
-                    <div class="dedication-thumb-wrapper">
-                      <% if dedicace.video.attached? %>
-                        <div class="video-wrapper">
-                          <%= video_tag dedicace.video, controls: false, class: "video-content h-[150px] w-[150px] br-10" %>
-                          <div class="play-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                              <defs>
-                                <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                                  <stop offset="0%" stop-color="#163F50" />
-                                  <stop offset="50%" stop-color="#0D6783" />
-                                  <stop offset="100%" stop-color="#C9E1FF" />
-                                </linearGradient>
-                              </defs>
-                              <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
-                            </svg>
-                          </div>
-                        </div>
-                      <% else %>
-                        <p>Pas de vidéo</p>
-                      <% end %>
-                      <span class="dedication-name"><%= dedicace.name %></span>
+    <div class="frame-no-border">
+      <div class="dedications">
+        <% @dedicaces.each do |dedicace| %>
+          <div class="dedication">
+            <%= f.radio_button "collaborator_dedicace", dedicace.id, {checked: dedicace == @collaborator_dedicace&.dedicace}%>
+            <div class="dedication-wrapper">
+              <div class="dedication-thumb-wrapper">
+                <% if dedicace.video.attached? %>
+                  <div class="video-wrapper">
+                    <%= video_tag dedicace.video, controls: false, class: "video-content h-[150px] w-[150px] br-10" %>
+                    <div class="play-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                        <defs>
+                          <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                            <stop offset="0%" stop-color="#163F50" />
+                            <stop offset="50%" stop-color="#0D6783" />
+                            <stop offset="100%" stop-color="#C9E1FF" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
+                      </svg>
                     </div>
-                    <p class="p-text-16 mt-4"><%= dedicace.description %></p>
-                    <p class="p-text-16-bold mt-2 text-decoration-underline">Lire plus</p>
                   </div>
-                </div>
-              <% end %>
+                <% else %>
+                  <p>Pas de vidéo</p>
+                <% end %>
+                <span class="dedication-name"><%= dedicace.name %></span>
+              </div>
+              <p class="p-text-16 mt-4"><%= dedicace.description %></p>
+              <p class="p-text-16-bold mt-2 text-decoration-underline">Lire plus</p>
             </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-col justify-start items-center mt-65">
+      <div class="dedicace-de-fin-frame mt-6 flex flex-col  justify-start items-start">
+        <div class="flex justify-start items-center">
+          <div class="mr-2 p-text-16">Vos médias</div>
+          <div class="flex justify-start items-center p-text-16">
+            <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-15 mr-2', style: 'height: 24px; width: 24px;' %>
+              <% if @collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached? %>
+                <%= @collaborator_dedicace.video_duration%>
+            <% else %>
+              Duration: N/A
+            <% end %>
+          </div>
         </div>
 
+        <div class="flex justify-start items-center mt-8">
+          <div class="mr-2 font-bold p-text-bold-16">Thème:</div>
+          <div class="flex justify-start items-center p-text-16">
+            <%=@dedicace.name%>
+          </div>
+        </div>
+        <div class = "w-full flex justify-center items-center mt-8">
+          <div class="video-recording-block flex justify-center items-center">
+            <%if @collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached?%>
+              <%= video_tag @collaborator_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded" %>
+            <%end%>
+            <span id="videoPreviewText" style="<%=@collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>" class="p-text-16">La vue depuis la caméra frontale s'ouvre ici</span>
+            <%= image_tag 'f7_person-alt.png', class: "#{@collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached? ? 'd-none' : ''} video-recording-block-img", id: 'videoPreviewImg' %>
+            <video id="videoPreview" controls style="display: none;width: 100%; height:100%; border-radius:15px;"></video>
+          </div>
 
+        </div>
+        <div class="flex justify-center items-center mt-4 w-full">
+          <button type="button" id="startRecording" class="record-transparent w-370i">
+            <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
+            Commencer l'enregistrement vidéo
+          </button>
 
-
-
-
-
-
-
-
-
-
-<div class="flex flex-col justify-start items-center mt-65">
-    <div class="dedicace-de-fin-frame mt-6 flex flex-col  justify-start items-start">
-      <div class="flex justify-start items-center">
-        <div class="mr-2 p-text-16">Vos médias</div>
-        <div class="flex justify-start items-center p-text-16">
-          <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-15 mr-2', style: 'height: 24px; width: 24px;' %>
-            <% if @collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached? %>
-              <%= @collaborator_dedicace.video_duration%>
-          <% else %>
-            Duration: N/A
-          <% end %>
+          <button type="button" id="stopRecording" class="record-transparent w-370i" style="display: none;">
+            <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
+            Arrêter l'enregistrement vidéo
+          </button>
+        </div>
+        <input type="file" id="collaboratorRecordedVideoFile" name="creator_end_dedication_video" style="display: none;" />
+        <div class="upload-video-block flex flex-col justify-center items-center">
+          <span class="p-text-center-16">Faites glisser ou appuyez pour ajouter vos médias</span>
+          <div class="upload-circle mt-2" id="customUploadButton">
+            <span class="plus-sign">+</span>
+          </div>
+          <%= f.file_field "creator_end_dedication_video_uploaded", accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'collaboratorFileUploadInput' %>
         </div>
       </div>
-
-      <div class="flex justify-start items-center mt-8">
-        <div class="mr-2 font-bold p-text-bold-16">Thème:</div>
-        <div class="flex justify-start items-center p-text-16">
-          <%=@dedicace.name%>
-        </div>
-      </div>
-      <div class = "w-full flex justify-center items-center mt-8">
-        <div class="video-recording-block flex justify-center items-center">
-          <%if @collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached?%>
-            <%= video_tag @collaborator_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded" %>
-          <%end%>
-          <span id="videoPreviewText" style="<%=@collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>" class="p-text-16">La vue depuis la caméra frontale s'ouvre ici</span>
-          <%= image_tag 'f7_person-alt.png', class: "#{@collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached? ? 'd-none' : ''} video-recording-block-img", id: 'videoPreviewImg' %>
-          <video id="videoPreview" controls style="display: none;width: 100%; height:100%; border-radius:15px;"></video>
-        </div>
-
-      </div>
-      <div class="flex justify-center items-center mt-4 w-full">
-        <button type="button" id="startRecording" class="record-transparent w-370i">
-          <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
-          Commencer l'enregistrement vidéo
-        </button>
-
-        <button type="button" id="stopRecording" class="record-transparent w-370i" style="display: none;">
-          <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
-          Arrêter l'enregistrement vidéo
-        </button>
-      </div>
-      <input type="file" id="collaboratorRecordedVideoFile" name="creator_end_dedication_video" style="display: none;" />
-      <div class="upload-video-block flex flex-col justify-center items-center">
-        <span class="p-text-center-16">Faites glisser ou appuyez pour ajouter vos médias</span>
-        <div class="upload-circle mt-2" id="customUploadButton">
-          <span class="plus-sign">+</span>
-        </div>
-        <%= f.file_field "creator_end_dedication_video_uploaded", accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'collaboratorFileUploadInput' %>
-      </div>
-  </div>
-
-    <%= f.submit "Sauvegarder les modification", class: "cta mt-6" %>
+      <%= f.submit "Sauvegarder les modification", class: "cta mt-6" %>
     </div>
   <% end %>
 </div>
@@ -190,56 +175,34 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-document.querySelectorAll(".video-wrapper").forEach((wrapper) => {
-      const video = wrapper.querySelector(".video-content");
-      const playIcon = wrapper.querySelector(".play-icon");
+  document.querySelectorAll(".video-wrapper").forEach((wrapper) => {
+    const video = wrapper.querySelector(".video-content");
+    const playIcon = wrapper.querySelector(".play-icon");
 
-      const togglePlayPause = () => {
-        if (video.paused) {
-          video.play();
+    const togglePlayPause = () => {
+      if (video.paused) {
+        video.play();
 
-          // Change to Pause Icon
-          playIcon.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-              <rect x="6" y="5" width="4" height="14" fill="url(#play-icon-gradient)" />
-              <rect x="14" y="5" width="4" height="14" fill="url(#play-icon-gradient)" />
-              <defs>
-                <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                  <stop offset="0%" stop-color="#163F50" />
-                  <stop offset="50%" stop-color="#0D6783" />
-                  <stop offset="100%" stop-color="#C9E1FF" />
-                </linearGradient>
-              </defs>
-            </svg>
-          `;
+        // Change to Pause Icon
+        playIcon.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+            <rect x="6" y="5" width="4" height="14" fill="url(#play-icon-gradient)" />
+            <rect x="14" y="5" width="4" height="14" fill="url(#play-icon-gradient)" />
+            <defs>
+              <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#163F50" />
+                <stop offset="50%" stop-color="#0D6783" />
+                <stop offset="100%" stop-color="#C9E1FF" />
+              </linearGradient>
+            </defs>
+          </svg>
+        `;
 
-          playIcon.style.opacity = 0.8; // Slight transparency during playback
-        } else {
-          video.pause();
+        playIcon.style.opacity = 0.8; // Slight transparency during playback
+      } else {
+        video.pause();
 
-          // Change to Play Icon
-          playIcon.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-              <defs>
-                <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                  <stop offset="0%" stop-color="#163F50" />
-                  <stop offset="50%" stop-color="#0D6783" />
-                  <stop offset="100%" stop-color="#C9E1FF" />
-                </linearGradient>
-              </defs>
-              <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
-            </svg>
-          `;
-
-          playIcon.style.opacity = 1; // Fully visible when paused
-        }
-      };
-
-      // Play/Pause functionality on play icon click
-      playIcon.addEventListener("click", togglePlayPause);
-
-      // Show play icon when video ends
-      video.addEventListener("ended", () => {
+        // Change to Play Icon
         playIcon.innerHTML = `
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
             <defs>
@@ -252,26 +215,48 @@ document.querySelectorAll(".video-wrapper").forEach((wrapper) => {
             <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
           </svg>
         `;
-        playIcon.style.opacity = 1;
-      });
 
-      // Ensure play icon updates on video pause
-      video.addEventListener("pause", () => {
-        playIcon.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-            <defs>
-              <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stop-color="#163F50" />
-                <stop offset="50%" stop-color="#0D6783" />
-                <stop offset="100%" stop-color="#C9E1FF" />
-              </linearGradient>
-            </defs>
-            <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
-          </svg>
-        `;
-        playIcon.style.opacity = 1;
-      });
+        playIcon.style.opacity = 1; // Fully visible when paused
+      }
+    };
+
+    // Play/Pause functionality on play icon click
+    playIcon.addEventListener("click", togglePlayPause);
+
+    // Show play icon when video ends
+    video.addEventListener("ended", () => {
+      playIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#163F50" />
+              <stop offset="50%" stop-color="#0D6783" />
+              <stop offset="100%" stop-color="#C9E1FF" />
+            </linearGradient>
+          </defs>
+          <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
+        </svg>
+      `;
+      playIcon.style.opacity = 1;
     });
+
+    // Ensure play icon updates on video pause
+    video.addEventListener("pause", () => {
+      playIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="play-icon-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#163F50" />
+              <stop offset="50%" stop-color="#0D6783" />
+              <stop offset="100%" stop-color="#C9E1FF" />
+            </linearGradient>
+          </defs>
+          <path d="M8 5v14l11-7z" fill="url(#play-icon-gradient)" />
+        </svg>
+      `;
+      playIcon.style.opacity = 1;
+    });
+  });
 
 });
 </script>

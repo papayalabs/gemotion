@@ -53,12 +53,6 @@
           </div>
         </dialog>
       </div>
-
-
-
-
-
-
     </div>
   </div>
 
@@ -98,7 +92,13 @@
     <% elsif @video.processing? %>
       <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
     <% else %>
-      <p>Aucune vidéo finale générée.</p>
+      <div class="flex relative items-center gap-[61px]">
+        <%= video_tag asset_path('about.mp4'), id: 'about-video-element', controls: false, width: 982, height: 425, poster: asset_path('gemotion-about-video-poster.svg') %>
+        <div id="play-button" class="absolute inset-0 flex items-center justify-center cursor-pointer">
+            <%= image_tag 'icons/about-video-play.svg', alt: 'Play Button' %>
+            <%= image_tag 'icons/video-bottom.png', alt: 'Play Button Icon', class: 'absolute video-bottom-icon' %>
+        </div>
+      </div>
     <% end %>
   </div>
 

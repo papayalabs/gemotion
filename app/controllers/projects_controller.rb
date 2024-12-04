@@ -7,7 +7,7 @@ class ProjectsController < ApplicationController
                                       creator_chapters_post creator_dedicace_de_fin_post edit_creator_chapters_post
                                       creator_refresh_video approving_collaborator_attachments]
   before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace
-                                             collaborator_manage_chapters collaborator_manage_dedicace]
+                                             collaborator_manage_chapters collaborator_manage_dedicace creator_manage_chapters]
   def as_creator_projects
     @creator_projects = current_user.videos.left_joins(:video_previews)
                                             .where.not(project_status: [:closed])
@@ -468,7 +468,6 @@ class ProjectsController < ApplicationController
   def creator_manage_chapters
     authorize @video, :creator_manage_chapters?, policy_class: ProjectPolicy
     define_chapter_type(VideoChapter)
-
   end
 
   def creator_manage_dedicace

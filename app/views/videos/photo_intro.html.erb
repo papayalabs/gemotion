@@ -69,10 +69,10 @@
               </div>
             </div>
             <%= f.hidden_field :images_order, id: 'image_order', value: @ordered_previews.map { |preview| preview.image.blob.filename.to_s }.join(',') %>
-          </div>
-          <div class="edit-video-alert w-full">
-            <%= image_tag "icons/alert.svg" %>
-            <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
+            <div class="edit-video-alert w-full mt-8">
+              <%= image_tag "icons/alert.svg" %>
+              <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
+            </div>
           </div>
         </div>
         <div class="video-steps">

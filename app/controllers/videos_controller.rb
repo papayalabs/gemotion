@@ -604,14 +604,14 @@ class VideosController < ApplicationController
 
       # Handle ordering for photos
       if params[:images_order].present?
-        image_ids = parse_order(params[:images_order], video_chapter.photos)
-        video_chapter.ordered_images_ids = image_ids
+        # image_ids = parse_order(params[:images_order], video_chapter.photos)
+        video_chapter.photos_order = params[:images_order]
       end
 
       # Handle ordering for videos
       if params[:videos_order].present?
-        video_ids = parse_order(params[:videos_order], video_chapter.videos)
-        video_chapter.ordered_videos_ids = video_ids
+        # video_ids = parse_order(params[:videos_order], video_chapter.videos)
+        video_chapter.videos_order = params[:videos_order]
       end
 
       video_chapter.save
