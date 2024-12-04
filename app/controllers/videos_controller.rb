@@ -564,11 +564,11 @@ class VideosController < ApplicationController
 
       # Check if the DB already has videos, photos, or orders
       db_has_content = video_chapter.videos.attached? || video_chapter.photos.attached? ||
-                       video_chapter.ordered_images_ids.present? || video_chapter.ordered_videos_ids.present?
+                       video_chapter.photos_order.present? || video_chapter.videos_order.present?
 
       # Compare database content with incoming empty params
       params_empty = params[key]["videos"] == [""] && params[key]["photos"] == [""] &&
-                     params[:images_order].blank? && params[:videos_order].blank?
+                     params[key]["images_order"].blank? && params[key]["videos_order"].blank?
 
       db_has_content && params_empty
     end
@@ -603,15 +603,18 @@ class VideosController < ApplicationController
       end
 
       # Handle ordering for photos
-      if params[:images_order].present?
+      if value["images_order"].present?
         # image_ids = parse_order(params[:images_order], video_chapter.photos)
-        video_chapter.photos_order = params[:images_order]
+        p "*"*100
+        p value["images_order"]
+        p "*"*100
+        video_chapter.photos_order = value["images_order"]
       end
 
       # Handle ordering for videos
-      if params[:videos_order].present?
+      if value["videos_order"].present?
         # video_ids = parse_order(params[:videos_order], video_chapter.videos)
-        video_chapter.videos_order = params[:videos_order]
+        video_chapter.videos_order = value["videos_order"]
       end
 
       video_chapter.save

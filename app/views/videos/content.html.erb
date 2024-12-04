@@ -84,8 +84,8 @@
                                   id: "photoElem-#{video_chapter.id}", accept: "image/*" %>
                 </div>
 
-                <%= f.hidden_field :images_order, id: "images_order_#{video_chapter.id}" %>
-                <%= f.hidden_field :videos_order, id: "videos_order_#{video_chapter.id}" %>
+                <%= f.hidden_field "#{video_chapter.id}[images_order]", id: "images_order_#{video_chapter.id}" %>
+                <%= f.hidden_field "#{video_chapter.id}[videos_order]", id: "videos_order_#{video_chapter.id}" %>
               </div>
             <% end %>
           </div>
