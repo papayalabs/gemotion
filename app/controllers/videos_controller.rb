@@ -876,31 +876,30 @@ class VideosController < ApplicationController
 
       # Save payment record and update video status
       @video.update!(paid: true) # Ensure `paid` is a boolean in the Video model
-      flash[:notice] = 'Paiement réussi!'
-      skip_element(payment_path)
+      redirect_to participants_progress_path(video_id: @video.id), notice: 'Paiement réussi!'
     rescue Stripe::CardError => e
       flash[:alert] = e.message
       redirect_to payment_path
     end
   end
 
-  def render_final_page
-    authorize @video, :render_final_page?, policy_class: VideoPolicy
-    # Check if the final video is already attached
-    if @video.final_video.attached?
-      @final_video_url = url_for(@video.final_video)
-      @zip_url = url_for(@video.final_video_xml) if @video.final_video_xml.attached?
-    else
-      # Start processing if no final video exists
-      unless @video.concat_status == 'processing' # Check if not already processing
-        @video.update!(concat_status: :processing)
-        ContentDedicaceJob.perform_later(@video.id)
-        flash[:notice] = "Le traitement de la vidéo a été lancé en arrière-plan."
-      else
-        flash[:notice] = "Le traitement de la vidéo est déjà en cours."
-      end
-    end
-  end
+  # def render_final_page
+  #   authorize @video, :render_final_page?, policy_class: VideoPolicy
+  #   # Check if the final video is already attached
+  #   if @video.final_video.attached?
+  #     @final_video_url = url_for(@video.final_video)
+  #     @zip_url = url_for(@video.final_video_xml) if @video.final_video_xml.attached?
+  #   else
+  #     # Start processing if no final video exists
+  #     unless @video.concat_status == 'processing' # Check if not already processing
+  #       @video.update!(concat_status: :processing)
+  #       ContentDedicaceJob.perform_later(@video.id)
+  #       flash[:notice] = "Le traitement de la vidéo a été lancé en arrière-plan."
+  #     else
+  #       flash[:notice] = "Le traitement de la vidéo est déjà en cours."
+  #     end
+  #   end
+  # end
 
   def skip_edit_video
     # authorize @video, :skip_content_dedicace?
