@@ -110,6 +110,16 @@
   position: relative;
   box-sizing: border-box; /* Ensures padding/borders are included in dimensions */
 }
+.text-with-image-block-close-project{
+  width: 1062px;
+  height: 550px;
+  border-radius: 10px;
+  border: 1px solid var(--linear-2-transparent-20, #C9E1FF);
+  background: var(--White, #FFF);
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
+  position: relative;
+  box-sizing: border-box; /* Ensures padding/borders are included in dimensions */
+}
 .text-with-image-block-adjusted {
   width: 1062px;
   min-height: 128px; /* Ensure content pushes beyond this */

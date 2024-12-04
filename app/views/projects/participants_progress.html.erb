@@ -3,63 +3,73 @@
   <%= render "shared/profile_tabs", page_count: 1 %>
 </div>
 
-<div class="spaces-on-sides">
-  <div class="flex flex-row items-center justify-between">
-    <div><%= @video&.end_date&.strftime("%d/%m/%Y") %></div>
+<div class="creator-frame">
+  <div class="flex flex-row items-center justify-between w-full">
+    <div class="p-text-16"><%= @video&.end_date&.strftime("%d/%m/%Y") %></div>
     <div class='flex flex-row items-center justify-start'>
 
       <div data-controller="dialog" data-action="click->dialog#clickOutside">
-        <button data-action="click->dialog#open" class="text-black text-decoration-underline">Modifier la date limite</button>
-        <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 close-proj-modal">
+        <button data-action="click->dialog#open" class="text-black text-decoration-underline font-bold">Modifier la date limite</button>
+        <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 modify-time-modal">
 
 
-          <%= form_with url: modify_deadline_path(id: @video.id), method: :patch do |f| %>
-            <div class="flex flex-col items-center gap-[48px] px-[40px] py-80px pb-146px rounded-[20px] border border-[#C9E1FF] bg-white shadow-custom">
-              <p class="text-black font-red-hat-display text-[16px] font-normal leading-[25px]">Vous pouvez modifier la date limite du projet en cours</p>
-              <%= f.date_field :end_date, value: @video.end_date %>
-                          <div class="flex justify-between items-center">
-              <%= f.submit "Étape suivante", class:"cta-transparent" %>
-              <button formmethod="dialog" class="cta ml-2">Annuler</button>
-            </div>
+          <%= form_with url: modify_deadline_path(id: @video.id), method: :patch, html:{class: "h-full"} do |f| %>
+            <div class="flex flex-col items-center gap-[48px] h-full pt-40 pb-40 px-[40px] rounded-[20px] border border-[#C9E1FF] bg-white shadow-custom">
+              <p class="p-text-center-bold-16">Vous pouvez modifier la date limite du projet en cours</p>
+              <div class="custom-calendar-container" data-controller="custom-calendar" data-custom-calendar-end-date="<%= @video.end_date %>">
+                <%= hidden_field_tag 'end_date', @video.end_date, id: 'customDateField', data: { custom_calendar_target: "hiddenField" } %>
+                <div id="customCalendar" class="custom-calendar" data-custom-calendar-target="calendarContainer">
+                  <!-- The custom calendar will be rendered here by the controller -->
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <button formmethod="dialog" class="black-link">Annuler</button>
+                <%= f.submit "Étape suivante", class:"transparent-link ml-2" %>
+              </div>
             </div>
 
           <% end %>
         </dialog>
       </div>
 
-      <div data-controller="dialog" data-action="click->dialog#clickOutside">
-        <button data-action="click->dialog#open" class="ml-2 cta-transparent">Clôturer le projet</button>
-        <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 close-proj-modal">
-          <div class='w-full h-full flex flex-col items-center justify-center'>
-            <p class="font-bold">Êtes-vous sûr de vouloir arrêter ce projet ?</p>
-            <div class="close-proj-grey-block flex items-center justify-center">
-              <span>Vous pouvez déplacer la date limite pour permettre à tous les participants de contribuer à la création du film.</span>
+      <div data-controller="dialog" data-action="click->dialog#clickOutside" class="h-[53px]">
+        <button data-action="click->dialog#open" class="ml-15 transparent-link-smaller">Clôturer le projet</button>
+        <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full w-1063 popup-close-project-modal bg-transparent">
+          <div class="text-with-image-block-close-project flex flex-col justify-center items-center mt-65 mb-[72px] px-[27px] w-full p-text-center-16">
+            <p class="font-bold pt-40">Êtes-vous sûr de vouloir arrêter ce projet ?</p>
+
+            <div class="frame-close-proj">
+              <div>Invitez des amis par e-mail, lien simple, lien WhatsApp, lien Facebook Messenger.</div>
+              <div class="close-proj-blue-block flex items-center justify-center">
+                <span>Vous pouvez déplacer la date limite pour permettre à tous les participants de contribuer à la création du film.</span>
+              </div>
             </div>
-            <%= form_with url: close_project_path(id: @video.id), method: :patch do |f| %>
-              <button formmethod="dialog" class="cta-transparent">Prolonger le délai</button>
-              <%= f.submit "Terminer le projet et enregistrer comme brouillon", class:"cta ml-2" %>
+
+            <%= form_with url: close_project_path(id: @video.id), method: :patch, html: {class: "mb-[32px]"} do |f| %>
+              <button formmethod="dialog" class="transparent-link font-bold">Prolonger le délai</button>
+              <%= f.submit "Terminer le projet et enregistrer comme brouillon", class:"black-link ml-2" %>
             <% end %>
+            <%= image_tag 'icons/lamp.png', class: 'image-from-image-text-block' %>
           </div>
         </dialog>
       </div>
+
+
+
+
+
+
     </div>
   </div>
 
   <br>
 
-  <div class="frame">
+  <div class="">
     <% if @video.completed? %>
       <div>
-        <div class="flex justify-start items-center mb-45">
-          <div class="mr-2">Vos médias</div>
-          <div class="flex justify-start items-center">
-            <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
-            <%= format_time(@video.final_video_duration) %>
-          </div>
-        </div>
         <% if @video.paid %>
           <div>
-            <video controls style="max-width: 100%; height: auto;">
+            <video controls style="max-width: 100%; height: auto; border-radius: 20px;">
               <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
               Votre navigateur ne prend pas en charge l'élément vidéo.
             </video>
@@ -76,17 +86,15 @@
             <br>
           </div>
         <% else %>
-          <video id="video-player" style="max-width: 100%; height: auto;" oncontextmenu="return false;">
-            <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
+          <video controls style="max-width: 100%; height: auto; border-radius: 20px;">
+            <source src="<%= url_for(@video.final_video_with_watermark) %>" type="video/mp4">
             Votre navigateur ne prend pas en charge l'élément vidéo.
           </video>
-          <div class="custom-controls flex justify-center">
-            <button id="play-pause" class="cta mt-2 with-play-icon">Play</button>
-          </div>
-          <br>
         <%end%>
       </div>
-      <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "cta", data: { disable_with: "Refreshing..." } %>
+      <div class="w-full flex justify-center items-center mt-6">
+        <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "cta", data: { disable_with: "Refreshing..." } %>
+      </div>
     <% elsif @video.processing? %>
       <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
     <% else %>
@@ -231,9 +239,9 @@
 
 
   <hr class='hr-divider-gray mt-65 '/>
-  <div class="mt-8">
+  <div class="mt-8 w-full">
     <% @participants.each do |collaboration| %>
-      <div class="flex flex-col justify-start">
+      <div class="flex flex-col justify-center w-full">
         <div class="flex flex-row justify-start items-center">
           <p><%= collaboration.invited_user.first_name.capitalize %> <%= collaboration.invited_user.last_name.capitalize %> Progress</p>
             <%= button_to 'Supprimer un collaborateur',
@@ -250,7 +258,7 @@
 
           <%if collaboration.collaborator_dedicace.present? && collaboration.collaborator_dedicace.creator_end_dedication_video.attached?%>
             <div class="project-main-block flex flex-col justify-start items-center chapter-item">
-              <div class="mb-2">
+              <div class="mb-2 p-text-16">
                 Approuvée
                 <%= f.check_box "collaborator_attachment[dedicace]",
                 { checked: collaboration.collaborator_dedicace.approved_by_creator,
@@ -267,7 +275,7 @@
           <%end%>
           <% collaboration.collaborator_chapters.order(:order).each do |chapter| %>
             <div class="project-main-block flex flex-col justify-start items-center chapter-item" data-id="<%= chapter.id %>">
-              <div class="mb-2">
+              <div class="mb-2 p-text-16">
                 Approuvée
                 <%= f.check_box "collaborator_attachment[chapter][#{chapter.id}]",
                 { checked: chapter.approved_by_creator,
