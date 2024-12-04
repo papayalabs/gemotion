@@ -41,15 +41,10 @@
                 <%= video_tag asset_path('about.mp4'), id: 'about-video-element', controls: false, width: 982, height: 425, poster: asset_path('gemotion-about-video-poster.svg') %>
                 <div id="play-button" class="absolute inset-0 flex items-center justify-center cursor-pointer">
                     <%= image_tag 'icons/about-video-play.svg', alt: 'Play Button' %>
-                    <%= image_tag 'icons/video-bottom.png', alt: 'Play Button Icon', class: 'absolute video-bottom-icon' %>
+                    <%= image_tag 'icons/video-bottom.png', alt: 'Play Button Icon', class: 'absolute video-bottom-bar-icon' %>
                 </div>
               </div>
           <% end %>
-
-
-
-
-
           <div id="chapters-list" class="chapters-grid mt-8">
             <% @chapters.each do |chapter| %>
               <div class="project-main-block flex flex-col justify-between items-center chapter-item" data-id="<%= chapter.id %>">
@@ -57,6 +52,10 @@
 
                   <div class="delete-chap-icon-btn" data-url="<%= delete_video_chapter_path(chapter.id) %>" data-confirm="Are you sure you want to delete this chapter?">
                     <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "delete-chap-icon" %>
+                  </div>
+                  <div class="project-block-bottom-white">
+                    <div class="text-left-important p-text-18"><%=chapter.chapter_type.name%></div>
+                    <div class="p-text-16"><%=chapter.text%></div>
                   </div>
                   <div data-controller="dialog" data-action="click->dialog#clickOutside">
                     <%= image_tag "icons/tdesign_more_white.png", alt: "Edit Icon", class: "edit-video-icon", data: { action: "click->dialog#open" } %>

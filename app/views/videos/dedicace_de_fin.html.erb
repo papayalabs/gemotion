@@ -1,9 +1,6 @@
 <%= form_with url: dedicace_de_fin_post_path(@video_dedicace), method: :patch, multipart: true, local: true do |f| %>
-
   <div>
-
     <h1 class="video-h1">Ajoutez votre partie vidéo  à la dédicace finale</h1>
-
     <div class="flex flex-row justify-center w-full">
       <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
       <div class="content w-full flex flex-col justify-center items-center">
@@ -11,170 +8,66 @@
           Filmez vous directement sur notre plateforme (via votre tablette, téléphone, ordinateur)
           <%= image_tag 'icons/three-stars.png', class: 'image-from-image-text-block' %>
         </div>
+        <div class="flex flex-col justify-start items-center" data-controller="recording">
+          <div class="dedicace-de-fin-frame mt-6 flex flex-col  justify-start items-start">
+            <div class="flex justify-start items-center">
+              <div class="mr-2 p-text-16">Vos médias</div>
+              <div class="flex justify-start items-center p-text-16">
+                <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-15 mr-2', style: 'height: 24px; width: 24px;' %>
+                <% if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? %>
+                  <%= @video_dedicace.video_duration %>
+                <% else %>
+                  Duration: N/A
+                <% end %>
+              </div>
+            </div>
 
+            <div class="flex justify-start items-center mt-8">
+              <div class="mr-2 font-bold p-text-bold-16">Thème:</div>
+              <div class="flex justify-start items-center p-text-16">
+                <%= @dedicace.name %>
+              </div>
+            </div>
+            <div class="w-full flex justify-center items-center mt-8">
+              <div class="video-recording-block flex justify-center items-center">
+                <% if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? %>
+                  <%= video_tag @video_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded", data: { recording_target: "videoUploaded" } %>
+                <% end %>
+                <span id="videoPreviewText" class="p-text-16" data-recording-target="videoPreviewText" style="<%= @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : '' %>">La vue depuis la caméra frontale s'ouvre ici</span>
+                <%= image_tag 'f7_person-alt.png', id: "videoPreviewImg", class: "video-recording-block-img #{(@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached?) ? 'd-none' : ''}", data: { recording_target: "videoPreviewImg" } %>
+                <video id="videoPreview" controls style="display: none; width: 100%; height:100%; border-radius:15px;" data-recording-target="videoPreview"></video>
+              </div>
+            </div>
+            <div class="flex justify-center items-center mt-4 w-full">
+              <button type="button" id="startRecording" class="record-transparent w-370i" data-action="recording#startRecording" data-recording-target="startButton">
+                <%= image_tag "icons/fluent_record-24-regular.png", alt: "Start Recording", class: "inline-block", style: "height: 16px; width: 16px;" %>
+                Commencer l'enregistrement vidéo
+              </button>
 
-
-
-
-
-
-
-
-  <div class="flex flex-col justify-start items-center">
-    <div class="dedicace-de-fin-frame mt-6 flex flex-col  justify-start items-start">
-      <div class="flex justify-start items-center">
-        <div class="mr-2 p-text-16">Vos médias</div>
-        <div class="flex justify-start items-center p-text-16">
-          <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-15 mr-2', style: 'height: 24px; width: 24px;' %>
-          <% if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? %>
-            <%= @video_dedicace.video_duration%>
-          <% else %>
-            Duration: N/A
-          <% end %>
+              <button type="button" id="stopRecording" class="record-transparent w-370i" style="display: none;" data-action="recording#stopRecording" data-recording-target="stopButton">
+                <%= image_tag "icons/fluent_record-24-regular.png", alt: "Stop Recording", class: "inline-block", style: "height: 16px; width: 16px;" %>
+                Arrêter l'enregistrement vidéo
+              </button>
+            </div>
+            <input type="file" id="recordedVideoFile" name="dedicace[creator_end_dedication_video]" style="display: none;" data-recording-target="recordedVideoFile" />
+            <div class="upload-video-block flex flex-col justify-center items-center">
+              <span class="p-text-center-16">Faites glisser ou appuyez pour ajouter vos médias</span>
+              <div class="upload-circle mt-2" id="customUploadButton" data-action="click->recording#customUpload" data-recording-target="customUploadButton">
+                <span class="plus-sign">+</span>
+              </div>
+              <%= f.file_field "dedicace[creator_end_dedication_video_uploaded]", accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInput', data: { recording_target: "fileUploadInput" } %>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="flex justify-start items-center mt-8">
-        <div class="mr-2 font-bold p-text-bold-16">Thème:</div>
-        <div class="flex justify-start items-center p-text-16">
-          <%=@dedicace.name%>
+        <div class="video-steps w-full">
+          <%= render "videos/shared/back_button" %>
+          <div>
+            <%= link_to "Continuer plus tard", skip_dedicace_de_fin_path, class: "p-text-16-bold text-decoration-underline mr-4" %>
+            <%= f.submit "Étape suivante", class: "black-link" %>
+          </div>
         </div>
-      </div>
-      <div class = "w-full flex justify-center items-center mt-8">
-        <div class="video-recording-block flex justify-center items-center">
-          <%if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached?%>
-            <%= video_tag @video_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, style: "width: 100%; height:100%; border-radius:15px;", id: "videoUploaded" %>
-         <%end%>
-          <span id="videoPreviewText" style="<%=@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'display: none;' : ''%>" class="p-text-16">La vue depuis la caméra frontale s'ouvre ici</span>
-          <%= image_tag 'f7_person-alt.png', class: "#{@video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached? ? 'd-none' : ''} video-recording-block-img", id: 'videoPreviewImg' %>
-          <video id="videoPreview" controls style="display: none;width: 100%; height:100%; border-radius:15px;"></video>
-        </div>
-
-      </div>
-      <div class="flex justify-center items-center mt-4 w-full">
-        <button type="button" id="startRecording" class="record-transparent w-370i">
-          <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
-          Commencer l'enregistrement vidéo
-        </button>
-
-        <button type="button" id="stopRecording" class="record-transparent w-370i" style="display: none;">
-          <%= image_tag "icons/fluent_record-24-regular.png", alt: "Download Icon", class: "inline-block", style: "height: 16px; width: 16px;" %>
-          Arrêter l'enregistrement vidéo
-        </button>
-      </div>
-      <input type="file" id="recordedVideoFile" name="dedicace[creator_end_dedication_video]" style="display: none;" />
-      <div class="upload-video-block flex flex-col justify-center items-center">
-        <span class="p-text-center-16">Faites glisser ou appuyez pour ajouter vos médias</span>
-        <div class="upload-circle mt-2" id="customUploadButton">
-          <span class="plus-sign">+</span>
-        </div>
-        <%= f.file_field "dedicace[creator_end_dedication_video_uploaded]", accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInput' %>
-      </div>
-  </div>
-
-
-  </div>
-<div class="video-steps w-full">
-  <%= render "videos/shared/back_button" %>
-  <div>
-    <%= link_to "Continuer plus tard", skip_dedicace_de_fin_path, class: "p-text-16-bold text-decoration-underline mr-4" %>
-    <%= f.submit "Étape suivante", class: "black-link" %>
-  </div>
-
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
       </div>
       <%= image_tag 'right-with-star.png', class: 'image-sides right-image' %>
     </div>
   </div>
 <% end %>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const startButton = document.getElementById("startRecording");
-  const stopButton = document.getElementById("stopRecording");
-  const videoPreview = document.getElementById("videoPreview");
-  const videoPreviewText = document.getElementById("videoPreviewText");
-  const videoPreviewImg = document.getElementById("videoPreviewImg");
-  const videoUploaded = document.getElementById("videoUploaded");
-  const recordedVideoFile = document.getElementById("recordedVideoFile");
-
-  const customUploadButton = document.getElementById("customUploadButton");
-  const fileUploadInput = document.getElementById("fileUploadInput");
-
-  customUploadButton.addEventListener("click", () => {
-    fileUploadInput.click();
-  });
-
-  fileUploadInput.addEventListener("change", (event) => {
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-      customUploadButton.querySelector(".plus-sign").textContent = "✔";
-    }
-  });
-
-  let mediaRecorder;
-  let recordedChunks = [];
-
-  startButton.addEventListener("click", async () => {
-    recordedChunks = [];
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    videoPreview.srcObject = stream;
-    videoPreview.muted = true;
-    videoPreviewText.style.display = "none";
-    videoPreviewImg.style.display = "none";
-    if(videoUploaded){
-      videoUploaded.style.display = "none";
-    }
-    videoPreview.style.display = "block";
-    videoPreview.play();
-
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        recordedChunks.push(event.data);
-      }
-    };
-    mediaRecorder.onstop = () => {
-      const recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
-
-      // Use a FileReader to re-encode the Blob, ensuring proper metadata
-      const fileReader = new FileReader();
-      fileReader.onload = () => {
-        const arrayBuffer = fileReader.result;
-        const file = new File([arrayBuffer], "recorded_video.webm", { type: "video/webm" });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        recordedVideoFile.files = dataTransfer.files;
-
-        videoPreview.srcObject = null;
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      fileReader.readAsArrayBuffer(recordedBlob);
-    };
-
-
-
-    mediaRecorder.start();
-    startButton.style.display = "none";
-    stopButton.style.display = "block";
-  });
-
-  stopButton.addEventListener("click", () => {
-    mediaRecorder.stop();
-    stopButton.style.display = "none";
-    startButton.style.display = "block";
-  });
-});
-</script>

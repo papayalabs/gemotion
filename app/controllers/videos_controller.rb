@@ -605,9 +605,6 @@ class VideosController < ApplicationController
       # Handle ordering for photos
       if value["images_order"].present?
         # image_ids = parse_order(params[:images_order], video_chapter.photos)
-        p "*"*100
-        p value["images_order"]
-        p "*"*100
         video_chapter.photos_order = value["images_order"]
       end
 
