@@ -951,6 +951,12 @@ h2 {
   margin-top: 50px;
   margin-bottom: 55px;
 }
+.edit-video-alert{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 24px;
+}
 
 .video-email {
 }

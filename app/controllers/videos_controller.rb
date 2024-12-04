@@ -846,7 +846,8 @@ class VideosController < ApplicationController
       end
     end
 
-    redirect_to edit_video_path, notice: 'Video chapters updated successfully'
+    redirect_to skip_edit_video_path
+    # redirect_to edit_video_path, notice: 'Video chapters updated successfully'
   end
 
   def payment
