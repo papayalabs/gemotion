@@ -38,7 +38,13 @@ class Video < ApplicationRecord
     end
 
     def final_video_duration
-        ActiveStorage::Analyzer::VideoAnalyzer.new(self.final_video.blob).metadata[:duration]
+        if final_video.attached? && final_video.blob.present?
+          analyzer = ActiveStorage::Analyzer::VideoAnalyzer.new(final_video.blob)
+          metadata = analyzer.metadata
+          metadata[:duration] if metadata
+        else
+          nil
+        end
     end
 
     def get_preview()

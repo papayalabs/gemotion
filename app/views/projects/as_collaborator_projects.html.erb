@@ -4,34 +4,32 @@
 
   <%= render "shared/profile_tabs", page_count: 1 %>
 </div>
-<div class='spaces-on-sides'>
+<div class='creator-frame'>
 
   <%= render "shared/creator_participant_block", creator: false %>
 
-  <div class='mt-4'>
-    <div class="project-invitation">
-      <div class="flex flex-row items-start mb-2">
-        <span>Ici s'affichent les films auxquels on vous a demandé de participer. Appuyez sur</span>
-        <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px;" %>
-        <span>pour :</span>
-      </div>
-
-      <ul>
-        <li>Ajouter du contenu vidéo ou photo pour illustrer chaque chapitre.</li>
-        <li>Contribuer à la dédicace finale. S'il s'agit de musique, vous pouvez sélectionner la partie qui leur est accessible.</li>
-        <li>Inviter un ami à collaborer sur le projet (l'administrateur doit approuver le nouveau participant).</li>
-      </ul>
-    </div>
+   <div class='mt-8 p-text-16'>
+    Ici vous pouvez voir tous les films dans lesquels vous êtes collaborateur.
   </div>
-  <hr class='hr-divider-gray mt-65 '/>
+  <hr class='hr-divider-gray mt-8 '/>
 
   <div class="projects-grid mt-8">
     <% @collaborator_projects.each do |video| %>
       <div class="project-main-block flex flex-col justify-between">
         <div class="project-block">
-          <%unless video.preview_id.nil?%>
-            <%preview_img = Preview.find(video.preview_id)%>
-            <%= image_tag preview_img.image, class: "preview-image prev-image preview-prof-img" %>
+          <%if video.paid && video.final_video.attached?%>
+            <video controls style="width: 100%; height: 100%; border-radius:12.82px;object-fit: cover;">
+              <source src="<%= url_for(video.final_video) %>" type="video/mp4">
+            </video>
+          <%elsif video.final_video_with_watermark.attached?%>
+            <video controls style="width: 100%; height: 100%; border-radius:12.82px;object-fit: cover;">
+              <source src="<%= url_for(video.final_video_with_watermark) %>" type="video/mp4">
+            </video>
+          <%else%>
+            <%unless video.preview_id.nil?%>
+              <%preview_img = Preview.find(video.preview_id)%>
+              <%= image_tag preview_img.image, class: "prev-image preview-prof-img" %>
+            <%end%>
           <%end%>
         </div>
         <a href="<%= collaborator_video_details_path(video.id) %>" class="cta-button">Détails du projet</a>

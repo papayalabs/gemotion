@@ -254,12 +254,13 @@ main{
   a{
     padding-bottom: 5px;
   }
-  font-family: Poppins;
+  font-family: Red Hat Display;
   font-size: 16px;
   font-weight: 400;
-  line-height: 21px;
-  letter-spacing: 0.02em;
+  line-height: 25px;
   text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
 }
 .active-link-projects{
   border-bottom: 2px solid black;
@@ -267,12 +268,13 @@ main{
   a{
     padding-bottom: 5px;
   }
-  font-family: Poppins;
+  font-family: Red Hat Display;
   font-size: 16px;
-  font-weight: 600;
-  line-height: 21px;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  line-height: 25px;
   text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
 }
 .choose-prof-block-child-highlight{
   background: linear-gradient(247.64deg, #0D6783 0%, #163F50 100%);
@@ -321,6 +323,9 @@ main{
 .ml-15{
   margin-left: 15px;
 }
+.ml-45{
+  margin-left: 45px;
+}
 .mb-45{
   margin-bottom: 45px!important;
 }
@@ -364,6 +369,9 @@ main{
 }
 .mr-8 {
   margin-right: 2rem
+}
+.mb-8{
+  margin-bottom: 2rem;
 }
 .pt-40 {
   padding-top: 40px;
@@ -732,6 +740,21 @@ h2 {
   flex-direction: column;
   align-items: center;
   gap: 30px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+
+  /* Style */
+  box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.1);
+  margin: auto;
+}
+.creator-frame{
+  display: flex;
+  width: 1063px;
+  padding: 30px 30px;
+  flex-direction: column;
+
+  align-items: start;
   border-radius: 20px;
   border: 1px solid #c9e1ff;
   background: #fff;
@@ -1121,6 +1144,7 @@ h2 {
 .cta-button{
   cursor: pointer;
   width: 312px;
+  height: 45px;
   padding-top: 12px;
   padding-bottom: 12px;
   background: #201f1f;
@@ -1129,9 +1153,9 @@ h2 {
   align-items: center;
   display: inline-flex;
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   font-family: Montserrat, sans-serif;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 22.86px;
   word-wrap: break-word;
 }
@@ -1154,8 +1178,8 @@ h2 {
 .projects-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-column-gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-gap: 15px;
   grid-row-gap: 30px;
 }
 
@@ -1202,10 +1226,28 @@ h2 {
 }
 .edit-prof-video-icon{
   position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 17px;
+  height: 17px;
+  z-index: 3; /* Ensure the icon is on top */
+  display: block; /* Make sure the icon is visible */
+}
+.edit-video-icon{
+  position: absolute;
   top: 10px;
   right: 10px;
   width: 24px;
   height: 24px;
+  z-index: 2; /* Ensure the icon is on top */
+  display: block; /* Make sure the icon is visible */
+}
+.ellipse-prof-video-icon{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 27px;
+  height: 27px;
   z-index: 2; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
 }
@@ -1222,7 +1264,7 @@ h2 {
   height: 299px;
 }
 .edit-proj-modal{
-  height: 700px;
+  height: 720px;
   border-radius: 20px;
 }
 .edit-chap-modal{
@@ -1670,8 +1712,8 @@ h2 {
 }
 .edit_video_form_block{
   width: 80%;
-  background-color: rgba(247, 247, 247, 1);
-  border-radius: 20px;
+  /* background-color: rgba(247, 247, 247, 1); */
+  /* border-radius: 20px; */
   padding: 20px;
 }
 .delete-chap-icon{
@@ -1907,6 +1949,12 @@ h2 {
 .preview-image {
   width: 200px;
   height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.preview-photo-intro-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 5px;
 }

@@ -36,7 +36,7 @@
                         data-url="<%= drop_preview_path(preview, video_id: @video.id) %>">
                       <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
                     </div>
-                    <%= image_tag preview.image, class: "preview-image" %>
+                    <%= image_tag preview.image, class: "preview-photo-intro-image" %>
                   </div>
                 <% end %>
                 <% (3 - @ordered_previews.size).times do |i| %>
@@ -47,7 +47,7 @@
                       <%= f.file_field "previews[#{@ordered_previews.size + i + 1}]", id: "file_#{@ordered_previews.size + i + 1 }", accept: "image/*",
                                         class: "image-input hidden", data: { position: @ordered_previews.size + i + 1 }%>
                     </label>
-                    <img id="preview_<%= @ordered_previews.size + i + 1 %>" src="" alt="Preview Image" class="preview-image hidden" />
+                    <img id="preview_<%= @ordered_previews.size + i + 1 %>" src="" alt="Preview Image" class="preview-photo-intro-image hidden" />
                     <div class="delete-preview-icon-btn hidden" data-url="">
                       <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
                     </div>
@@ -69,6 +69,10 @@
               </div>
             </div>
             <%= f.hidden_field :images_order, id: 'image_order', value: @ordered_previews.map { |preview| preview.image.blob.filename.to_s }.join(',') %>
+          </div>
+          <div class="edit-video-alert w-full">
+            <%= image_tag "icons/alert.svg" %>
+            <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
           </div>
         </div>
         <div class="video-steps">
@@ -143,8 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const reader = new FileReader();
         reader.onload = (e) => {
           // Update only parts of the block visually, keeping the input intact
-          block.querySelector(".preview-image").src = e.target.result;
-          block.querySelector(".preview-image").classList.remove("hidden");
+          block.querySelector(".preview-photo-intro-image").src = e.target.result;
+          block.querySelector(".preview-photo-intro-image").classList.remove("hidden");
           block.querySelector(".add-more-preview-circle").classList.add("hidden");
           block.querySelector(".delete-preview-icon-btn").classList.remove("hidden");
           block.dataset.filename = file.name; // Save filename
@@ -191,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
   sortableContainer.addEventListener("click", (event) => {
     const target = event.target.closest(".preview-small-image-block");
     if (target) {
-      const previewImg = target.querySelector(".preview-image");
+      const previewImg = target.querySelector(".preview-photo-intro-image");
       if (previewImg && !previewImg.classList.contains("hidden")) {
         displayInBigPreview(previewImg.src);
       }
@@ -262,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
               data-position="${position}"
               name="previews[${position}]">
       </label>
-      <img id="preview_${position}" src="" alt="Preview Image" class="preview-image hidden">
+      <img id="preview_${position}" src="" alt="Preview Image" class="preview-photo-intro-image hidden">
       <div class="delete-preview-icon-btn hidden" data-url="">
         <img alt="Delete Icon" class="purge-chap-icon" src="<%= asset_path('icons/delete_icon.png') %>">
       </div>

@@ -8,7 +8,7 @@
     <div class="content w-full flex flex-col justify-center items-center">
       <div class="text-with-image-block flex justify-center items-center mt-65 mb-[72px] w-full p-text-16">
         Dites nous en plus sur le ou les destinataires
-        <%if @video_destinataires.count > 0%>
+        <%if @video_destinataires != nil && @video_destinataires.count > 0%>
           <%= image_tag 'icons/emojis.png', class: 'image-from-image-text-block' %>
         <%else%>
           <%= image_tag 'icons/emoj.png', class: 'image-from-image-text-block' %>
@@ -16,7 +16,7 @@
       </div>
 
       <div class="flex flex-col justify-center">
-      <%@video_destinataires.each_with_index do |video_destinataire, index|%>
+      <%@video_destinataires&.each_with_index do |video_destinataire, index|%>
         <div class="bigger-destinataire flex flex-col justify-start mb-[48px] relative inline-block w-full">
           <div class="flex flex-row justify-start items-start p-text-16">
             <div class="p-text-16-bold mr-4"><%=index+1%></div>

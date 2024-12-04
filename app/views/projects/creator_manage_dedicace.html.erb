@@ -3,7 +3,7 @@
   <%= render "shared/profile_tabs", page_count: 1 %>
 </div>
 
-<div class='spaces-on-sides'>
+<div class='creator-frame'>
   <%= form_with url: creator_dedicace_de_fin_post_path(video_id: @video.id), method: :post, multipart: true, local: true do |f| %>
 
     <div class="">

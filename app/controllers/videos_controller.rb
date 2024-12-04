@@ -129,19 +129,29 @@ class VideosController < ApplicationController
       @video.stop_at = @video.next_step
     end
 
+    skip_destinataire = params[:add_more_destinataire].present? && params[:add_more_destinataire]
+
     if @video.validate_info_destinataire(@vd)
-      if @vd.save && @video.save
+      if @vd.save && @video.update(stop_at: skip_destinataire ? @video.current_step : @video.next_step)
         redirect_to send("#{@video.next_step}_path"), turbo: false
+        return
       else
-        @video.update(stop_at: @video.current_step)
-        return render info_destinataire_path, status: :unprocessable_entity
+        flash[:alert] = "Veuillez remplir tous les champs obligatoires."
+        render info_destinataire_path, status: :unprocessable_entity
+        return
       end
     else
-      if params[:add_more_destinataire].present? && params[:add_more_destinataire]
+      if skip_destinataire
         return render info_destinataire_path, status: :unprocessable_entity
       else
-        @video.update(stop_at: @video.current_step)
-        redirect_to destinataire_details_path, turbo: false
+        if @video.validate_info_destinataire(@vd)
+          @video.update(stop_at: @video.current_step)
+          redirect_to destinataire_details_path, turbo: false
+        else
+          flash[:alert] = "Veuillez remplir tous les champs obligatoires."
+          render info_destinataire_path, status: :unprocessable_entity
+          return
+        end
       end
     end
 
@@ -875,7 +885,7 @@ class VideosController < ApplicationController
       )
 
       # Save payment record and update video status
-      @video.update!(paid: true) # Ensure `paid` is a boolean in the Video model
+      @video.update!(paid: true, project_status: :finished) # Ensure `paid` is a boolean in the Video model
       redirect_to participants_progress_path(video_id: @video.id), notice: 'Paiement réussi!'
     rescue Stripe::CardError => e
       flash[:alert] = e.message

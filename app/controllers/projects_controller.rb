@@ -6,10 +6,11 @@ class ProjectsController < ApplicationController
                                       collaborator_chapters_post edit_collaborator_chapters_post
                                       creator_chapters_post creator_dedicace_de_fin_post edit_creator_chapters_post
                                       creator_refresh_video approving_collaborator_attachments]
-  before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace]
+  before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace
+                                             collaborator_manage_chapters collaborator_manage_dedicace]
   def as_creator_projects
     @creator_projects = current_user.videos.left_joins(:video_previews)
-                                            .where.not(project_status: [:finished, :closed])
+                                            .where.not(project_status: [:closed])
                                             .where("video_previews.order = 1 OR video_previews.order IS NULL")
                                             .select("videos.*, COALESCE(video_previews.id, NULL) AS video_preview_id, COALESCE(video_previews.preview_id, NULL) AS preview_id")
   end
@@ -403,6 +404,7 @@ class ProjectsController < ApplicationController
   def collaborator_manage_dedicace
     authorize @video, :collaborator_manage_dedicace?, policy_class: ProjectPolicy
     @dedicaces = Dedicace.all
+    @dedicace = @video.dedicace
     collaboration = Collaboration.find_by(video_id: @video.id, invited_user: current_user)
     @collaborator_dedicace = CollaboratorDedicace.find_by(video_id: @video.id, collaboration: collaboration)
   end
