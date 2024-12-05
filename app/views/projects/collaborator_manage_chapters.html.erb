@@ -1,7 +1,10 @@
 <div class="flex flex-col items-center mb-45">
-  <h2 class="text-left">Ajoutez votre partie vidéo à la dédicace finale</h2>
+
+  <%= render "shared/hello_block"%>
+
   <%= render "shared/profile_tabs", page_count: 1 %>
 </div>
+
 <%= form_with url: collaborator_chapters_post_path(video_id: @video.id), method: :post, html: {data: { turbo: false }} do |f| %>
 
   <div class='creator-frame'>

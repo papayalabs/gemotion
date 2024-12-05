@@ -1076,8 +1076,13 @@ class VideosController < ApplicationController
       nil
     elsif ![@video.next_step.downcase, "#{@video.next_step.downcase}_post",
             "skip_#{@video.next_step.downcase}"].include?(params[:action].downcase)
-      redirect_to send("#{@video.next_step}_path"),
-                  alert: "Vous devez finaliser cette étape avant de passer à la prochaine.", turbo: false
+      if params[:continue].present? && params[:continue]
+        redirect_to send("#{@video.next_step}_path"), turbo: false
+      else
+        redirect_to send("#{@video.next_step}_path"),
+                    alert: "Vous devez finaliser cette étape avant de passer à la prochaine.", turbo: false
+      end
+
     end
   end
 

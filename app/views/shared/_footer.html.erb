@@ -38,7 +38,7 @@
         <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text">Créer une vidéo</p>
         <nav>
           <ul class="flex flex-col gap-[5px]">
-            <li><%= link_to "Démarrer", start_path, class: "p-text-16" %></li>
+            <li><%= link_to "Démarrer", start_path(continue: true), class: "p-text-16" %></li>
             <li><%= link_to "Comment ca marche", about_path, class: "p-text-16" %></li>
             <li><%= link_to "Tarification", pricing_path, class: "p-text-16" %></li>
           </ul>

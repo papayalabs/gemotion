@@ -8,9 +8,9 @@
           <div class="edit-video-container mt-8">
             <%= video_tag url_for(@video.final_video_with_watermark), controls: true, autobuffer: true %>
           </div>
-        <% else%>
+        <% else %>
           <div class="vector-block flex justify-center items-center mt-8">
-            <%= image_tag 'Vector.png', class: ""%>
+            <%= image_tag 'Vector.png', class: "" %>
           </div>
         <% end %>
         <div class="flex flex-col justify-start items-center ml-50">
@@ -41,9 +41,9 @@
     </div>
     <div class="payment-block payment-block-2">
       <div>
-        <form action="<%= payment_post_path %>" method="post" id="payment-form">
+        <form action="<%= payment_post_path %>" method="post" id="payment-form" data-payment-target="form" data-controller="payment" data-payment-stripe-publishable-key-value="<%= @stripe_publishable_key %>" data-action="submit->payment#submit">
           <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-          <input type="hidden" name="stripeToken" id="stripeToken">
+          <input type="hidden" name="stripeToken" id="stripeToken" data-payment-target="stripeToken">
           <div class="flex flex-col justify-between">
             <div class="mb-[48px]">
               <div class="total-price mb-4">TOTAL DU PANIER</div>
@@ -54,31 +54,17 @@
               </div>
 
               <div class="mb-[16px]">Carte de crédit ou de débit</div>
-              <div id="card-element"></div>
+              <div id="card-element" data-payment-target="cardElement"></div>
 
               <div class="flex flex-col justify-start items-start mb-4 mt-8">
                 <span class="font-bold">Livraison</span>
                 <div class="flex flex-col mt-2">
-                  <div class="flex flex-row justify-start items-center">
-                    <%= image_tag "icons/radio-active.png", alt: "Livraison Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px; width: 16px; height: 16px;" %>
-                    <div class="p-text-16">Lorem ipsum dolor sit amet (10$)</div>
-                  </div>
-                  <div class="flex flex-row justify-start items-center mt-2">
-                    <%= image_tag "icons/radio.png", alt: "Livraison Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px; width: 16px; height: 16px;" %>
-                    <div class="p-text-16">Lorem ipsum dolor sit amet (10$)</div>
-                  </div>
-                  <div class="flex flex-row justify-start items-center mt-2">
-                    <%= image_tag "icons/radio.png", alt: "Livraison Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px; width: 16px; height: 16px;" %>
-                    <div class="p-text-16">Lorem ipsum dolor sit amet (10$)</div>
-                  </div>
-                  <div class="flex flex-row justify-start items-center mt-2">
-                    <%= image_tag "icons/radio.png", alt: "Livraison Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px; width: 16px; height: 16px;" %>
-                    <div class="p-text-16">Lorem ipsum dolor sit amet (10$)</div>
-                  </div>
-                  <div class="flex flex-row justify-start items-center mt-2">
-                    <%= image_tag "icons/radio.png", alt: "Livraison Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px; width: 16px; height: 16px;" %>
-                    <div class="p-text-16">Lorem ipsum dolor sit amet (10$)</div>
-                  </div>
+                  <% 5.times do %>
+                    <div class="flex flex-row justify-start items-center mt-2">
+                      <%= image_tag "icons/radio.png", alt: "Livraison Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px; width: 16px; height: 16px;" %>
+                      <div class="p-text-16">Lorem ipsum dolor sit amet (10$)</div>
+                    </div>
+                  <% end %>
                 </div>
               </div>
 
@@ -108,22 +94,3 @@
     </div>
   </div>
 </div>
-<script src="https://js.stripe.com/v3/"></script>
-<script>
-  const stripe = Stripe('<%= @stripe_publishable_key %>');
-  const elements = stripe.elements();
-  const card = elements.create('card');
-  card.mount('#card-element');
-
-  const form = document.getElementById('payment-form');
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const { token, error } = await stripe.createToken(card);
-    if (error) {
-      console.error(error.message);
-    } else {
-      document.getElementById('stripeToken').value = token.id;
-      form.submit();
-    }
-  });
-</script>
