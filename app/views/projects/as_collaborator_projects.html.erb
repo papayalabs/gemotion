@@ -15,7 +15,7 @@
 
   <div class="projects-grid mt-8">
     <% @collaborator_projects.each do |video| %>
-      <div class="project-main-block flex flex-col justify-between">
+      <div class="project-main-block flex flex-col  justify-center items-center">
         <div class="project-block">
           <%if video.paid && video.final_video.attached?%>
             <video controls style="width: 100%; height: 100%; border-radius:12.82px;object-fit: cover;">
@@ -32,7 +32,7 @@
             <%end%>
           <%end%>
         </div>
-        <a href="<%= collaborator_video_details_path(video.id) %>" class="cta-button">Détails du projet</a>
+        <a href="<%= collaborator_video_details_path(video.id) %>" class="cta-button mt-2">Détails du projet</a>
       </div>
     <%end%>
   </div>

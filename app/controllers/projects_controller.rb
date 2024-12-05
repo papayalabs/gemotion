@@ -8,18 +8,20 @@ class ProjectsController < ApplicationController
                                       creator_refresh_video approving_collaborator_attachments]
   before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace
                                              collaborator_manage_chapters collaborator_manage_dedicace creator_manage_chapters]
+  before_action :define_music, only: %i[collaborator_video_details participants_progress]
+
   def as_creator_projects
     @creator_projects = current_user.videos.left_joins(:video_previews)
-                                            .where.not(project_status: [:closed])
-                                            .where("video_previews.order = 1 OR video_previews.order IS NULL")
-                                            .select("videos.*, COALESCE(video_previews.id, NULL) AS video_preview_id, COALESCE(video_previews.preview_id, NULL) AS preview_id")
+                                    .where.not(project_status: [:closed])
+                                    .where("video_previews.order = 1 OR video_previews.order IS NULL")
+                                    .select("videos.*, COALESCE(video_previews.id, NULL) AS video_preview_id, COALESCE(video_previews.preview_id, NULL) AS preview_id")
   end
 
   def as_collaborator_projects
     @collaborator_projects = Video.joins(:collaborations)
                                   .left_joins(:video_previews)
                                   .where(collaborations: { invited_user: current_user })
-                                  .where.not(project_status: [:finished, :closed])
+                                  .where.not(project_status: %i[finished closed])
                                   .where(video_previews: { order: 1 })
                                   .select("videos.*, video_previews.id AS video_preview_id, video_previews.preview_id AS preview_id")
   end
@@ -32,7 +34,6 @@ class ProjectsController < ApplicationController
     @final_video_url = @video&.final_video&.attached? ? stream_video_path(@video) : nil
     @video_dedicace = VideoDedicace.find_by(video_id: @video.id)
     @video_chapters = VideoChapter.where(video: @video).order(:order)
-    @musics = Music.all
     # Optionally, you can also filter out the inviting user if needed
     # @participants.reject! { |collab| collab.inviting_user == @video.user }
   end
@@ -40,9 +41,8 @@ class ProjectsController < ApplicationController
   def collaborator_video_details
     authorize @video, :collaborator_video_details?, policy_class: ProjectPolicy
     collaboration = Collaboration.find_by(video: @video, invited_user: current_user)
-    @collaborator_dedicace = CollaboratorDedicace.find_by(video: @video, collaboration: collaboration)
-    @collaborator_chapters = CollaboratorChapter.where(video: @video, collaboration: collaboration).order(:order)
-    @musics = Music.all
+    @collaborator_dedicace = CollaboratorDedicace.find_by(video: @video, collaboration:)
+    @collaborator_chapters = CollaboratorChapter.where(video: @video, collaboration:).order(:order)
   end
 
   def creator_update_date
@@ -61,16 +61,18 @@ class ProjectsController < ApplicationController
     authorize video, :delete_collaboration?, policy_class: ProjectPolicy
     if collaboration.inviting_user == current_user || collaboration.invited_user == current_user
       collaboration.destroy
-      redirect_to participants_progress_path(video_id: video.id), notice: 'Collaboration deleted successfully.'
+      redirect_to participants_progress_path(video_id: video.id), notice: "Collaboration deleted successfully."
     else
-      redirect_to participants_progress_path(video_id: video.id), alert: 'You are not authorized to delete this collaboration.'
+      redirect_to participants_progress_path(video_id: video.id),
+                  alert: "You are not authorized to delete this collaboration."
     end
   end
 
   def modify_deadline
     authorize @video, :modify_deadline?, policy_class: ProjectPolicy
     if @video.update(end_date: params[:end_date])
-      redirect_to participants_progress_path(video_id: @video.id), notice: "La date limite a été mise à jour avec succès."
+      redirect_to participants_progress_path(video_id: @video.id),
+                  notice: "La date limite a été mise à jour avec succès."
     else
       flash.now[:alert] = "Une erreur est survenue. Veuillez réessayer."
       render :show
@@ -80,7 +82,8 @@ class ProjectsController < ApplicationController
   def close_project
     authorize @video, :close_project?, policy_class: ProjectPolicy
     if @video.update!(project_status: :closed)
-      redirect_to as_creator_projects_path, notice: "Vous avez clôturé votre projet. Mais nous serons toujours ravis de vous revoir !"
+      redirect_to as_creator_projects_path,
+                  notice: "Vous avez clôturé votre projet. Mais nous serons toujours ravis de vous revoir !"
     else
       flash.now[:alert] = "Une erreur est survenue. Veuillez réessayer."
       render :show
@@ -131,9 +134,9 @@ class ProjectsController < ApplicationController
         end
       elsif v["select"] == "true"
         # Si l'élément est bien séléctionné
-        chapter_to_create.append({ chapter_type_id: k, text: v["text"], collaboration: collaboration,
+        chapter_to_create.append({ chapter_type_id: k, text: v["text"], collaboration:,
                                    slide_color: v["slide_color"], text_family: v["text_family"],
-                                   text_style: v["text_style"], text_size: v["text_size"]})
+                                   text_style: v["text_style"], text_size: v["text_size"] })
         # On l'ajoute dans la liste des éléments à supprimer
         # ... on le modifie
       end
@@ -145,10 +148,9 @@ class ProjectsController < ApplicationController
       return render select_chapters_path, status: :unprocessable_entity
     end
 
-
     # Création, Mise à jour et suppression
     if @video.collaborator_chapters.create(chapter_to_create) &&
-      @video.collaborator_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
+       @video.collaborator_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
 
       @video.collaborator_chapters.each do |chapter|
         chapter.collaborator_music.destroy if chapter.collaborator_music
@@ -203,7 +205,7 @@ class ProjectsController < ApplicationController
         # Si l'élément est bien séléctionné
         chapter_to_create.append({ chapter_type_id: k, text: v["text"],
                                    slide_color: v["slide_color"], text_family: v["text_family"],
-                                   text_style: v["text_style"], text_size: v["text_size"]})
+                                   text_style: v["text_style"], text_size: v["text_size"] })
         # On l'ajoute dans la liste des éléments à supprimer
         # ... on le modifie
       end
@@ -217,7 +219,7 @@ class ProjectsController < ApplicationController
 
     # Création, Mise à jour et suppression
     if @video.video_chapters.create(chapter_to_create) &&
-      @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
+       @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
 
       @video.video_chapters.each do |chapter|
         chapter.video_music.destroy if chapter.video_music
@@ -232,14 +234,13 @@ class ProjectsController < ApplicationController
     end
   end
 
-
   def edit_creator_chapters_post
     authorize @video, :edit_creator_chapters_post?, policy_class: ProjectPolicy
     # Update the order of chapters
     if params[:chapter_order].present?
-      chapter_ids = params[:chapter_order].split(',').map(&:to_i)
+      chapter_ids = params[:chapter_order].split(",").map(&:to_i)
       chapter_ids.each_with_index do |id, index|
-        chapter = @video.video_chapters.find_by(id: id)
+        chapter = @video.video_chapters.find_by(id:)
         chapter.update(order: index + 1) if chapter
       end
     end
@@ -274,31 +275,82 @@ class ProjectsController < ApplicationController
       chapter.update(photos_order: chapter_data[:photos_order]) if chapter_data[:photos_order].present?
 
       # Attach new photos
-      if chapter_data[:photos].present?
-        chapter_data[:photos].each do |photo|
-          next if photo.blank?
+      next unless chapter_data[:photos].present?
 
-          # Skip if the file is already attached
-          next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
+      chapter_data[:photos].each do |photo|
+        next if photo.blank?
 
-          # Purge the oldest photo if there are already 2 photos
-          chapter.photos.first.purge if chapter.photos.count >= 2
+        # Skip if the file is already attached
+        next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
 
-          chapter.photos.attach(photo)
-        end
+        # Purge the oldest photo if there are already 2 photos
+        chapter.photos.first.purge if chapter.photos.count >= 2
+
+        chapter.photos.attach(photo)
       end
 
-      # Update or create the associated video_music record
-      if chapter_data[:music_id].present?
-        if chapter.video_music.present?
-          chapter.video_music.update(music_id: chapter_data[:music_id])
+      # # Update or create the associated video_music record
+      # if chapter_data[:music_id].present?
+      #   if chapter.video_music.present?
+      #     chapter.video_music.update(music_id: chapter_data[:music_id])
+      #   else
+      #     chapter.create_video_music(music_id: chapter_data[:music_id])
+      #   end
+      # end
+    end
+
+    params.each do |key, value|
+      # Handle music associations
+      if key.start_with?("music_")
+        chapter_id = key.split("_").last.to_i
+        music_id = value.to_i
+
+        # Find the corresponding video chapter
+        video_chapter = @video.video_chapters.find_by(id: chapter_id)
+        if video_chapter
+          # Check if a predefined music exists
+          music = Music.find_by(id: music_id)
+          if music
+            # Replace existing music association
+            video_chapter.video_music&.destroy
+            VideoMusic.create!(music:, video_chapter:)
+          elsif video_chapter.custom_music.attached? || params["custom_music_#{video_chapter.id}"].present?
+            # Skip if custom music is already attached or provided in params
+            next
+          else
+            flash[:alert] ||= []
+            flash[:alert] << "Musique non trouvée pour le chapitre #{chapter_id}."
+          end
         else
-          chapter.create_video_music(music_id: chapter_data[:music_id])
+          flash[:alert] ||= []
+          flash[:alert] << "Chapitre non trouvé pour l'ID #{chapter_id}."
+        end
+
+      # Handle custom music uploads
+      elsif key.start_with?("custom_music_")
+        chapter_id = key.split("_").last.to_i
+        music_file = value
+
+        # Find the corresponding video chapter
+        video_chapter = @video.video_chapters.find_by(id: chapter_id)
+        if video_chapter && music_file.present?
+          # Save the custom music file temporarily
+          music_path = Rails.root.join("tmp", "custom_music_#{video_chapter.id}.mp3")
+          File.open(music_path, "wb") do |file|
+            file.write(music_file.read)
+          end
+
+          # Attach the file to the video chapter and enqueue the job
+          video_chapter.custom_music.attach(io: File.open(music_path), filename: music_file.original_filename)
+          MusicProcessingJob.perform_later("VideoChapter", video_chapter.id, music_path.to_s)
+        else
+          flash[:alert] ||= []
+          flash[:alert] << "Fichier de musique personnalisé manquant ou chapitre introuvable pour l'ID #{chapter_id}."
         end
       end
     end
 
-    redirect_to participants_progress_path(video_id: @video.id), notice: 'Video chapters updated successfully'
+    redirect_to participants_progress_path(video_id: @video.id), notice: "Video chapters updated successfully"
   end
 
   def edit_collaborator_chapters_post
@@ -306,9 +358,9 @@ class ProjectsController < ApplicationController
 
     # Update the order of chapters
     if params[:chapter_order].present?
-      chapter_ids = params[:chapter_order].split(',').map(&:to_i)
+      chapter_ids = params[:chapter_order].split(",").map(&:to_i)
       chapter_ids.each_with_index do |id, index|
-        chapter = @video.collaborator_chapters.find_by(id: id)
+        chapter = @video.collaborator_chapters.find_by(id:)
         chapter.update(order: index + 1) if chapter
       end
     end
@@ -343,30 +395,73 @@ class ProjectsController < ApplicationController
       chapter.update(photos_order: chapter_data[:photos_order]) if chapter_data[:photos_order].present?
 
       # Attach new photos
-      if chapter_data[:photos].present?
-        chapter_data[:photos].each do |photo|
-          next if photo.blank?
+      next unless chapter_data[:photos].present?
 
-          # Skip if the file is already attached
-          next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
+      chapter_data[:photos].each do |photo|
+        next if photo.blank?
 
-          # Purge the oldest photo if there are already 2 photos
-          chapter.photos.first.purge if chapter.photos.count >= 2
+        # Skip if the file is already attached
+        next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
 
-          chapter.photos.attach(photo)
-        end
+        # Purge the oldest photo if there are already 2 photos
+        chapter.photos.first.purge if chapter.photos.count >= 2
+
+        chapter.photos.attach(photo)
       end
+    end
 
-      # Update or create the associated video_music record
-      if chapter_data[:music_id].present?
-        if chapter.collaborator_music.present?
-          chapter.collaborator_music.update(music_id: chapter_data[:music_id])
+    params.each do |key, value|
+      # Handle music associations
+      if key.start_with?("music_")
+        chapter_id = key.split("_").last.to_i
+        music_id = value.to_i
+
+        # Find the corresponding video chapter
+        collaborator_chapter = @video.collaborator_chapters.find_by(id: chapter_id)
+        if collaborator_chapter
+          # Check if a predefined music exists
+          music = Music.find_by(id: music_id)
+          if music
+            # Replace existing music association
+            collaborator_chapter.collaborator_music&.destroy
+            CollaboratorMusic.create!(music:, collaborator_chapter:)
+          elsif collaborator_chapter.custom_music.attached? || params["custom_music_#{collaborator_chapter.id}"].present?
+            # Skip if custom music is already attached or provided in params
+            next
+          else
+            flash[:alert] ||= []
+            flash[:alert] << "Musique non trouvée pour le chapitre #{chapter_id}."
+          end
         else
-          chapter.create_collaborator_music(music_id: chapter_data[:music_id])
+          flash[:alert] ||= []
+          flash[:alert] << "Chapitre non trouvé pour l'ID #{chapter_id}."
+        end
+
+      # Handle custom music uploads
+      elsif key.start_with?("custom_music_")
+        chapter_id = key.split("_").last.to_i
+        music_file = value
+
+        # Find the corresponding video chapter
+        collaborator_chapter = @video.collaborator_chapters.find_by(id: chapter_id)
+        if collaborator_chapter && music_file.present?
+          # Save the custom music file temporarily
+          music_path = Rails.root.join("tmp", "custom_music_#{collaborator_chapter.id}.mp3")
+          File.open(music_path, "wb") do |file|
+            file.write(music_file.read)
+          end
+
+          # Attach the file to the video chapter and enqueue the job
+          collaborator_chapter.custom_music.attach(io: File.open(music_path), filename: music_file.original_filename)
+          MusicProcessingJob.perform_later("CollaboratorChapter", collaborator_chapter.id, music_path.to_s)
+        else
+          flash[:alert] ||= []
+          flash[:alert] << "Fichier de musique personnalisé manquant ou chapitre introuvable pour l'ID #{chapter_id}."
         end
       end
     end
-    redirect_to collaborator_video_details_path(@video.id), notice: 'Video chapters updated successfully'
+
+    redirect_to collaborator_video_details_path(@video.id), notice: "Video chapters updated successfully"
   end
 
   def delete_collaborator_chapter
@@ -374,13 +469,19 @@ class ProjectsController < ApplicationController
     authorize collaborator_chapter.video, :delete_collaborator_chapter?, policy_class: ProjectPolicy
     if collaborator_chapter.destroy!
       respond_to do |format|
-        format.html { redirect_to collaborator_video_details_path(collaborator_chapter.video.id), notice: 'Chapter deleted successfully.' }
-        format.json { render json: { message: 'Chapter deleted successfully' }, status: :ok }
+        format.html do
+          redirect_to collaborator_video_details_path(collaborator_chapter.video.id),
+                      notice: "Chapter deleted successfully."
+        end
+        format.json { render json: { message: "Chapter deleted successfully" }, status: :ok }
       end
     else
       respond_to do |format|
-        format.html { redirect_to collaborator_video_details_path(collaborator_chapter.video.id), alert: 'Failed to delete the chapter.' }
-        format.json { render json: { error: 'Failed to delete the chapter' }, status: :unprocessable_entity }
+        format.html do
+          redirect_to collaborator_video_details_path(collaborator_chapter.video.id),
+                      alert: "Failed to delete the chapter."
+        end
+        format.json { render json: { error: "Failed to delete the chapter" }, status: :unprocessable_entity }
       end
     end
   end
@@ -390,13 +491,17 @@ class ProjectsController < ApplicationController
     authorize video_chapter.video, :delete_creator_chapter?, policy_class: ProjectPolicy
     if video_chapter.destroy!
       respond_to do |format|
-        format.html { redirect_to participants_progress_path(video_id: @video.id), notice: 'Chapter deleted successfully.' }
-        format.json { render json: { message: 'Chapter deleted successfully' }, status: :ok }
+        format.html do
+          redirect_to participants_progress_path(video_id: @video.id), notice: "Chapter deleted successfully."
+        end
+        format.json { render json: { message: "Chapter deleted successfully" }, status: :ok }
       end
     else
       respond_to do |format|
-        format.html { redirect_to participants_progress_path(video_id: @video.id), alert: 'Failed to delete the chapter.' }
-        format.json { render json: { error: 'Failed to delete the chapter' }, status: :unprocessable_entity }
+        format.html do
+          redirect_to participants_progress_path(video_id: @video.id), alert: "Failed to delete the chapter."
+        end
+        format.json { render json: { error: "Failed to delete the chapter" }, status: :unprocessable_entity }
       end
     end
   end
@@ -406,7 +511,7 @@ class ProjectsController < ApplicationController
     @dedicaces = Dedicace.all
     @dedicace = @video.dedicace
     collaboration = Collaboration.find_by(video_id: @video.id, invited_user: current_user)
-    @collaborator_dedicace = CollaboratorDedicace.find_by(video_id: @video.id, collaboration: collaboration)
+    @collaborator_dedicace = CollaboratorDedicace.find_by(video_id: @video.id, collaboration:)
   end
 
   def collaborator_dedicace_de_fin_post
@@ -420,7 +525,7 @@ class ProjectsController < ApplicationController
 
     collaborator_dedicace = CollaboratorDedicace.find_or_initialize_by(
       video_id: @video.id,
-      collaboration: collaboration
+      collaboration:
     )
     collaborator_dedicace.dedicace_id = params[:collaborator_dedicace]
 
@@ -434,7 +539,8 @@ class ProjectsController < ApplicationController
       VideoProcessingJob.perform_later(collaborator_dedicace.id, "CollaboratorDedicace")
       flash[:notice] = "Collaborator Dedicace successfully created!"
     else
-      flash[:alert] = "Failed to create Collaborator Dedicace: #{collaborator_dedicace.errors.full_messages.to_sentence}"
+      flash[:alert] =
+        "Failed to create Collaborator Dedicace: #{collaborator_dedicace.errors.full_messages.to_sentence}"
     end
 
     redirect_to collaborator_manage_dedicace_path(@video.id)
@@ -444,7 +550,7 @@ class ProjectsController < ApplicationController
     authorize @video, :creator_dedicace_de_fin_post?, policy_class: ProjectPolicy
 
     video_dedicace = VideoDedicace.find_or_initialize_by(
-      video_id: @video.id,
+      video_id: @video.id
     )
 
     video_dedicace.dedicace_id = params[:video_dedicace]
@@ -503,19 +609,21 @@ class ProjectsController < ApplicationController
 
     # Update CollaboratorDedicace
     if collaborator_attachment[:dedicace].present?
-      dedicace = CollaboratorDedicace.find_by(collaboration_id: collaboration_id)
-      dedicace.update(approved_by_creator: ActiveModel::Type::Boolean.new.cast(collaborator_attachment[:dedicace])) if dedicace
+      dedicace = CollaboratorDedicace.find_by(collaboration_id:)
+      if dedicace
+        dedicace.update(approved_by_creator: ActiveModel::Type::Boolean.new.cast(collaborator_attachment[:dedicace]))
+      end
     end
 
     # Update CollaboratorChapters
     if collaborator_attachment[:chapter].present?
       collaborator_attachment[:chapter].each do |chapter_id, approved|
-        chapter = CollaboratorChapter.find_by(id: chapter_id, collaboration_id: collaboration_id)
+        chapter = CollaboratorChapter.find_by(id: chapter_id, collaboration_id:)
         chapter.update(approved_by_creator: ActiveModel::Type::Boolean.new.cast(approved)) if chapter
       end
     end
 
-    redirect_to participants_progress_path(video_id: @video.id), notice: 'Approvals have been updated successfully.'
+    redirect_to participants_progress_path(video_id: @video.id), notice: "Approvals have been updated successfully."
   end
 
   private
@@ -553,10 +661,22 @@ class ProjectsController < ApplicationController
   end
 
   def find_video
-    @video = Video.find(params[:video_id].present? ? params[:video_id] : params[:id])
+    @video = Video.find((params[:video_id].presence || params[:id]))
   end
 
   def find_destinataire
     @destinataire = @video.video_destinataire
+  end
+
+  def define_music
+    @musics = Music.with_attached_music.map do |music|
+      {
+        id: music.id,
+        name: music.name,
+        waveform: music.waveform.to_json,
+        url: music.music.attached? ? url_for(music.music) : nil
+      }
+    end
+    # @musics = Music.all
   end
 end

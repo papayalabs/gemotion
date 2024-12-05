@@ -6,6 +6,7 @@ class CollaboratorChapter < ApplicationRecord
 
   # Additional relationships specific to CollaboratorChapter
   belongs_to :collaboration
+  has_one_attached :custom_music
   has_one :collaborator_music, dependent: :destroy
   has_one :collaborator_user, through: :collaboration, source: :invited_user
 

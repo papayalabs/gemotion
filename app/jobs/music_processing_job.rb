@@ -1,12 +1,13 @@
-require 'open3'
+require "open3"
 
 class MusicProcessingJob < ApplicationJob
   queue_as :default
 
   sidekiq_options retry: false
 
-  def perform(video_chapter_id, file_path)
-    video_chapter = VideoChapter.find(video_chapter_id)
+  def perform(chapter_class_name, chapter_id, file_path)
+    chapter_class = chapter_class_name.constantize
+    chapter = chapter_class.find(chapter_id)
 
     # Ensure the file exists
     unless File.exist?(file_path)
@@ -14,7 +15,9 @@ class MusicProcessingJob < ApplicationJob
       return
     end
 
-    waveform_json_path = Rails.root.join("tmp", "waveform_#{video_chapter_id}.json")
+    # Temporary path for waveform JSON, including class name to avoid collisions
+    sanitized_class_name = chapter_class_name.underscore
+    waveform_json_path = Rails.root.join("tmp", "waveform_#{sanitized_class_name}_#{chapter_id}.json")
 
     # Generate waveform JSON using audiowaveform
     command = <<~CMD
@@ -24,15 +27,15 @@ class MusicProcessingJob < ApplicationJob
     stdout, stderr, status = Open3.capture3(command)
 
     if status.success?
-      Rails.logger.info "Waveform successfully generated for VideoChapter ID #{video_chapter_id}"
+      Rails.logger.info "Waveform successfully generated for #{chapter_class_name} ID #{chapter_id}"
 
       # Read and parse the generated waveform JSON
       waveform_data = File.read(waveform_json_path)
-      video_chapter.update!(waveform: JSON.parse(waveform_data))
+      chapter.update!(waveform: JSON.parse(waveform_data))
 
-      Rails.logger.info "Waveform data saved for VideoChapter ID #{video_chapter_id}"
+      Rails.logger.info "Waveform data saved for #{chapter_class_name} ID #{chapter_id}"
     else
-      Rails.logger.error "Failed to generate waveform for VideoChapter ID #{video_chapter_id}: #{stderr}"
+      Rails.logger.error "Failed to generate waveform for #{chapter_class_name} ID #{chapter_id}: #{stderr}"
     end
   ensure
     # Cleanup temporary files

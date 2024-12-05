@@ -1298,7 +1298,7 @@ h2 {
   right: 15px;
   width: 17px;
   height: 17px;
-  z-index: 3; /* Ensure the icon is on top */
+  z-index: 4; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
 }
 .edit-video-icon{
@@ -1310,13 +1310,17 @@ h2 {
   z-index: 6; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
 }
+.prev-image{
+  object-fit: cover;
+  height: 100%;
+}
 .ellipse-prof-video-icon{
   position: absolute;
   top: 10px;
   right: 10px;
   width: 27px;
   height: 27px;
-  z-index: 2; /* Ensure the icon is on top */
+  z-index: 4; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
 }
 .edit-destinataire-video-icon{
@@ -1377,7 +1381,19 @@ h2 {
   border: 1px solid #c9e1ff;
   background: #fff;
 }
-
+.video-memory-edit-video {
+  display: flex;
+  padding: 32px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  width: 550px;
+  margin: 50px;
+  border-radius: 20px;
+  border: 1px solid #c9e1ff;
+  background: #fff;
+  padding-bottom: 253px;
+}
 .video-memory-thumb-wrapper {
   display: block;
   position: relative;
@@ -1699,7 +1715,7 @@ h2 {
   width: 100%;
   height: 150px;
   border-radius: 10px;
-  border: 1px dotted rgba(0, 0, 0, 1);
+  border: 1px dotted rgba(32, 31, 31, 0.5);
   background-color: rgba(255, 255, 255, 1);
   padding-left: 25px;
   padding-right: 25px;
@@ -2015,6 +2031,12 @@ h2 {
 .gallery {
   display: flex;
   gap: 30px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.edit-video-gallery {
+  display: flex;
+  gap: 0;
   margin-top: 10px;
   flex-wrap: wrap;
 }

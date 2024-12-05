@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_03_060342) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_05_092003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -77,6 +77,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_03_060342) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "approved_by_creator", default: false, null: false
+    t.json "waveform"
     t.index ["chapter_type_id"], name: "index_collaborator_chapters_on_chapter_type_id"
     t.index ["collaboration_id"], name: "index_collaborator_chapters_on_collaboration_id"
     t.index ["video_id"], name: "index_collaborator_chapters_on_video_id"

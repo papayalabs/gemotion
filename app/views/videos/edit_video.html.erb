@@ -45,110 +45,7 @@
                 </div>
               </div>
           <% end %>
-          <div id="chapters-list" class="chapters-grid mt-8">
-            <% @chapters.each do |chapter| %>
-              <div class="project-main-block flex flex-col justify-between items-center chapter-item" data-id="<%= chapter.id %>">
-                <div class="project-block">
-
-                  <div class="delete-chap-icon-btn" data-url="<%= delete_video_chapter_path(chapter.id) %>" data-confirm="Are you sure you want to delete this chapter?">
-                    <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "delete-chap-icon" %>
-                  </div>
-                  <div class="project-block-bottom-white">
-                    <div class="text-left-important p-text-18"><%=chapter.chapter_type.name%></div>
-                    <div class="p-text-16"><%=chapter.text%></div>
-                  </div>
-                  <div data-controller="dialog" data-action="click->dialog#clickOutside">
-                    <%= image_tag "icons/tdesign_more_white.png", alt: "Edit Icon", class: "edit-video-icon", data: { action: "click->dialog#open" } %>
-                    <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 edit-chap-modal">
-                      <div class="w-full h-full flex flex-col justify-start items-center">
-                        <h3 class="video-h3 tt-uppercase mt-8">Modifier un chapitre</h3>
-                        <div class="video-memory mb-8">
-                          <div class="video-memory-thumb-wrapper">
-                            <% if chapter.chapter_type.image.attached? %>
-                                <%= image_tag chapter.chapter_type.image, class: "h-[150px] w-[200px] object-cover rounded" %>
-                            <% else %>
-                                <p>Pas d'image</p>
-                            <% end %>
-                          </div>
-                          <div class="w-full">
-                            <%= f.text_field "chapters[#{chapter.id}][text]", value: chapter.text , placeholder: "Quel texte doit contenir ce chapitre ...", class: "w-full br-10" %>
-                          </div>
-                          <div id="edit-video-gallery-<%= chapter.id %>" class="gallery flex flex-row items-center space-x-8">
-                            <% chapter.ordered_videos.each do |video| %>
-                              <div class="edit-video-container old-video-container" data-file-name="<%= video.filename.to_s %>">
-                                <%= video_tag video, controls: true, autobuffer: true %>
-                                <div class="purge-attachment-icon-btn" data-url="<%= purge_chapter_attachment_path(video.id) %>">
-                                  <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
-                                </div>
-                              </div>
-                            <% end %>
-                          </div>
-                          <%= f.hidden_field "chapters[#{chapter.id}][videos_order]", id: "videos_order_#{chapter.id}" %>
-
-                          <div class="upload-attachment-block flex flex-col justify-center items-center">
-                            <span class="text-center">Faites glisser ou appuyez pour ajouter vos vidéos</span>
-                            <div class="upload-attachment-circle mt-2" id="customUploadButtonVideos">
-                              <span class="plus-sign">+</span>
-                            </div>
-                            <%= f.file_field "chapters[#{chapter.id}][videos]", multiple: true, accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputVideos' %>
-                          </div>
-
-                          <div id="edit-photo-gallery-<%= chapter.id %>" class="gallery flex flex-row items-center space-x-8">
-                            <% chapter.ordered_photos.each do |photo| %>
-                              <div class="edit-image-container old-image-container" data-file-name="<%= photo.filename.to_s %>">
-                                <%= image_tag photo.variant(resize_to_fill: [200, 200]).processed, class: "prev-image" %>
-                                <div class="purge-attachment-icon-btn" data-url="<%= purge_chapter_attachment_path(photo.id) %>">
-                                  <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
-                                </div>
-                              </div>
-                            <% end %>
-                          </div>
-                          <%= f.hidden_field "chapters[#{chapter.id}][photos_order]", id: "images_order_#{chapter.id}" %>
-
-                          <div class="upload-attachment-block flex flex-col justify-center items-center">
-                            <span class="text-center">Faites glisser ou appuyez pour ajouter vos photos</span>
-                            <div class="upload-attachment-circle mt-2" id="customUploadButtonPhotos">
-                              <span class="plus-sign">+</span>
-                            </div>
-                            <%= f.file_field "chapters[#{chapter.id}][photos]", multiple: true, accept: 'image/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInputPhotos' %>
-                          </div>
-                          <%if @video.by_chapters?%>
-                            <%if chapter.custom_music.attached? && chapter.waveform.present?%>
-                              <div class="relative audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(chapter.custom_music) %>" data-waveform="<%= chapter.waveform.to_json %>">
-                                <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
-                                  <div class="play-button-icon"></div>
-                                </div>
-                                <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
-                                  <div class="delete-music-icon-btn"
-                                      data-url="<%= drop_custom_music_path(chapter, video_id: @video.id) %>">
-                                    <%= image_tag "icons/delete-icon.png", alt: "Delete Icon", class: "purge-music-icon" %>
-                                  </div>
-                              </div>
-                            <%end%>
-
-
-
-                            <div class="music-selection w-full">
-                              <% selected_music_id = chapter.video_music&.music_id %>
-                              <%= f.select "chapters[#{chapter.id}][music_id]", @musics.map { |music| [music[:name], music[:id]] }, { include_blank: 'Sélectionnez une musique', selected: selected_music_id }, { class: 'music-select w-full br-10' } %>
-                            </div>
-                          <%end%>
-                          <%= button_tag type: 'button', formmethod: 'dialog', class: 'cta w-100i h-45', data: { action: 'click->dialog#close' } do %>
-                            Fermer
-                          <% end %>
-                        </div>
-                      </div>
-
-                    </dialog>
-                  </div>
-                  <% if chapter.chapter_type.image.attached? %>
-                    <%= image_tag chapter.chapter_type.image, class: "prev-image preview-prof-img" %>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-          <input type="hidden" name="chapter_order" id="chapter_order" />
+          <%= render "videos/shared/popup_edit_video", chapters: @chapters, musics: @musics, video: @video, f: f, collab: false %>
           <div class="edit-video-alert w-full">
             <%= image_tag "icons/alert.svg" %>
             <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
@@ -163,249 +60,286 @@
   </div>
   <%= image_tag 'right-with-bottom-star.png', class: 'image-sides right-image' %>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const customUploadButtonVideos = document.getElementById("customUploadButtonVideos");
-  const customUploadButtonPhotos = document.getElementById("customUploadButtonPhotos");
-  const fileUploadInputVideos = document.getElementById("fileUploadInputVideos");
-  const fileUploadInputPhotos = document.getElementById("fileUploadInputPhotos");
+document.addEventListener("DOMContentLoaded", () => {
+  let currentAudioPlayer = null; // Track the currently playing audio player
+  const radioButtons = document.querySelectorAll('input[name="video[music_type]"]');
+  const wholeVideoForm = document.getElementById('whole-video-form');
+  const byChaptersForm = document.getElementById('by-chapters-form');
 
-  initializeSortableForAll();
-
-  customUploadButtonVideos.addEventListener("click", () => {
-    fileUploadInputVideos.click();
-  });
-  customUploadButtonPhotos.addEventListener("click", () => {
-    fileUploadInputPhotos.click();
-  });
-
-  fileUploadInputVideos.addEventListener("change", (event) => {
-    const chapterId = event.target.closest(".chapter-item").getAttribute("data-id");
-    const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
-    const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
-
-    // Replace existing video containers with new uploaded files
-    videoGallery.innerHTML = "";
-    Array.from(event.target.files).forEach((file) => {
-      addVideoContainer(videoGallery, file, event.target);
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', () => {
+      // Show or hide forms based on selected radio button
+      if (radio.value === 'whole_video') {
+        wholeVideoForm.style.display = 'block';
+        byChaptersForm.style.display = 'none';
+      } else {
+        wholeVideoForm.style.display = 'none';
+        byChaptersForm.style.display = 'block';
+      }
     });
-
-    // Update order and reinitialize Sortable
-    updateOrder(videoGallery, videosOrderInput);
-    initializeSortableForGallery(videoGallery, videosOrderInput);
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-
-      customUploadButtonVideos.querySelector(".plus-sign").textContent = "✔";
-    }
   });
 
-  fileUploadInputPhotos.addEventListener("change", (event) => {
-    const chapterId = event.target.closest(".chapter-item").getAttribute("data-id");
-    const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
-    const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
-
-    // Replace existing photo containers with new uploaded files
-    photoGallery.innerHTML = "";
-    Array.from(event.target.files).forEach((file) => {
-      addPhotoContainer(photoGallery, file, event.target);
-    });
-
-    // Update order and reinitialize Sortable
-    updateOrder(photoGallery, photosOrderInput);
-    initializeSortableForGallery(photoGallery, photosOrderInput);
-    const fileName = event.target.files[0]?.name;
-    if (fileName) {
-      customUploadButtonPhotos.querySelector(".plus-sign").textContent = "✔";
-    }
-  });
-
-  // Initialize Sortable for all galleries
-  function initializeSortableForAll() {
-    const chaptersList = document.getElementById("chapters-list");
-    const chapterOrderInput = document.getElementById("chapter_order");
-
-    if (chaptersList) {
-      new Sortable(chaptersList, {
-        animation: 150,
-        onEnd: function () {
-          // Update the order of chapter IDs
-          const order = Array.from(chaptersList.children).map((item) =>
-            item.getAttribute("data-id")
-          );
-          chapterOrderInput.value = order.join(",");
-        },
-      });
-      Array.from(chaptersList.children).forEach((chapterItem) => {
-        const chapterId = chapterItem.getAttribute("data-id");
-        const videoGallery = document.getElementById(`edit-video-gallery-${chapterId}`);
-        const photoGallery = document.getElementById(`edit-photo-gallery-${chapterId}`);
-        const videosOrderInput = document.getElementById(`videos_order_${chapterId}`);
-        const photosOrderInput = document.getElementById(`images_order_${chapterId}`);
-
-        initializeSortableForGallery(videoGallery, videosOrderInput);
-        initializeSortableForGallery(photoGallery, photosOrderInput);
-      });
-    }
+  // Trigger the change event for the currently selected radio button
+  const checkedRadio = document.querySelector('input[name="video[music_type]"]:checked');
+  if (checkedRadio) {
+    checkedRadio.dispatchEvent(new Event('change'));
   }
 
+  document.querySelectorAll(".custom-music-dropdown").forEach((dropdown) => {
+    const toggle = dropdown.querySelector(".dropdown-toggle");
+    const menu = dropdown.querySelector(".dropdown-menu");
+    const hiddenInput = dropdown.nextElementSibling; // Hidden input for the selected music ID
 
-  // Helper function to initialize Sortable for a gallery
-  function initializeSortableForGallery(gallery, orderInput) {
-    if (gallery) {
-      new Sortable(gallery, {
-        animation: 150,
-        onEnd: () => updateOrder(gallery, orderInput),
+    // Toggle dropdown menu visibility
+    // toggle.addEventListener("click", () => {
+    //   menu.classList.toggle("visible");
+    // });
+
+    // Handle selection of a music option
+    menu.querySelectorAll(".dropdown-option input[type='radio']").forEach((radioButton) => {
+      const option = radioButton.closest(".dropdown-option");
+      const audioSrc = option.querySelector(".custom-audio-player").dataset.audioSrc;
+
+      // Create an audio element dynamically for playback
+      let audio = new Audio(audioSrc);
+
+      option.querySelector(".play-button").addEventListener("click", () => {
+        // Initialize and resume AudioContext when a user interacts
+
+        // Stop the currently playing audio player, if any
+        if (currentAudioPlayer && currentAudioPlayer !== audio) {
+          currentAudioPlayer.pause();
+          currentAudioPlayer.currentTime = 0; // Reset to the beginning
+        }
+
+        // Play the new audio or toggle pause/play for the current one
+        if (audio.paused) {
+          audio.play();
+          currentAudioPlayer = audio; // Update the current audio player
+        } else {
+          audio.pause();
+        }
       });
-    }
-  }
 
-  // Handle delete chapter button click
+      radioButton.addEventListener("change", () => {
+        const musicId = option.dataset.musicId;
+        console.log(musicId)
+        console.log(hiddenInput)
+        // Update hidden input value
+        hiddenInput.value = musicId;
+        console.log(hiddenInput.value)
+        // Update toggle text
+        const musicName = option.querySelector("span").innerText;
+        toggle.querySelector("span").innerText = musicName;
+
+        // Close dropdown
+        // menu.classList.remove("visible");
+      });
+    });
+  });
+
+  // Close dropdown when clicking outside
   document.addEventListener("click", (event) => {
-    const deleteButton = event.target.closest(".delete-chap-icon-btn");
-    if (deleteButton) {
-      const url = deleteButton.dataset.url;
-      const confirmation = deleteButton.dataset.confirm;
+    document.querySelectorAll(".dropdown-menu.visible").forEach((menu) => {
+      if (!menu.parentElement.contains(event.target)) {
+        // menu.classList.remove("visible");
+      }
+    });
+  });
 
-      if (confirm(confirmation)) {
-        fetch(url, {
+  // Stop audio when clicking outside
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest('.dropdown-menu')) {
+      if (currentAudioPlayer) {
+        currentAudioPlayer.pause();
+        currentAudioPlayer.currentTime = 0; // Reset the current audio
+        currentAudioPlayer = null;
+      }
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    const deleteMusicButton = event.target.closest(".delete-music-icon-btn");
+    if (deleteMusicButton) {
+      const parentBlock = deleteMusicButton.closest(".audio-visualizer");
+      const url = deleteMusicButton.dataset.url;
+
+      handleMusicDeletion(url, parentBlock);
+    }
+  });
+
+  const handleMusicDeletion = async (url, parentBlock) => {
+    try {
+      if (url) {
+        // Handle deletion for existing music files (server-side)
+        const response = await fetch(url, {
           method: "DELETE",
           headers: {
             "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
             Accept: "application/json",
             "Content-Type": "application/json",
           },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.message) {
-              window.location.reload();
-            } else {
-              alert("Failed to delete the chapter. Please try again.");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred. Please try again.");
-          });
+        });
+
+        if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+          throw new Error("Server-side deletion failed.");
+        }
+
+        const data = await response.json();
+        if (data.message) {
+          resetMusicBlock(parentBlock);
+        } else {
+          console.warn("Server did not confirm deletion.");
+        }
+      } else {
+        // Handle deletion for newly added music files
+        resetMusicBlock(parentBlock);
       }
+    } catch (error) {
+      console.error("Error during music deletion:", error);
+    } finally {
+      // Optional: Reload the page to ensure state is consistent
+      location.reload();
     }
+  };
 
-    // Handle attachment purge button click (for photos and videos)
-    const purgeButton = event.target.closest(".purge-attachment-icon-btn");
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-    if (purgeButton) {
-      const url = purgeButton.dataset.url;
-      const confirmation = "Are you sure you want to delete this attachment?";
-
-      if (confirm(confirmation)) {
-        fetch(url, {
-          method: "DELETE",
-          headers: {
-            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.message) {
-              // Remove the attachment container from the DOM
-              purgeButton.closest(".edit-image-container, .edit-video-container").remove();
-            } else {
-              alert("Failed to delete the attachment. Please try again.");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred. Please try again.");
-          });
-      }
+  const resetMusicBlock = (parentBlock) => {
+    // Remove the block visually
+    if (parentBlock) {
+      parentBlock.remove();
     }
-  });
+  };
 
-    // Helper function to update order input
-  function updateOrder(gallery, orderInput) {
-    const order = Array.from(gallery.children).map((item) =>
-      item.getAttribute("data-file-name")
-    );
-    orderInput.value = order.join(",");
-  }
-
-  function updateFileInput(inputElement, fileList) {
-    const dataTransfer = new DataTransfer();
-    console.log("updateFileInput")
-    fileList.forEach((file) => {
-      dataTransfer.items.add(file);
-    });
-
-    inputElement.files = dataTransfer.files;
-  }
-
-  let uploadedVideos = [];
-  let uploadedPhotos = [];
-
-  // Helper function to add video container
-  function addVideoContainer(gallery, file, inputElement) {
-    const fileName = file.name;
-    uploadedVideos.push(file);
-
-    const videoContainer = document.createElement("div");
-    videoContainer.classList.add("edit-video-container", "new-video-container");
-    videoContainer.setAttribute("data-file-name", fileName);
-
-    const videoPreview = document.createElement("video");
-    videoPreview.controls = true;
-    videoPreview.src = URL.createObjectURL(file);
-
-    const deleteButton = document.createElement("div");
-    deleteButton.classList.add("purge-attachment-icon");
-    deleteButton.innerHTML = `<img src="<%= asset_path('icons/delete-icon.png') %>" alt="Delete Icon" class="purge-chap-icon">`;
-    deleteButton.addEventListener("click", () => {
-      console.log("sdfsdfds")
-
-      uploadedVideos = uploadedVideos.filter((item) => item.name !== fileName);
-      updateFileInput(inputElement, uploadedVideos);
-
-      updateOrder(gallery, gallery.closest(".chapter-item").querySelector(`[id^='videos_order_']`));
-      videoContainer.remove();
-
-    });
-
-    videoContainer.appendChild(videoPreview);
-    videoContainer.appendChild(deleteButton);
-    gallery.appendChild(videoContainer);
-  }
-
-  // Helper function to add photo container
-  function addPhotoContainer(gallery, file, inputElement) {
-    const fileName = file.name;
-    uploadedPhotos.push(file);
-
-    const photoContainer = document.createElement("div");
-    photoContainer.classList.add("edit-image-container", "new-image-container");
-    photoContainer.setAttribute("data-file-name", fileName);
-
-    const photoPreview = document.createElement("img");
-    photoPreview.classList.add("prev-image");
-    photoPreview.src = URL.createObjectURL(file);
-
-    const deleteButton = document.createElement("div");
-    deleteButton.classList.add("purge-attachment-icon");
-    deleteButton.innerHTML = `<img src="<%= asset_path('icons/delete-icon.png') %>" alt="Delete Icon" class="purge-chap-icon">`;
-    deleteButton.addEventListener("click", () => {
-      photoContainer.remove();
-
-      uploadedPhotos = uploadedPhotos.filter((item) => item.name !== fileName);
-      updateFileInput(inputElement, uploadedPhotos);
-
-      updateOrder(gallery, gallery.closest(".chapter-item").querySelector(`[id^='images_order_']`));
-    });
-
-    photoContainer.appendChild(photoPreview);
-    photoContainer.appendChild(deleteButton);
-    gallery.appendChild(photoContainer);
-  }
 });
 </script>
+<style>
+.delete-music-icon-btn{
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  top: 0;
+  right: 0;
+}
+.purge-music-icon{
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 40px !important;
+  height: 40px !important;
+  z-index: 2 !important;
+  display: block !important;
+}
+.audio-visualizer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 30px; /* Rounded container */
+  background: rgba(242, 252, 255, 1); /* Light blue */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.waveform-canvas {
+  width: 100%;
+  height: 32px;
+  overflow: hidden;
+}
+.custom-music-dropdown {
+  position: relative;
+  width: 100%;
+  height: 57px;
+  padding: 16px 40px 16px 20px;
+  border-radius: 8px;
+  background: var(--Blue, rgba(242, 252, 255, 1));
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  text-align: left;
+  background-clip: padding-box;
+  z-index: 1;
+}
+
+.custom-music-dropdown::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px;
+  padding: 1px; /* Border thickness */
+  background: linear-gradient(
+    205.68deg,
+    rgba(201, 225, 255, 0.2) 19.49%,
+    rgba(13, 103, 131, 0.2) 60.63%,
+    rgba(22, 63, 80, 0.2) 90.92%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  z-index: -1; /* Place below the dropdown content */
+}
+.music-dropdown-radio{
+  margin-top: 20px;
+}
+.dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.dropdown-arrow {
+  margin-left: 10px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 215px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.dropdown-menu.visible {
+  display: block;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 25px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.dropdown-option:hover {
+  background: rgba(201, 225, 255, 0.5);
+}
+.edit-music-video-icon{
+  width: 24px !important;
+  height: 24px  !important;
+  border: none !important;
+  margin-left: 15px !important;
+}
+</style>

@@ -16,7 +16,7 @@
 
   <div class="projects-grid">
     <% @creator_projects.each do |video| %>
-      <div class="project-main-block flex flex-col justify-between">
+      <div class="project-main-block flex flex-col justify-center items-center">
         <div class="project-block">
               <div data-controller="dialog" data-action="click->dialog#clickOutside">
                 <%= image_tag "icons/Ellipse159.png", alt: "Ellipse Icon", class: "ellipse-prof-video-icon" %>
@@ -78,7 +78,7 @@
             <%end%>
           <%end%>
         </div>
-        <%= link_to "Voir la progression", participants_progress_path(video_id: video.id), class: "cta-button", data: {turbo: false} %>
+        <%= link_to "Voir la progression", participants_progress_path(video_id: video.id), class: "cta-button mt-2", data: {turbo: false} %>
       </div>
     <%end%>
   </div>

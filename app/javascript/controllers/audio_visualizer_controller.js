@@ -5,7 +5,6 @@ export default class extends Controller {
 
   connect() {
     const audioSrc = this.element.dataset.audioSrc;
-    console.log(audioSrc);
     const waveformData = JSON.parse(this.element.dataset.waveform).data;
 
     // Process waveform: Trim zeros and downsample to 32 bars (half of 64)
@@ -17,8 +16,8 @@ export default class extends Controller {
     const audio = new Audio(audioSrc);
 
     // Canvas dimensions
-    canvas.width = 512; // Full width
-    canvas.height = 60; // Height for visual appearance
+    canvas.width = 402; // Full width
+    canvas.height = 52; // Height for visual appearance
 
     // Create gradient for waveform
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);

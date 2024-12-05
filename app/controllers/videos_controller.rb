@@ -21,8 +21,9 @@ class VideosController < ApplicationController
       redirect_to start_path
     elsif @video.stop_at == "start"
       redirect_to occasion_path
-    else
-      redirect_to send("#{@video.current_step}_path"), notice: "Reprenez votre vidéo en cours." if @video.current_step != "start"
+    elsif @video.current_step != "start"
+      redirect_to send("#{@video.current_step}_path"),
+                  notice: "Reprenez votre vidéo en cours."
     end
 
     # TODO: delete current video if user confirmation
@@ -35,7 +36,7 @@ class VideosController < ApplicationController
   # Utilise le template dans videos/shared/_back_button.html.erb pour récupérer
   # un lien fonctionnel
   def go_back
-    @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
+    @video = current_user.videos.where.not(project_status: %i[finished closed]).order(created_at: :desc).first
     authorize @video, :go_back?, policy_class: VideoPolicy
     redirect_to start_path, alert: "Aucune vidéo trouvé." if @video.nil?
     @video.stop_at = @video.current_step == "start" ? "start_edit" : @video.previous_step
@@ -43,7 +44,7 @@ class VideosController < ApplicationController
       if @video.stop_at == "start_edit"
         redirect_to start_path
       elsif @video.stop_at == "start"
-          redirect_to occasion_path
+        redirect_to occasion_path
       else
         redirect_to send("#{@video.next_step}_path")
       end
@@ -53,17 +54,18 @@ class VideosController < ApplicationController
   end
 
   def go_to_select_chapters
-    @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
+    @video = current_user.videos.where.not(project_status: %i[finished closed]).order(created_at: :desc).first
     @video.update(stop_at: "photo_intro")
     redirect_to select_chapters_path, alert: "Aucune vidéo trouvé."
   end
 
   def start_post
-    if current_user.videos.where.not(project_status: [:finished, :closed]).count == 0 || current_user.videos.count == 0
+    if current_user.videos.where.not(project_status: %i[finished closed]).count == 0 || current_user.videos.count == 0
       @video = Video.new(user: current_user)
       @video.user = current_user
       skip_authorization
       return render start_path, status: :unprocessable_entity if params[:video_type].nil?
+
       @video.video_type = params[:video_type].downcase
 
       @video.stop_at = @video.way.first
@@ -125,9 +127,7 @@ class VideosController < ApplicationController
     @vd.personality_description = params[:personality_description]
     @vd.favorite_quotes = params[:favorite_quotes]
 
-    unless params[:add_more_destinataire].present? && params[:add_more_destinataire]
-      @video.stop_at = @video.next_step
-    end
+    @video.stop_at = @video.next_step unless params[:add_more_destinataire].present? && params[:add_more_destinataire]
 
     skip_destinataire = params[:add_more_destinataire].present? && params[:add_more_destinataire]
 
@@ -141,18 +141,17 @@ class VideosController < ApplicationController
         return
       end
     else
-      if skip_destinataire
-        return render info_destinataire_path, status: :unprocessable_entity
+      return render info_destinataire_path, status: :unprocessable_entity if skip_destinataire
+
+      if @video.validate_info_destinataire(@vd)
+        @video.update(stop_at: @video.current_step)
+        redirect_to destinataire_details_path, turbo: false
       else
-        if @video.validate_info_destinataire(@vd)
-          @video.update(stop_at: @video.current_step)
-          redirect_to destinataire_details_path, turbo: false
-        else
-          flash[:alert] = "Veuillez remplir tous les champs obligatoires."
-          render info_destinataire_path, status: :unprocessable_entity
-          return
-        end
+        flash[:alert] = "Veuillez remplir tous les champs obligatoires."
+        render info_destinataire_path, status: :unprocessable_entity
+        return
       end
+
     end
 
     nil if params[:special_request_destinataire].nil?
@@ -177,7 +176,7 @@ class VideosController < ApplicationController
       redirect_to send("#{@video.next_step}_path"), turbo: false
     else
       @video.update(stop_at: @video.current_step)
-      return render destinataire_details_path, status: :unprocessable_entity
+      render destinataire_details_path, status: :unprocessable_entity
     end
   end
 
@@ -186,9 +185,10 @@ class VideosController < ApplicationController
     video = Video.find(destinataire.video_id)
     authorize video, :delete_destinataire?, policy_class: VideoPolicy
     if destinataire.destroy
-      redirect_to destinataire_details_path, notice: 'Destinataire deleted successfully.', turbo: false
+      redirect_to destinataire_details_path, notice: "Destinataire deleted successfully.", turbo: false
     else
-      redirect_to destinataire_details_path, alert: "Vous n'êtes pas autorisé à supprimer ce destinataire.", turbo: false
+      redirect_to destinataire_details_path, alert: "Vous n'êtes pas autorisé à supprimer ce destinataire.",
+                                             turbo: false
     end
   end
 
@@ -205,9 +205,11 @@ class VideosController < ApplicationController
     destinataire.favorite_quotes = params[:favorite_quotes]
 
     if destinataire.save
-      redirect_to destinataire_details_path, notice: 'Le destinataire a été mis à jour avec succès.', turbo: false
+      redirect_to destinataire_details_path,
+                  notice: "Le destinataire a \u00E9t\u00E9 mis \u00E0 jour avec succ\u00E8s.", turbo: false
     else
-      redirect_to destinataire_details_path, alert: "Vous n'êtes pas autorisé à mettre à jour ce destinataire.", turbo: false
+      redirect_to destinataire_details_path, alert: "Vous n'êtes pas autorisé à mettre à jour ce destinataire.",
+                                             turbo: false
     end
   end
 
@@ -259,7 +261,7 @@ class VideosController < ApplicationController
                         end.reject(&:blank?)
 
     # Parse the images order
-    ordered_previews = params[:images_order]&.split(',') || []
+    ordered_previews = params[:images_order]&.split(",") || []
     current_previews = @video.video_previews.includes(:preview).to_a
 
     # Ensure the total number of previews does not exceed the limit
@@ -282,7 +284,7 @@ class VideosController < ApplicationController
 
       preview = Preview.create(image: preview_file)
       order_index = ordered_previews.index(preview_file.original_filename)
-      @video.video_previews.create(preview: preview, order: order_index) if order_index
+      @video.video_previews.create(preview:, order: order_index) if order_index
     end
 
     # Re-assign previews_order for the video model
@@ -305,11 +307,16 @@ class VideosController < ApplicationController
     authorize video, :drop_preview?, policy_class: VideoPolicy
     if preview.destroy
       respond_to do |format|
-        format.json { render json: { message: "L'image d'introduction de la photo a été supprimée avec succès" }, status: :ok }
+        format.json do
+          render json: { message: "L'image d'introduction de la photo a été supprimée avec succès" }, status: :ok
+        end
       end
     else
       respond_to do |format|
-        format.json { render json: { error: "Échec de la suppression de l'image d'introduction de la photo" }, status: :unprocessable_entity }
+        format.json do
+          render json: { error: "Échec de la suppression de l'image d'introduction de la photo" },
+                 status: :unprocessable_entity
+        end
       end
     end
   end
@@ -358,7 +365,7 @@ class VideosController < ApplicationController
         # Si l'élément est bien séléctionné
         chapter_to_create.append({ chapter_type_id: k, text: v["text"],
                                    slide_color: v["slide_color"], text_family: v["text_family"],
-                                   text_style: v["text_style"], text_size: v["text_size"]})
+                                   text_style: v["text_style"], text_size: v["text_size"] })
         # On l'ajoute dans la liste des éléments à supprimer
         # ... on le modifie
       end
@@ -372,7 +379,7 @@ class VideosController < ApplicationController
 
     # Création, Mise à jour et suppression
     if @video.video_chapters.create(chapter_to_create) &&
-      @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
+       @video.video_chapters.update(chapter_to_updates.keys, chapter_to_updates.values)
 
       @video.video_chapters.each do |chapter|
         chapter.video_music.destroy if chapter.video_music
@@ -381,7 +388,7 @@ class VideosController < ApplicationController
       chapter_to_delete.destroy_all
 
       @video.update(stop_at: @video.next_step)
-      p '*'*1000
+      p "*" * 1000
       redirect_to send("#{@video.next_step}_path"), turbo: false
 
     else
@@ -394,7 +401,7 @@ class VideosController < ApplicationController
   def music_post
     authorize @video, :music_post?, policy_class: VideoPolicy
     # Check for params indicating the whole video or chapters
-    if params[:music].nil? && params.keys.none? { |key| key.start_with?('music_') }
+    if params[:music].nil? && params.keys.none? { |key| key.start_with?("music_") }
       flash[:alert] = "Vous devez sélectionner au moins une musique"
       return render music_path, status: :unprocessable_entity
     end
@@ -413,8 +420,8 @@ class VideosController < ApplicationController
 
     # Handle the "by chapters" case
     params.each do |key, value|
-      if key.start_with?('music_')
-        chapter_id = key.split('_').last.to_i
+      if key.start_with?("music_")
+        chapter_id = key.split("_").last.to_i
         music_id = value.to_i
 
         video_chapter = @video.video_chapters.find_by(id: chapter_id)
@@ -423,26 +430,26 @@ class VideosController < ApplicationController
           if video_chapter.custom_music.attached? || (params["custom_music_#{video_chapter.id}"].is_a?(ActionDispatch::Http::UploadedFile) && params["custom_music_#{video_chapter.id}"].present?)
           elsif music
             video_chapter.video_music&.destroy
-            VideoMusic.create(music: music, video_chapter: video_chapter)
+            VideoMusic.create(music:, video_chapter:)
           else
             flash[:alert] = "Musique non trouvée pour le chapitre #{chapter_id}."
             return render music_path, status: :unprocessable_entity
           end
         end
-      elsif key.start_with?('custom_music_')
-        chapter_id = key.split('_').last.to_i
+      elsif key.start_with?("custom_music_")
+        chapter_id = key.split("_").last.to_i
         music_file = value
         video_chapter = @video.video_chapters.find_by(id: chapter_id)
         if video_chapter
           # Save the custom music to a persistent location
           music_path = Rails.root.join("tmp", "custom_music_#{video_chapter.id}.mp3")
-          File.open(music_path, 'wb') do |file|
+          File.open(music_path, "wb") do |file|
             file.write(music_file.read)
           end
 
           # Attach the file to the video chapter and enqueue the job
           video_chapter.custom_music.attach(io: File.open(music_path), filename: music_file.original_filename)
-          MusicProcessingJob.perform_later(video_chapter.id, music_path.to_s)
+          MusicProcessingJob.perform_later("VideoChapter", video_chapter.id, music_path.to_s)
         end
       end
     end
@@ -491,7 +498,7 @@ class VideosController < ApplicationController
     @video.stop_at = @video.next_step
 
     if @video.save
-      @video.video_dedicace.update(dedicace: dedicace)if @video.video_dedicace.present?
+      @video.video_dedicace.update(dedicace:) if @video.video_dedicace.present?
       redirect_to send("#{@video.next_step}_path")
     else
       @video.update(stop_at: @video.current_step)
@@ -515,7 +522,7 @@ class VideosController < ApplicationController
       return render share_path, status: :unprocessable_entity
     end
 
-    @video.update(video_type: :colab) #update to collab if was solo before
+    @video.update(video_type: :colab) # update to collab if was solo before
     collaboration = Collaboration.create!(
       video: @video,
       inviting_user: current_user,
@@ -530,7 +537,7 @@ class VideosController < ApplicationController
 
   def join
     if current_user.present? && @video.user != current_user
-      @video.update(video_type: :colab) #update to collab if was solo before
+      @video.update(video_type: :colab) # update to collab if was solo before
       @existing_collaboration = Collaboration.find_by(
         video: @video,
         invited_user: current_user
@@ -649,15 +656,13 @@ class VideosController < ApplicationController
     # Check if the final video is already attached
     if @video.final_video_with_watermark.attached?
       @final_video_url = url_for(@video.final_video_with_watermark)
-    else
+    elsif @video.concat_status == "processing"
       # Start processing if no final video exists
-      unless @video.concat_status == 'processing' # Check if not already processing
-        @video.update!(concat_status: :processing)
-        ContentDedicaceJob.perform_later(@video.id)
-        flash[:notice] = "Le traitement de la vidéo a été lancé en arrière-plan."
-      else
-        flash[:notice] = "Le traitement de la vidéo est déjà en cours."
-      end
+      flash[:notice] = "Le traitement de la vidéo est déjà en cours."
+    else # Check if not already processing
+      @video.update!(concat_status: :processing)
+      ContentDedicaceJob.perform_later(@video.id)
+      flash[:notice] = "Le traitement de la vidéo a été lancé en arrière-plan."
     end
   end
 
@@ -666,13 +671,13 @@ class VideosController < ApplicationController
     authorize video, :content_dedicace?, policy_class: VideoPolicy
 
     if video.final_video.attached?
-      response.headers['Content-Type'] = video.final_video.content_type
-      response.headers['Content-Disposition'] = 'inline' # Prevent download dialog
-      response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-      response.headers['Pragma'] = 'no-cache'
-      response.headers['X-Content-Type-Options'] = 'nosniff'
+      response.headers["Content-Type"] = video.final_video.content_type
+      response.headers["Content-Disposition"] = "inline" # Prevent download dialog
+      response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+      response.headers["Pragma"] = "no-cache"
+      response.headers["X-Content-Type-Options"] = "nosniff"
 
-      send_data video.final_video.download, disposition: 'inline'
+      send_data video.final_video.download, disposition: "inline"
     else
       head :not_found
     end
@@ -691,7 +696,6 @@ class VideosController < ApplicationController
 
     # position = params[:dedicace][:car_position]
 
-
     # @video.stop_at = @video.next_step
 
     # if @video.save
@@ -706,7 +710,7 @@ class VideosController < ApplicationController
     end
     if params[:dedicace].present? &&
        params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
-      file = params[:dedicace][:creator_end_dedication_video].present? ? params[:dedicace][:creator_end_dedication_video] : params[:dedicace][:creator_end_dedication_video_uploaded]
+      file = params[:dedicace][:creator_end_dedication_video].presence || params[:dedicace][:creator_end_dedication_video_uploaded]
       video_dedicace = VideoDedicace.find_or_initialize_by(video: @video, dedicace: @video.dedicace)
       video_dedicace.creator_end_dedication_video.attach(file)
       # @dedicace.update(car_position: position)
@@ -714,10 +718,10 @@ class VideosController < ApplicationController
         VideoProcessingJob.perform_later(video_dedicace.id, "VideoDedicace")
         skip_element(dedicace_de_fin_path)
       else
-        render :edit, alert: 'Échec de la mise à jour de la vidéo.'
+        render :edit, alert: "\u00C9chec de la mise \u00E0 jour de la vid\u00E9o."
       end
     else
-      redirect_to dedicace_de_fin_path, alert: 'Aucun fichier vidéo fourni.'
+      redirect_to dedicace_de_fin_path, alert: "Aucun fichier vid\u00E9o fourni."
     end
   end
 
@@ -745,7 +749,7 @@ class VideosController < ApplicationController
       return render share_path, status: :unprocessable_entity
     end
 
-    @video.update(video_type: :colab) #update to collab if was solo before
+    @video.update(video_type: :colab) # update to collab if was solo before
     collaboration = Collaboration.create!(
       video: @video,
       inviting_user: current_user,
@@ -787,7 +791,8 @@ class VideosController < ApplicationController
 
   def edit_video
     authorize @video, :edit_video?, policy_class: VideoPolicy
-    @chapters = @video.video_chapters.order(:order).includes(:chapter_type, videos_attachments: :blob, photos_attachments: :blob)
+    @chapters = @video.video_chapters.order(:order).includes(:chapter_type, videos_attachments: :blob,
+                                                                            photos_attachments: :blob)
   end
 
   def edit_video_post
@@ -795,9 +800,9 @@ class VideosController < ApplicationController
 
     # Update the order of chapters
     if params[:chapter_order].present?
-      chapter_ids = params[:chapter_order].split(',').map(&:to_i)
+      chapter_ids = params[:chapter_order].split(",").map(&:to_i)
       chapter_ids.each_with_index do |id, index|
-        chapter = @video.video_chapters.find_by(id: id)
+        chapter = @video.video_chapters.find_by(id:)
         chapter.update(order: index + 1) if chapter
       end
     end
@@ -832,26 +837,68 @@ class VideosController < ApplicationController
       chapter.update(photos_order: chapter_data[:photos_order]) if chapter_data[:photos_order].present?
 
       # Attach new photos
-      if chapter_data[:photos].present?
-        chapter_data[:photos].each do |photo|
-          next if photo.blank?
+      next unless chapter_data[:photos].present?
 
-          # Skip if the file is already attached
-          next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
+      chapter_data[:photos].each do |photo|
+        next if photo.blank?
 
-          # Purge the oldest photo if there are already 2 photos
-          chapter.photos.first.purge if chapter.photos.count >= 2
+        # Skip if the file is already attached
+        next if chapter.photos.any? { |p| p.filename.to_s == photo.original_filename }
 
-          chapter.photos.attach(photo)
-        end
+        # Purge the oldest photo if there are already 2 photos
+        chapter.photos.first.purge if chapter.photos.count >= 2
+
+        chapter.photos.attach(photo)
       end
+    end
 
-      # Update or create the associated video_music record
-      if chapter_data[:music_id].present?
-        if chapter.video_music.present?
-          chapter.video_music.update(music_id: chapter_data[:music_id])
+    params.each do |key, value|
+      # Handle music associations
+      if key.start_with?("music_")
+        chapter_id = key.split("_").last.to_i
+        music_id = value.to_i
+
+        # Find the corresponding video chapter
+        video_chapter = @video.video_chapters.find_by(id: chapter_id)
+        if video_chapter
+          # Check if a predefined music exists
+          music = Music.find_by(id: music_id)
+          if music
+            # Replace existing music association
+            video_chapter.video_music&.destroy
+            VideoMusic.create!(music:, video_chapter:)
+          elsif video_chapter.custom_music.attached? || params["custom_music_#{video_chapter.id}"].present?
+            # Skip if custom music is already attached or provided in params
+            next
+          else
+            flash[:alert] ||= []
+            flash[:alert] << "Musique non trouvée pour le chapitre #{chapter_id}."
+          end
         else
-          chapter.create_video_music(music_id: chapter_data[:music_id])
+          flash[:alert] ||= []
+          flash[:alert] << "Chapitre non trouvé pour l'ID #{chapter_id}."
+        end
+
+      # Handle custom music uploads
+      elsif key.start_with?("custom_music_")
+        chapter_id = key.split("_").last.to_i
+        music_file = value
+
+        # Find the corresponding video chapter
+        video_chapter = @video.video_chapters.find_by(id: chapter_id)
+        if video_chapter && music_file.present?
+          # Save the custom music file temporarily
+          music_path = Rails.root.join("tmp", "custom_music_#{video_chapter.id}.mp3")
+          File.open(music_path, "wb") do |file|
+            file.write(music_file.read)
+          end
+
+          # Attach the file to the video chapter and enqueue the job
+          video_chapter.custom_music.attach(io: File.open(music_path), filename: music_file.original_filename)
+          MusicProcessingJob.perform_later("VideoChapter", video_chapter.id, music_path.to_s)
+        else
+          flash[:alert] ||= []
+          flash[:alert] << "Fichier de musique personnalisé manquant ou chapitre introuvable pour l'ID #{chapter_id}."
         end
       end
     end
@@ -864,7 +911,7 @@ class VideosController < ApplicationController
     authorize @video, :payment?, policy_class: VideoPolicy
     @duration_in_minutes = Video.calculate_duration(@video.final_video_duration) # Replace with your logic to fetch duration
     @amount = Video.calculate_price(@duration_in_minutes)
-    @stripe_publishable_key = ENV['STRIPE_PUBLISHABLE_KEY']
+    @stripe_publishable_key = ENV["STRIPE_PUBLISHABLE_KEY"]
   end
 
   def payment_post
@@ -874,8 +921,8 @@ class VideosController < ApplicationController
 
     begin
       charge = Stripe::Charge.create(
-        amount: amount,
-        currency: 'eur',
+        amount:,
+        currency: "eur",
         description: "Payment for video rendering (#{duration_in_minutes} minutes)",
         source: params[:stripeToken],
         metadata: {
@@ -886,7 +933,7 @@ class VideosController < ApplicationController
 
       # Save payment record and update video status
       @video.update!(paid: true, project_status: :finished) # Ensure `paid` is a boolean in the Video model
-      redirect_to participants_progress_path(video_id: @video.id), notice: 'Paiement réussi!'
+      redirect_to participants_progress_path(video_id: @video.id), notice: "Paiement r\u00E9ussi!"
     rescue Stripe::CardError => e
       flash[:alert] = e.message
       redirect_to payment_path
@@ -921,13 +968,15 @@ class VideosController < ApplicationController
     authorize video_chapter.video, :delete_video_chapter?, policy_class: VideoPolicy
     if video_chapter.destroy
       respond_to do |format|
-        format.html { redirect_to edit_video_path, notice: 'Chapitre supprimé avec succès.' }
-        format.json { render json: { message: 'Chapitre supprimé avec succès.' }, status: :ok }
+        format.html { redirect_to edit_video_path, notice: "Chapitre supprim\u00E9 avec succ\u00E8s." }
+        format.json { render json: { message: "Chapitre supprim\u00E9 avec succ\u00E8s." }, status: :ok }
       end
     else
       respond_to do |format|
-        format.html { redirect_to edit_video_path, alert: 'Échec de la suppression du chapitre.' }
-        format.json { render json: { error: 'Échec de la suppression du chapitre.' }, status: :unprocessable_entity }
+        format.html { redirect_to edit_video_path, alert: "\u00C9chec de la suppression du chapitre." }
+        format.json do
+          render json: { error: "\u00C9chec de la suppression du chapitre." }, status: :unprocessable_entity
+        end
       end
     end
   end
@@ -936,13 +985,13 @@ class VideosController < ApplicationController
     attachment = ActiveStorage::Attachment.find_by(id: params[:id])
     if attachment.nil?
       return respond_to do |format|
-        format.json { render json: { error: 'Attachment not found' }, status: :not_found }
+        format.json { render json: { error: "Attachment not found" }, status: :not_found }
       end
     end
     authorize attachment.record.video, :purge_chapter_attachment?, policy_class: VideoPolicy
     attachment.purge
     respond_to do |format|
-      format.json { render json: { message: 'Attachment deleted successfully' }, status: :ok }
+      format.json { render json: { message: "Attachment deleted successfully" }, status: :ok }
     end
   end
 
@@ -1017,17 +1066,18 @@ class VideosController < ApplicationController
   end
 
   def select_video
-    @video = current_user.videos.where.not(project_status: [:finished, :closed]).order(created_at: :desc).first
+    @video = current_user.videos.where.not(project_status: %i[finished closed]).order(created_at: :desc).first
     # On check si une vidéo existe
 
     if @video.nil?
       redirect_to start_path, alert: "Aucune vidéo trouvé." unless request.path == start_path
     # Si une vidéo existe, on doit être sur la bonne étape
     elsif @video.current_step == "start"
-      return
+      nil
     elsif ![@video.next_step.downcase, "#{@video.next_step.downcase}_post",
             "skip_#{@video.next_step.downcase}"].include?(params[:action].downcase)
-      redirect_to send("#{@video.next_step}_path"), alert: "Vous devez finaliser cette étape avant de passer à la prochaine.", turbo: false
+      redirect_to send("#{@video.next_step}_path"),
+                  alert: "Vous devez finaliser cette étape avant de passer à la prochaine.", turbo: false
     end
   end
 
@@ -1092,9 +1142,8 @@ class VideosController < ApplicationController
 
   # Helper method to parse order and ensure matching with attachment IDs
   def parse_order(order_param, attachments)
-    order_param.split(',').map do |filename|
+    order_param.split(",").map do |filename|
       attachments.find { |attachment| attachment.blob.filename.to_s == filename }&.blob_id
     end.compact
   end
 end
-
