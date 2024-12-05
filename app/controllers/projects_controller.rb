@@ -6,8 +6,8 @@ class ProjectsController < ApplicationController
                                       collaborator_chapters_post edit_collaborator_chapters_post
                                       creator_chapters_post creator_dedicace_de_fin_post edit_creator_chapters_post
                                       creator_refresh_video approving_collaborator_attachments]
-  before_action :find_destinataire, only: %i[collaborator_video_details collaborator_manage_dedicace
-                                             collaborator_manage_chapters collaborator_manage_dedicace creator_manage_chapters]
+  before_action :find_destinataire,
+                only: %i[collaborator_video_details collaborator_manage_chapters creator_manage_chapters]
   before_action :define_music, only: %i[collaborator_video_details participants_progress]
 
   def as_creator_projects
@@ -665,7 +665,7 @@ class ProjectsController < ApplicationController
   end
 
   def find_destinataire
-    @destinataire = @video.video_destinataire
+    @destinataires = @video.video_destinataires
   end
 
   def define_music

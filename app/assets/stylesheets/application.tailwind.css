@@ -336,6 +336,21 @@ main{
 .pb-240i{
   padding-bottom: 240px !important;
 }
+.mt-15{
+  margin-top: 15px!important;
+}
+.mt-25{
+  margin-top: 25px!important;
+}
+.mt-35{
+  margin-top: 35px!important;
+}
+.mt-45{
+  margin-top: 45px!important;
+}
+.mt-55{
+  margin-top: 55px!important;
+}
 .mt-65{
   margin-top: 65px!important;
 }
@@ -426,6 +441,9 @@ main{
 }
 .pr-20{
   padding-right: 20px;
+}
+.font-size-32i{
+  font-size: 32px !important;
 }
 .bg-transparent{
   background: transparent !important;;

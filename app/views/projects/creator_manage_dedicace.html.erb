@@ -4,7 +4,7 @@
 </div>
 
 <div class=''>
-  <%= form_with url: creator_dedicace_de_fin_post_path(video_id: @video.id), method: :post, multipart: true do |f| %>
+  <%= form_with url: creator_dedicace_de_fin_post_path(video_id: @video.id), method: :post, multipart: true, html: {data: { turbo: false }} do |f| %>
     <div class="frame-no-border">
       <div class="dedications">
         <% @dedicaces.each do |dedicace| %>
@@ -93,7 +93,7 @@
           <%= f.file_field "creator_end_dedication_video_uploaded", accept: 'video/*', class: 'form-control', style: 'display: none;', id: 'fileUploadInput' %>
         </div>
       </div>
-      <%= f.submit "Sauvegarder les modification", class: "cta mt-6" %>
+      <%= f.submit "Sauvegarder les modification", class: "black-link mt-6" %>
     </div>
   <% end %>
 </div>

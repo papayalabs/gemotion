@@ -28,11 +28,11 @@
   </div>
   <div class="flex flex-row items-start mt-4">
     <span class="font-bold mr-4">Nom du destinataire (pour qui nous préparons le film) :</span>
-    <span><%=@destinataire.name%></span>
+    <span><%= @destinataires&.map(&:name).join(" | ") %></span>
   </div>
   <div class="flex flex-row items-start mt-4">
     <span class="font-bold mr-4">Occasion :</span>
-    <span><%= @video.occasion.humanize %></span>
+    <span><%= @video&.occasion&.humanize %></span>
   </div>
   <div class="flex flex-row items-start mt-4">
     <span class="font-bold mr-4">Date de livraison du film :</span>
@@ -43,7 +43,7 @@
 
   <div class="flex justify-start items-center mt-6">
     <div class="font-bold">Ajouter mon contenu dans les chapitres</div>
-    <a href="<%= collaborator_manage_chapters_path(@video.id) %>" class="cta-transparent ml-50">Gérer les chapitres</a>
+    <a href="<%= collaborator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50">Gérer les chapitres</a>
   </div>
 
   <%if @collaborator_chapters.present? and @collaborator_chapters.count>0%>
@@ -58,7 +58,7 @@
             <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
           </div>
           <div class="flex justify-center mt-65">
-            <%= f.submit "Confirmer les modifications", class: "cta" %>
+            <%= f.submit "Confirmer les modifications", class: "black-link" %>
           </div>
         </div>
       <% end %>
@@ -68,7 +68,7 @@
 
   <div class="flex justify-start items-center mt-6">
     <div class="font-bold ">Participation à la Dédicace de fin</div>
-    <%= link_to "Gérer Dédicace de fin", collaborator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "cta-transparent ml-50" %>
+    <%= link_to "Gérer Dédicace de fin", collaborator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "transparent-link ml-50" %>
   </div>
   <%if @collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached?%>
     <div class="projects-grid mt-8">

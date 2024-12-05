@@ -25,7 +25,7 @@
                   <div class="w-full h-full flex flex-col justify-start items-center">
                     <div class="flex justify-between items-cente w-80 mt-6">
                       <div class="flex justify-between items-center"><span><%= video&.end_date&.strftime("%d/%m/%Y") %></span></div>
-                      <button class="cta">Partager</button>
+                      <button class="black-link">Partager</button>
                     </div>
                     <% if video.final_video.attached? && video.final_video_with_watermark.attached? %>
 

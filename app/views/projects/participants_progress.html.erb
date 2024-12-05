@@ -13,7 +13,7 @@
         <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full lg:w-2/3 modify-time-modal">
 
 
-          <%= form_with url: modify_deadline_path(id: @video.id), method: :patch, html:{class: "h-full"} do |f| %>
+          <%= form_with url: modify_deadline_path(id: @video.id), method: :patch, html:{class: "h-full", data: { turbo: false }} do |f| %>
             <div class="flex flex-col items-center gap-[48px] h-full pt-40 pb-40 px-[40px] rounded-[20px] border border-[#C9E1FF] bg-white shadow-custom">
               <p class="p-text-center-bold-16">Vous pouvez modifier la date limite du projet en cours</p>
               <div class="custom-calendar-container" data-controller="custom-calendar" data-custom-calendar-end-date="<%= @video.end_date %>">
@@ -45,7 +45,7 @@
               </div>
             </div>
 
-            <%= form_with url: close_project_path(id: @video.id), method: :patch, html: {class: "mb-[32px]"} do |f| %>
+            <%= form_with url: close_project_path(id: @video.id), method: :patch, html: {class: "mb-[32px]", data: { turbo: false }} do |f| %>
               <button formmethod="dialog" class="transparent-link font-bold">Prolonger le délai</button>
               <%= f.submit "Terminer le projet et enregistrer comme brouillon", class:"black-link ml-2" %>
             <% end %>
@@ -68,10 +68,10 @@
               Votre navigateur ne prend pas en charge l'élément vidéo.
             </video>
             <div class="flex flex-row justify-center items-center mt-2">
-              <a href="<%= url_for(@video.final_video) %>" class= "cta mr-4" download>Télécharger la vidéo finale</a>
+              <a href="<%= url_for(@video.final_video) %>" class= "black-link mr-4" download>Télécharger la vidéo finale</a>
               <% if @video.completed? && @video.final_video_xml.attached? %>
                 <div>
-                  <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download>Télécharger les archives MLT</a>
+                  <a href="<%= url_for(@video.final_video_xml) %>" class= "black-link" download>Télécharger les archives MLT</a>
                 </div>
               <% else %>
                 <p>Aucun fichier MLT généré.</p>
@@ -87,7 +87,7 @@
         <%end%>
       </div>
       <div class="w-full flex justify-center items-center mt-6">
-        <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "cta", data: { disable_with: "Refreshing..." } %>
+        <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "black-link", data: { disable_with: "Refreshing..." } %>
       </div>
     <% elsif @video.processing? %>
       <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
@@ -106,7 +106,7 @@
 
   <div class="flex justify-start items-center mt-6">
     <div class="font-bold">Ajouter mon contenu dans les chapitres</div>
-    <a href="<%= creator_manage_chapters_path(@video.id) %>" class="cta-transparent ml-50">Gérer les chapitres</a>
+    <a href="<%= creator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50">Gérer les chapitres</a>
   </div>
 
   <%if @video_chapters.present? and @video_chapters.count>0%>
@@ -117,7 +117,7 @@
           <%= render "videos/shared/popup_edit_video", chapters: @video_chapters, musics: @musics, video: @video, f: f, collab: false %>
 
           <div class="flex justify-center mt-6">
-            <%= f.submit "Confirmer les modifications", class: "cta" %>
+            <%= f.submit "Confirmer les modifications", class: "black-link" %>
           </div>
         </div>
       <% end %>
@@ -127,7 +127,7 @@
 
   <div class="flex justify-start items-center mt-6">
     <div class="font-bold ">Participation à la Dédicace de fin</div>
-    <%= link_to "Gérer Dédicace de fin", creator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "cta-transparent ml-50" %>
+    <%= link_to "Gérer Dédicace de fin", creator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "transparent-link ml-50" %>
   </div>
   <%if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached?%>
     <div class="projects-grid mt-8">
@@ -151,7 +151,7 @@
               delete_collaboration_path(collaboration.id),
               method: :delete,
               class: 'ml-2 font-medium text-black text-decoration-underline',
-              form: { data: { turbo_confirm: 'Êtes-vous sûr de vouloir supprimer ce collaborateur ?' } } %>
+              form: { data: { turbo: false, confirm: 'Êtes-vous sûr de vouloir supprimer ce collaborateur ?' } } %>
         </div>
           <%= form_with url: approving_collaborator_attachments_path(video_id: @video.id), method: :post, html: { data: { turbo: false } } do |f| %>
 
@@ -242,7 +242,7 @@
         </div>
         <br>
           <div class="flex justify-center">
-            <%= f.submit "Enregistrer les approbations", class: "cta" %>
+            <%= f.submit "Enregistrer les approbations", class: "black-link" %>
           </div>
         <%end%>
       </div>
