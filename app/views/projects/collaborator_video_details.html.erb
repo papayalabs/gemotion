@@ -10,15 +10,15 @@
   <div class='mt-4'>
     <div class="project-invitation">
       <div class="flex flex-row items-start mb-2">
-        <span>Ici s'affichent les films auxquels on vous a demandé de participer. Appuyez sur</span>
+        <span class="p-text-16">Ici s'affichent les films auxquels on vous a demandé de participer. Appuyez sur</span>
         <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Icon", style: "vertical-align: middle; margin-left: 5px; margin-right: 5px;" %>
-        <span>pour :</span>
+        <span class="p-text-16">pour :</span>
       </div>
 
       <ul>
-        <li>Ajouter du contenu vidéo ou photo pour illustrer chaque chapitre.</li>
-        <li>Contribuer à la dédicace finale. S'il s'agit de musique, vous pouvez sélectionner la partie qui leur est accessible.</li>
-        <li>Inviter un ami à collaborer sur le projet (l'administrateur doit approuver le nouveau participant).</li>
+        <li class="p-text-16">Ajouter du contenu vidéo ou photo pour illustrer chaque chapitre.</li>
+        <li class="p-text-16">Contribuer à la dédicace finale. S'il s'agit de musique, vous pouvez sélectionner la partie qui leur est accessible.</li>
+        <li class="p-text-16">Inviter un ami à collaborer sur le projet (l'administrateur doit approuver le nouveau participant).</li>
       </ul>
     </div>
   </div>
@@ -27,22 +27,22 @@
     <h4 class="text-black text-left font-montserrat text-[32px] font-bold leading-[24px] mb-[24px]">Les informations sur le projet en cours</h4>
   </div>
   <div class="flex flex-row items-start mt-4">
-    <span class="font-bold mr-4">Nom du destinataire (pour qui nous préparons le film) :</span>
-    <span><%= @destinataires&.map(&:name).join(" | ") %></span>
+    <span class="p-text-16-bold mr-4">Nom du destinataire (pour qui nous préparons le film) :</span>
+    <span class="p-text-16"><%= @destinataires&.map(&:name).join(" | ") %></span>
   </div>
   <div class="flex flex-row items-start mt-4">
-    <span class="font-bold mr-4">Occasion :</span>
-    <span><%= @video&.occasion&.humanize %></span>
+    <span class="p-text-16-bold mr-4">Occasion :</span>
+    <span class="p-text-16"><%= @video&.occasion&.humanize %></span>
   </div>
   <div class="flex flex-row items-start mt-4">
-    <span class="font-bold mr-4">Date de livraison du film :</span>
-    <span><%=@video&.end_date&.strftime("%d/%m/%Y") %></span>
+    <span class="p-text-16-bold mr-4">Date de livraison du film :</span>
+    <span class="p-text-16"><%=@video&.end_date&.strftime("%d/%m/%Y") %></span>
   </div>
 
   <hr class='hr-divider-gray mt-65 '/>
 
   <div class="flex justify-start items-center mt-6">
-    <div class="font-bold">Ajouter mon contenu dans les chapitres</div>
+    <div class="p-text-18-bold">Ajouter mon contenu dans les chapitres</div>
     <a href="<%= collaborator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50">Gérer les chapitres</a>
   </div>
 
@@ -67,7 +67,7 @@
   <hr class='hr-divider-gray '/>
 
   <div class="flex justify-start items-center mt-6">
-    <div class="font-bold ">Participation à la Dédicace de fin</div>
+    <div class="p-text-18-bold">Participation à la Dédicace de fin</div>
     <%= link_to "Gérer Dédicace de fin", collaborator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "transparent-link ml-50" %>
   </div>
   <%if @collaborator_dedicace.present? && @collaborator_dedicace.creator_end_dedication_video.attached?%>

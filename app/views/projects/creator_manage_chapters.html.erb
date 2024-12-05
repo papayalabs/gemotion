@@ -11,28 +11,28 @@
       <h4 class="text-black font-montserrat font-size-32i font-bold leading-[24px] mb-[24px]">Le projet</h4>
     </div>
     <div class="flex flex-col items-start">
-      <span class="font-bold mr-4">Description</span>
-      <span class="mt-4 mb-4">Lorem ipsum dolor sit amet consectetur. Ipsum ultrices vitae nibh egestas tortor porta aenean eget sagittis. Quis amet fringilla blandit faucibus lobortis vestibulum elit cras quis. Pharetra hendrerit convallis imperdiet ac porta. </span>
+      <span class="p-text-16-bold mr-4">Description</span>
+      <span class="p-text-16 mt-4 mb-4">Lorem ipsum dolor sit amet consectetur. Ipsum ultrices vitae nibh egestas tortor porta aenean eget sagittis. Quis amet fringilla blandit faucibus lobortis vestibulum elit cras quis. Pharetra hendrerit convallis imperdiet ac porta. </span>
     </div>
     <div class="flex flex-row items-start">
-      <span class="font-bold mr-4">Nom du destinataire (pour qui nous préparons le film) :</span>
-      <span><%= @destinataires&.map(&:name).join(" | ") %></span>
+      <span class="p-text-16-bold mr-4">Nom du destinataire (pour qui nous préparons le film) :</span>
+      <span class="p-text-16"><%= @destinataires&.map(&:name).join(" | ") %></span>
     </div>
     <div class="flex flex-row items-start mt-4">
-      <span class="font-bold mr-4">Occasion :</span>
-      <span><%= @video.occasion&.humanize %></span>
+      <span class="p-text-16-bold mr-4">Occasion :</span>
+      <span class="p-text-16"><%= @video.occasion&.humanize %></span>
     </div>
     <div class="flex flex-row items-start mt-4">
-      <span class="font-bold mr-4">Age :</span>
-      <span><%= @destinataires&.map(&:age).join(" | ") %></span>
+      <span class="p-text-16-bold mr-4">Age :</span>
+      <span class="p-text-16"><%= @destinataires&.map(&:age).join(" | ") %></span>
     </div>
     <div class="flex flex-row items-start mt-4">
-      <span class="font-bold mr-4">Date de livraison du film :</span>
-      <span><%=@video&.end_date&.strftime("%d/%m/%Y") %></span>
+      <span class="p-text-16-bold mr-4">Date de livraison du film :</span>
+      <span class="p-text-16"><%=@video&.end_date&.strftime("%d/%m/%Y") %></span>
     </div>
     <div class="flex flex-row items-start mt-4">
-      <span class="font-bold mr-4">Thème du film :</span>
-      <span><%=@video&.dedicace&.name%></span>
+      <span class="p-text-16-bold mr-4">Thème du film :</span>
+      <span class="p-text-16"><%=@video&.dedicace&.name%></span>
     </div>
 
     <h4 class="text-black font-montserrat font-size-32i font-bold leading-[24px] mb-[24px] mt-35">Choisissez des chapitres</h4>

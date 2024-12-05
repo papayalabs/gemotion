@@ -23,7 +23,7 @@
                     <p>Pas d'image</p>
                   <% end %>
                 </div>
-                <div class="w-full">
+                <div class="w-full video-popup-input-block">
                   <%= f.text_field "chapters[#{chapter.id}][text]", value: chapter.text, placeholder: "Quel texte doit contenir ce chapitre ...", class: "w-full br-10" %>
                 </div>
                 <div id="edit-video-gallery-<%= chapter.id %>" class="edit-video-gallery flex flex-row items-center space-x-8">
@@ -45,7 +45,7 @@
                   </div>
                   <%= f.file_field "chapters[#{chapter.id}][videos]", multiple: true, accept: 'video/*', class: 'form-control', style: 'display: none;', "data-id": chapter.id, "data-action": "change->chapter-management#handleVideoChange" %>
                 </div>
-                <hr class="hr-divider-gray mt-8 mb-8"/>
+                <hr class="hr-divider-gray mt-4 mb-4"/>
                 <div id="edit-photo-gallery-<%= chapter.id %>" class="edit-video-gallery flex flex-row items-center space-x-8">
                   <% chapter.ordered_photos.each do |photo| %>
                     <div class="edit-image-container old-image-container" data-file-name="<%= photo.filename.to_s %>">
@@ -65,7 +65,7 @@
                   </div>
                   <%= f.file_field "chapters[#{chapter.id}][photos]", multiple: true, accept: 'image/*', class: 'form-control', style: 'display: none;', "data-id": chapter.id, "data-action": "change->chapter-management#handlePhotoChange" %>
                 </div>
-                <hr class="hr-divider-gray mt-8 mb-8"/>
+                <hr class="hr-divider-gray mt-4 mb-4"/>
                 <% if video.by_chapters? %>
                   <div class="music-selection w-full">
                     <%if chapter.custom_music.attached? && chapter.waveform.present?%>

@@ -105,7 +105,7 @@
   <hr class='hr-divider-gray mt-65 '/>
 
   <div class="flex justify-start items-center mt-6">
-    <div class="font-bold">Ajouter mon contenu dans les chapitres</div>
+    <div class="p-text-18-bold">Ajouter mon contenu dans les chapitres</div>
     <a href="<%= creator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50">Gérer les chapitres</a>
   </div>
 
@@ -126,7 +126,7 @@
   <hr class='hr-divider-gray mt-65 '/>
 
   <div class="flex justify-start items-center mt-6">
-    <div class="font-bold ">Participation à la Dédicace de fin</div>
+    <div class="p-text-18-bold ">Participation à la Dédicace de fin</div>
     <%= link_to "Gérer Dédicace de fin", creator_manage_dedicace_path(@video.id), data: { turbo: false }, class: "transparent-link ml-50" %>
   </div>
   <%if @video_dedicace.present? && @video_dedicace.creator_end_dedication_video.attached?%>

@@ -172,6 +172,17 @@ main{
   text-decoration-skip-ink: none;
   color: rgba(0, 0, 0, 1);
 }
+.p-text-18-bold{
+  font-family: 'Red Hat Display', sans-serif; /* Use the custom font */
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 30px;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: rgba(0, 0, 0, 1);
+}
 .flex-im{
   display: flex!important;
 }
@@ -978,7 +989,13 @@ h2 {
   font-weight: 700;
   line-height: 25px; /* 156.25% */
 }
-
+.video-popup-input-block{
+  margin-top: -35px;
+  margin-bottom: -28px;
+  input{
+    border: none;
+  }
+}
 .video-chapter-wrapper {
   display: grid;
   grid-template-columns: auto 1fr;
