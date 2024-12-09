@@ -186,7 +186,7 @@
   box-shadow: 4px 4px 20px 5px rgba(13, 103, 131, 0.10);
   position: relative;
   box-sizing: border-box; /* Ensures padding/borders are included in dimensions */
-  padding: 49px 120px;
+  padding: 49px 135px;
   text-align: center;
 }
 
@@ -329,6 +329,7 @@
   height: 100%; /* Fit within the block */
   display: block;
   border-radius: 20px;
+  object-fit: cover;
 }
 .delete-preview-icon-btn{
   position: absolute;

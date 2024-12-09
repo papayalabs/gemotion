@@ -43,7 +43,7 @@
 
   <div class="flex justify-start items-center mt-6">
     <div class="p-text-18-bold">Ajouter mon contenu dans les chapitres</div>
-    <a href="<%= collaborator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50">Gérer les chapitres</a>
+    <a href="<%= collaborator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50" data-turbo="false">Gérer les chapitres</a>
   </div>
 
   <%if @collaborator_chapters.present? and @collaborator_chapters.count>0%>
@@ -64,7 +64,7 @@
       <% end %>
     </div>
   <%end%>
-  <hr class='hr-divider-gray '/>
+  <hr class='hr-divider-gray mt-6'/>
 
   <div class="flex justify-start items-center mt-6">
     <div class="p-text-18-bold">Participation à la Dédicace de fin</div>

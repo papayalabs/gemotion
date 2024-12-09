@@ -131,6 +131,51 @@
     <%= f.submit "Sauvegarder les modification", class:"black-link" %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".text-options").forEach((textOptionsBlock) => {
+      const prevYourTextBlock = textOptionsBlock.nextElementSibling; // Find the `prev-your-text` block next to `text-options`
+
+      const fontFamilySelect = textOptionsBlock.querySelector("select[name*='[text_family]']");
+      const fontStyleSelect = textOptionsBlock.querySelector("select[name*='[text_style]']");
+      const fontSizeSelect = textOptionsBlock.querySelector("select[name*='[text_size]']");
+
+      const updatePreviewText = () => {
+        const fontFamily = fontFamilySelect.value;
+        const fontStyle = fontStyleSelect.value;
+        const fontSize = fontSizeSelect.value;
+
+        // Set styles dynamically
+        prevYourTextBlock.style.fontFamily = fontFamily;
+        prevYourTextBlock.style.fontSize = `${fontSize}px`;
+
+        // Map text styles to CSS values
+        if (fontStyle === "Bold") {
+          prevYourTextBlock.style.fontWeight = "bold";
+          prevYourTextBlock.style.fontStyle = "normal";
+        } else if (fontStyle === "Italic") {
+          prevYourTextBlock.style.fontWeight = "normal";
+          prevYourTextBlock.style.fontStyle = "italic";
+        } else if (fontStyle === "Bold Italic") {
+          prevYourTextBlock.style.fontWeight = "bold";
+          prevYourTextBlock.style.fontStyle = "italic";
+        } else {
+          prevYourTextBlock.style.fontWeight = "normal";
+          prevYourTextBlock.style.fontStyle = "normal";
+        }
+      };
+
+      // Add event listeners to update preview on change
+      fontFamilySelect.addEventListener("change", updatePreviewText);
+      fontStyleSelect.addEventListener("change", updatePreviewText);
+      fontSizeSelect.addEventListener("change", updatePreviewText);
+
+      // Initialize preview with default values
+      updatePreviewText();
+    });
+  });
+</script>
 <style>
 .video-chapters {
   max-height: 1461px;

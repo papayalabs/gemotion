@@ -129,29 +129,31 @@ class VideosController < ApplicationController
 
     @video.stop_at = @video.next_step unless params[:add_more_destinataire].present? && params[:add_more_destinataire]
 
-    skip_destinataire = params[:add_more_destinataire].present? && params[:add_more_destinataire]
+    more_destinataire = params[:add_more_destinataire].present? && params[:add_more_destinataire]
+
+    is_empty_params = params[:age_destinataire].blank? &&
+                      params[:name_destinataire].blank? &&
+                      params[:more_info_destinataire].blank? &&
+                      params[:passions_and_hobbies].blank? &&
+                      params[:personality_description].blank? &&
+                      params[:favorite_quotes].blank?
 
     if @video.validate_info_destinataire(@vd)
-      if @vd.save && @video.update(stop_at: skip_destinataire ? @video.current_step : @video.next_step)
-        redirect_to send("#{@video.next_step}_path"), turbo: false
-        return
+      if @vd.save
+        if !more_destinataire
+          @video.update(stop_at: @video.current_step)
+          redirect_to destinataire_details_path, turbo: false
+        else
+          redirect_to info_destinataire_path
+        end
       else
-        flash[:alert] = "Veuillez remplir tous les champs obligatoires."
-        render info_destinataire_path, status: :unprocessable_entity
-        return
+        redirect_to info_destinataire_path, alert: "Veuillez remplir tous les champs obligatoires."
       end
+    elsif is_empty_params && @video.video_destinataires.count > 0
+      @video.update(stop_at: @video.current_step)
+      redirect_to destinataire_details_path, turbo: false
     else
-      return render info_destinataire_path, status: :unprocessable_entity if skip_destinataire
-
-      if @video.validate_info_destinataire(@vd)
-        @video.update(stop_at: @video.current_step)
-        redirect_to destinataire_details_path, turbo: false
-      else
-        flash[:alert] = "Veuillez remplir tous les champs obligatoires."
-        render info_destinataire_path, status: :unprocessable_entity
-        return
-      end
-
+      redirect_to info_destinataire_path, alert: "Veuillez remplir tous les champs obligatoires."
     end
 
     nil if params[:special_request_destinataire].nil?

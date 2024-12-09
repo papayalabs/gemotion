@@ -87,7 +87,7 @@
         <%end%>
       </div>
       <div class="w-full flex justify-center items-center mt-6">
-        <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "black-link", data: { disable_with: "Refreshing..." } %>
+        <%= button_to "Actualiser la vidéo", creator_refresh_video_path(video_id: @video.id), method: :post, class: "black-link", data: { disable_with: "Refreshing...", turbo: false } %>
       </div>
     <% elsif @video.processing? %>
       <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
@@ -106,7 +106,7 @@
 
   <div class="flex justify-start items-center mt-6">
     <div class="p-text-18-bold">Ajouter mon contenu dans les chapitres</div>
-    <a href="<%= creator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50">Gérer les chapitres</a>
+    <a href="<%= creator_manage_chapters_path(@video.id) %>" class="transparent-link ml-50" data-turbo="false">Gérer les chapitres</a>
   </div>
 
   <%if @video_chapters.present? and @video_chapters.count>0%>
@@ -172,7 +172,7 @@
               </div>
               <div class="project-block">
                 <%= image_tag "icons/Group39948.png", alt: "Edit Icon", class: "edit-prof-video-icon" %>
-                <%= video_tag collaboration.collaborator_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, class: 'collaborator-dedicace-thumb' %>
+                <%= video_tag collaboration.collaborator_dedicace.creator_end_dedication_video, controls: true, autobuffer: true, class: 'collaborator-dedicace-thumb w-100i' %>
               </div>
             </div>
           <%end%>
@@ -220,8 +220,22 @@
 
                         <%if @video.by_chapters?%>
                           <div class="music-selection w-full">
-                            <% if chapter.collaborator_music.present? %>
-                              <%= audio_tag chapter.collaborator_music.music.music, controls: true %>
+
+
+                            <%if chapter.custom_music.attached? && chapter.waveform.present?%>
+                              <div class="relative audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(chapter.custom_music) %>" data-waveform="<%= chapter.waveform.to_json %>">
+                                <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                                  <div class="play-button-icon"></div>
+                                </div>
+                                <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                              </div>
+                            <% elsif chapter.collaborator_music.present? %>
+                              <div class="relative audio-visualizer custom-audio-player" data-controller="audio-visualizer" data-audio-src="<%= url_for(chapter.collaborator_music.music.music) %>" data-waveform="<%= chapter.collaborator_music.music.waveform.to_json %>">
+                                <div class="play-icon play-button" data-audio-visualizer-target="playPauseButton">
+                                  <div class="play-button-icon"></div>
+                                </div>
+                                <canvas class="waveform-canvas" data-audio-visualizer-target="waveformCanvas"></canvas>
+                              </div>
                             <% end %>
                           </div>
                         <%end%>
