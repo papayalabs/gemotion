@@ -1333,7 +1333,7 @@ h2 {
   right: 15px;
   width: 17px;
   height: 17px;
-  z-index: 4; /* Ensure the icon is on top */
+  z-index: 6; /* Ensure the icon is on top */
   display: block; /* Make sure the icon is visible */
 }
 .edit-video-icon{
@@ -2037,6 +2037,8 @@ h2 {
   object-position: center;
   border-radius: 10px;
   height: 100%;
+  position: relative;
+  z-index: 5;
 }
 .collab-video-container{
   position: relative;
