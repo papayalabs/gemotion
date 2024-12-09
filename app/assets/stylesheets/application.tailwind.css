@@ -2098,7 +2098,7 @@ h2 {
 }
 
 .step:nth-child(even):not(:last-child)::after {
-  content: url('<%= asset_path("gemotion-next-step-left.svg") %>');
+  content: image-url("gemotion-next-step-left.svg");
   position: absolute;
   left: -120px; /* Adjust positioning as needed */
   top: 100%;
@@ -2106,7 +2106,7 @@ h2 {
 }
 
 .step:nth-child(odd):not(:last-child)::after {
-  content: url('<%= asset_path("gemotion-next-step-right.svg") %>');
+  content: image-url("gemotion-next-step-right.svg");
   position: absolute;
   right: -120px; /* Adjust positioning as needed */
   top: 100%;
@@ -2118,16 +2118,16 @@ h2 {
   content: none;
 }
 #about_hero {
-  background-image: url('<%= asset_path("gemotion-about-hero-bg.png") %>');
+  background-image: image-url("gemotion-about-hero-bg.png");
   background-position: center 80%;
   background-repeat: no-repeat;
   background-size: cover;
 }
 .about-block{
-  padding-bottom: 450px;
+  padding-bottom: 450px !important;
 }
 #watch{
-  margin-top:-250px!important;
+  margin-top:-400px!important;
 }
 .index-1{
   z-index:1;
