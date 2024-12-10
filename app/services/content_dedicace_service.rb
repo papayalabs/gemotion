@@ -62,8 +62,21 @@ class ContentDedicaceService
     finalize_mlt
 
     attach_final_video(final_video_path)
-    # FileUtils.rm_rf(@temp_dir)
+
+    # p "I" * 1000
+    # p @ts_videos.first(2)
+    # p "I" * 1000
+    # transition_service = TransitionsVideoService.new(@temp_dir)
+    # transition_path = transition_service.cube_rotation_transitions(@ts_videos)
+
     { success: true }
+  rescue StandardError => e
+    # Log the error or take other actions if necessary
+    Rails.logger.error("Error in call method: #{e.message}")
+    { error: e.message }
+  ensure
+    # Always clean up the temp directory
+    FileUtils.rm_rf(@temp_dir)
   end
 
   private
@@ -402,7 +415,7 @@ class ContentDedicaceService
 
   def generate_watermarked_video(video_path)
     watermark_image_path = Rails.root.join("app/assets/images/bigger-watermark.png")
-    watermarked_video_path = Rails.root.join("tmp", "watermarked_#{@video.id}.mp4")
+    watermarked_video_path = @temp_dir.join("watermarked_#{@video.id}.mp4")
 
     ffmpeg_command = <<~CMD
       ffmpeg -i "#{video_path}" -i "#{watermark_image_path}" -i "#{watermark_image_path}" -filter_complex "
