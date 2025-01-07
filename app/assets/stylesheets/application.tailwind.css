@@ -8,6 +8,10 @@
     font-family: 'Montserrat', sans-serif;
   }
 }
+.bg-shared-bg-blue{
+  background: linear-gradient(247.64deg, #0D6783 0%, #163F50 100%);
+}
+
 .custom-select {
   height: 57px;
   padding: 16px 40px 16px 20px;

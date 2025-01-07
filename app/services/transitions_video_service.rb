@@ -3,6 +3,119 @@ class TransitionsVideoService
     @temp_dir = temp_dir
   end
 
+  def create_transition_wipelt_videos(ts_videos, transition_duration = 1)
+    raise ArgumentError, "At least 2 videos are required for transitions." if ts_videos.size < 2
+
+    # Paths
+    output_video_path = @temp_dir.join("final_video_with_transitions.mp4")
+    normalized_videos = []
+
+    filtered_videos = ts_videos.reject do |file|
+      File.basename(file).match?(/^chapter_\d+_concatenated_video\./)
+    end
+    # Normalize each video
+    filtered_videos.each_with_index do |video, index|
+      normalized_path = @temp_dir.join("normalized_video_#{index}.mp4")
+      normalize_video(video, normalized_path)
+      normalized_videos << normalized_path
+    end
+
+    # Create transitions between each pair of normalized videos
+    intermediate_videos = []
+    normalized_videos.each_cons(2).with_index do |(video1, video2), index|
+      transition_output = @temp_dir.join("transition_#{index}.mp4")
+      intermediate_videos << transition_output
+
+      ffmpeg_command = <<~CMD
+        ffmpeg -i #{Shellwords.escape(video1.to_s)} -i #{Shellwords.escape(video2.to_s)} -filter_complex "
+        [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
+        [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
+        [base][next]xfade=transition=cube:duration=#{transition_duration}:offset=0[out]" \
+        -map "[out]" -c:v libx264 -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
+      CMD
+
+      # Execute the command
+      raise "Failed to create transition #{index}" unless system(ffmpeg_command)
+    end
+
+    # Concatenate all videos with transitions
+    concat_list = @temp_dir.join("concat_list.txt")
+    File.open(concat_list, "w") do |file|
+      intermediate_videos.each do |path|
+        file.puts("file '#{path}'")
+      end
+    end
+
+    concat_command = <<~CMD
+      ffmpeg -f concat -safe 0 -i #{Shellwords.escape(concat_list.to_s)} \
+        -c copy #{Shellwords.escape(output_video_path.to_s)}
+    CMD
+
+    # Execute the concatenation
+    raise "Failed to concatenate videos" unless system(concat_command)
+
+    # Clean up intermediate files (optional)
+    (normalized_videos + intermediate_videos).each { |file| File.delete(file) if File.exist?(file) }
+    File.delete(concat_list) if File.exist?(concat_list)
+
+    # Return the final output path
+    output_video_path
+  end
+
+  def cube_view(ts_videos)
+    # Ensure we have exactly six input videos
+    raise ArgumentError, "At least 6 video inputs are required to create a cube view." if ts_videos.size < 6
+
+    # Paths
+    cube_video_path = @temp_dir.join("cube_video.mp4")
+
+    # Normalize input videos
+    normalized_video_paths = ts_videos.first(6).each_with_index.map do |current_video_path, index|
+      normalized_video_path = @temp_dir.join("normalized_video_#{index}.mp4")
+      normalize_video(current_video_path, normalized_video_path)
+      normalized_video_path
+    end
+
+    # Combine normalized videos into a single cubemap
+    # Use v360 to create a cubemap layout
+    filter_complex = %(
+      [0:v]v360=input=equirect:output=cubemap:layout=3x2[front];
+      [front]split=6[face0][face1][face2][face3][face4][face5];
+      [face0]scale=300:300[front];
+      [face1]scale=300:300[back];
+      [face2]scale=300:300[left];
+      [face3]scale=300:300[right];
+      [face4]scale=300:300[top];
+      [face5]scale=300:300[bottom];
+      [front][left]overlay=W/4:H/4[tmp1];
+      [tmp1][right]overlay=W/3:H/3[tmp2];
+      [tmp2][top]overlay=W/6:H/6[tmp3];
+      [tmp3][bottom]overlay=W/7:H/7[tmp4];
+      [tmp4][back]overlay=W/8:H/8[out]
+    ).strip
+
+    # Build input arguments for ffmpeg
+    inputs = normalized_video_paths.map { |path| "-i #{Shellwords.escape(path)}" }.join(" ")
+
+    # Build the ffmpeg command
+    ffmpeg_command = <<~CMD
+      ffmpeg \
+        #{inputs} \
+        -filter_complex "#{filter_complex}" \
+        -map "[out]" #{Shellwords.escape(cube_video_path.to_s)} \
+        -c:v libx264 -crf 23 -preset veryfast
+    CMD
+
+    # Execute the ffmpeg command
+    result = system(ffmpeg_command)
+
+    # Check for errors
+    raise "FFmpeg failed to create the cubemap view. Check the inputs and filters." unless result
+
+    # Return the path to the cubemap video
+    cube_video_path
+  end
+
   def cube_rotation_transitions(ts_videos)
     transition_videos = []
     previous_video_path = nil
@@ -47,15 +160,15 @@ class TransitionsVideoService
   end
 
   def concatenate_videos_with_transitions(transition_videos, ts_videos)
-    final_video_path = @temp_dir.join("final_video.mp4")
+    final_video_path = @temp_dir.join("final_transition_video.mp4")
 
     # Prepare the list of all transition videos and original normalized videos
     files = transition_videos.map { |path| "file '#{path}'" }
-    File.open(@temp_dir.join("file_list.txt"), "w") { |f| f.puts(files.join("\n")) }
+    File.open(@temp_dir.join("transition_file_list.txt"), "w") { |f| f.puts(files.join("\n")) }
 
     # FFmpeg command to concatenate all videos
     ffmpeg_command = <<-CMD
-      ffmpeg -y -f concat -safe 0 -i "#{@temp_dir.join('file_list.txt')}" \
+      ffmpeg -y -f concat -safe 0 -i "#{@temp_dir.join('transition_file_list.txt')}" \
       -c:v libx264 -preset fast -crf 18 -c:a aac "#{final_video_path}"
     CMD
 
@@ -67,7 +180,16 @@ class TransitionsVideoService
   end
 
   def normalize_video(input_path, output_path)
-    system("ffmpeg -y -i \"#{input_path}\" -vf \"scale=1920:1080,setsar=1\" -r 30 -c:v libx264 -preset fast -crf 18 -c:a aac -strict experimental \"#{output_path}\"")
+    # Normalize video to a consistent resolution and frame rate
+    ffmpeg_command = <<~CMD
+      ffmpeg -i #{Shellwords.escape(input_path.to_s)} \
+        -vf "scale=1920:1080,fps=30" \
+        -c:v libx264 -crf 23 -preset veryfast \
+        -c:a aac -b:a 128k \
+        #{Shellwords.escape(output_path.to_s)}
+    CMD
+
+    raise "Failed to normalize video: #{input_path}" unless system(ffmpeg_command)
   end
 
   # def normalize_video(input_path, output_path)

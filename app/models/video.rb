@@ -23,6 +23,7 @@ class Video < ApplicationRecord
 
   has_one_attached :final_video
   has_one_attached :final_video_with_watermark
+  has_one_attached :final_video_with_transition
   has_one_attached :final_video_xml
 
   belongs_to :user
