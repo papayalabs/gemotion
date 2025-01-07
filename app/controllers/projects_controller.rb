@@ -5,7 +5,8 @@ class ProjectsController < ApplicationController
                                       creator_manage_dedicace collaborator_dedicace_de_fin_post
                                       collaborator_chapters_post edit_collaborator_chapters_post
                                       creator_chapters_post creator_dedicace_de_fin_post edit_creator_chapters_post
-                                      creator_refresh_video approving_collaborator_attachments]
+                                      creator_refresh_video approving_collaborator_attachments invite_collaborators
+                                      invite_collaborators_post]
   before_action :find_destinataire,
                 only: %i[collaborator_video_details collaborator_manage_chapters creator_manage_chapters]
   before_action :define_music, only: %i[collaborator_video_details participants_progress]
@@ -624,6 +625,40 @@ class ProjectsController < ApplicationController
     end
 
     redirect_to participants_progress_path(video_id: @video.id), notice: "Approvals have been updated successfully."
+  end
+
+  def invite_collaborators
+    authorize @video, :invite_collaborators?, policy_class: ProjectPolicy
+
+  end
+
+  def invite_collaborators_post
+    authorize @video, :invite_collaborators_post?, policy_class: ProjectPolicy
+    # Le mailer fonctionne mais pas le join
+    email = params[:email]
+    if email.blank?
+      flash[:alert] = "Un email doit être indiqué pour envoyer l'invitation."
+      return render invite_collaborators_path(video_id: @video.id), status: :unprocessable_entity
+    end
+
+    # create Collab obj
+    collab_user = User.find_by_email(params[:email])
+    if collab_user == @video.user
+      flash[:alert] = "Il s'agit de l'e-mail du créateur du projet, veuillez utiliser l'e-mail correct."
+      return render invite_collaborators_path(video_id: @video.id), status: :unprocessable_entity
+    end
+
+    @video.update(video_type: :colab) # update to collab if was solo before
+    collaboration = Collaboration.create!(
+      video: @video,
+      inviting_user: current_user,
+      invited_email: params[:email],
+      invited_user: collab_user # may be nil if user doesn't exist yet
+    )
+
+    InvitationMailer.with(url: join_url(@video.token), email:).send_invitation.deliver_later
+    flash[:notice] = "Invitation envoyé."
+    redirect_to invite_collaborators_path(video_id: @video.id)
   end
 
   private

@@ -109,6 +109,9 @@ Rails.application.routes.draw do
   post 'projects/creator_dedicace_de_fin_post', to: "projects#creator_dedicace_de_fin_post", as: "creator_dedicace_de_fin_post"
   post 'projects/creator_refresh_video', to: 'projects#creator_refresh_video', as: 'creator_refresh_video'
   post 'projects/approving_collaborator_attachments', to: 'projects#approving_collaborator_attachments', as: 'approving_collaborator_attachments'
+  get 'projects/invite_collaborators', to: 'projects#invite_collaborators', as: 'invite_collaborators'
+  post 'projects/invite_collaborators_post', to: "projects#invite_collaborators_post", as: "invite_collaborators_post"
+
 
   delete 'projects/delete_collaboration/:id', to: 'projects#delete_collaboration', as: 'delete_collaboration'
   patch 'projects/:id/modify_deadline', to: 'projects#modify_deadline', as: 'modify_deadline'

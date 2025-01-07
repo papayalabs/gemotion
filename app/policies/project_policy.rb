@@ -38,4 +38,6 @@ class ProjectPolicy < ApplicationPolicy
   def creator_dedicace_de_fin_post?; participants_progress?; end
   def creator_refresh_video?; participants_progress?; end
   def approving_collaborator_attachments?; participants_progress?; end
+  def invite_collaborators?; participants_progress?; end
+  def invite_collaborators_post?; participants_progress?; end
 end
