@@ -1,7 +1,7 @@
 class Video < ApplicationRecord
   enum :video_type, { solo: 0, colab: 1 }
   enum :occasion, { anniversaire: 0, mariage: 1 }
-  enum :theme, { specific_request: 0, theme_1: 1, theme_2: 2 }
+  enum :theme, {notre_star_ce_soir: 0, specific_request: 1, theme_1: 2, theme_2: 3 }
   enum :music_type, { whole_video: 0, by_chapters: 1 }
   enum concat_status: { pending: 0, processing: 1, completed: 2, failed: 3 }
   enum project_status: { started: 0, in_progress: 1, finished: 2, closed: 3 }

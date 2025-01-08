@@ -232,7 +232,7 @@ class VideosController < ApplicationController
 
   def introduction_post
     authorize @video, :introduction_post?, policy_class: VideoPolicy
-    @video.theme = params[:theme].to_i
+    @video.introduction_video = params[:theme].to_i
     @video.theme_specific_request = params[:special_request]
     @video.stop_at = @video.next_step
     if @video.validate_introduction && @video.save

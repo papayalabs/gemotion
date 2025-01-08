@@ -18,7 +18,7 @@
             <div class="theme-selector flex flex-col mb-45" data-switchvideo-target="radioGroup">
               <% Video.themes.each do |k, v| %>
                 <label
-                  class="theme-option relative <%= 'selected' if @video.theme == k %>"
+                  class="theme-option relative <%= 'selected' if @video[:introduction_video] == v %>"
                   data-theme="<%= v %>"
                   data-switchvideo-target="theme"
                   data-action="click->switchvideo#updateVideo"
@@ -27,7 +27,7 @@
                     type="radio"
                     name="theme"
                     value="<%= v %>"
-                    <%= 'checked' if @video.theme == k %>
+                    <%= 'checked' if @video[:introduction_video] == v %>
                     data-switchvideo-target="radio"
                   />
                   <%= image_tag "previews/#{k}-thumbnail.png", alt: "Preview for #{k}" %>
@@ -53,7 +53,7 @@
             <h3 class="video-h3">Regardez l'aperçu</h3>
             <p class="p-text-center-16">L'introduction de votre vidéo dépendra de l'option que vous avez sélectionné</p>
             <% Video.themes.each do |el| %>
-              <%= video_tag "previews/#{el[0]}.mp4", class: "#{@video.theme == el[0] ? '' : 'hidden'} br-20", 'data-switchvideo-target': 'video', 'data-switchvideo-info': el[1], controls: true %>
+              <%= video_tag "previews/#{el[0]}.mp4", class: "#{@video.introduction_video == el[1] ? '' : 'hidden'} br-20", 'data-switchvideo-target': 'video', 'data-switchvideo-info': el[1], controls: true %>
             <% end %>
           </div>
         </div>
