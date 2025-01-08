@@ -22,6 +22,8 @@ class ContentDedicaceService
 
     @previews_duration = ""
 
+    @introduction_duration = ""
+
     @mlt_content = <<-MLT
     <mlt LC_NUMERIC="C" version="7.28.0" title="Shotcut version 24.10.29" producer="main_bin">
       <profile description="HD 1080p 30fps" id="HD 1080p 30fps" width="1920" height="1080" frame_rate="30" />
@@ -42,6 +44,9 @@ class ContentDedicaceService
     end
 
     previews_duration_calc(preview_assets.count) if @video.by_chapters?
+
+    process_introduction
+    calculate_introduction_duration
 
     process_previews(preview_assets)
     process_chapters(united_chapter_assets)
@@ -68,7 +73,7 @@ class ContentDedicaceService
       { error: e.message }
     ensure
       # Always clean up the temp directory
-      FileUtils.rm_rf(@temp_dir)
+      # FileUtils.rm_rf(@temp_dir)
   end
 
   private
@@ -125,6 +130,17 @@ class ContentDedicaceService
         }
       end
     end
+  end
+
+  def process_introduction
+    introduction_input_path = Rails.root.join("app/assets/videos/previews/#{@video.introduction_video}.mp4")
+    introduction_output_path = @temp_dir.join("introduction.ts")
+    p "+" * 100 + "introduction" + "+" * 100
+    system("ffmpeg -y -i \"#{introduction_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{introduction_output_path}\"")
+    p "-" * 100 + "introduction" + "-" * 100
+    @ts_videos << introduction_output_path.to_s
+    add_to_mlt_video(introduction_output_path, "introduction.ts", "introduction")
+    upload_to_archive("introduction.ts", introduction_output_path)
   end
 
   def process_previews(preview_assets)
@@ -355,6 +371,7 @@ class ContentDedicaceService
       p "-" * 100 + "Convert final_chapters_videos_with_music to .ts format if needed" + "-" * 100
     end
 
+    final_chapter_videos_introduction = @ts_videos.grep(/introduction\.ts$/)
     final_chapter_videos_previews = @ts_videos.grep(/preview_\d+\.ts/)
     final_chapter_videos_with_music_ts = final_chapter_videos_with_music.map { |video| video.sub(/\.mp4$/, ".ts") }
 
@@ -367,11 +384,12 @@ class ContentDedicaceService
 
       all_dedicaces = final_chapter_videos_dedicace + collaborator_dedicace_videos
 
-      all_videos_to_concat = final_chapter_videos_previews +
+      all_videos_to_concat = final_chapter_videos_introduction +
+                             final_chapter_videos_previews +
                              final_chapter_videos_with_music_ts +
                              all_dedicaces.uniq
     else
-      all_videos_to_concat = final_chapter_videos_previews + final_chapter_videos_with_music_ts
+      all_videos_to_concat = final_chapter_videos_introduction + final_chapter_videos_previews + final_chapter_videos_with_music_ts
     end
 
     # Create a text file with the paths of the videos to concatenate
@@ -432,6 +450,18 @@ class ContentDedicaceService
     Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
   end
 
+  def calculate_introduction_duration
+    # Assuming the first element of @ts_videos is the introduction video
+    introduction_video_path = @ts_videos.first
+
+    output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 #{introduction_video_path.to_s.shellescape}`
+
+    raise "Error: Could not retrieve introduction video duration." if output.strip.empty?
+
+    seconds = output.strip.to_f
+    @introduction_duration = Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
+  end
+
   def set_final_video_length(final_video_path)
     output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 #{final_video_path.to_s.shellescape}`
 
@@ -463,16 +493,28 @@ class ContentDedicaceService
     chapter_durations.transform_values { |total_seconds| format_time(total_seconds) }
   end
 
+  def duration_to_seconds(duration)
+    h, m, s = duration.split(":").map(&:to_f)
+    (h * 3600) + (m * 60) + s
+  end
+
+  def seconds_to_duration(seconds)
+    Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
+  end
+
   def create_combined_music_playlist(chapter_durations)
     entries = chapter_durations.map do |index, duration|
       %(<entry producer="music_#{index}" in="00:00:00.000" out="#{duration}"/>)
     end
 
+    total_blank_seconds = duration_to_seconds(@previews_duration) + duration_to_seconds(@introduction_duration)
+    total_blank_duration = seconds_to_duration(total_blank_seconds)
+
     <<-MLT
     <playlist id="playlist1">
       <property name="shotcut:audio">1</property>
       <property name="shotcut:name">A1</property>
-      <blank length="#{@previews_duration}"/>
+      <blank length="#{total_blank_duration}"/>
       #{entries.join("\n    ")}
     </playlist>
     MLT
