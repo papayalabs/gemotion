@@ -94,7 +94,7 @@ class Video < ApplicationRecord
   end
 
   def validate_introduction
-    return false unless Video.themes.include?(theme.downcase)
+    return false unless Video.introduction_videos.include?(introduction_video.downcase)
     return false if specific_request? && theme_specific_request.blank?
     return false unless way.include?(stop_at)
 
