@@ -1399,6 +1399,7 @@ h2 {
 .popup-payment-modal{
   height: 295px;
   border-radius: 20px;
+  overflow: hidden;
 }
 .popup-close-project-modal{
   height: 600px;
