@@ -6,10 +6,10 @@
   <div class="w-full h-full devise-bg pt-[72px]">
     <div class='mb-45'>
       <div class="devise-header font-montserrat">
-        <span class="gradient-text"><%= t('devise.registrations.sign_up_first') %></span><span><%= t('devise.registrations.sign_up_second') %></span>
+        <span class="gradient-text">Inscrivez</span><span>-vous</span>
       </div>
       <p class="mt-4 text-center p-text-18">
-        <%= t('devise.registrations.subtitle') %>
+        Pour commencer à créer vos souvenirs vidéo
       </p>
     </div>
     <div class="w-full flex items-center justify-center mt-65">
@@ -17,39 +17,39 @@
             <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6 flex flex-col items-center justify-center w-full" }) do |f| %>
               <div class="flex flex-col items-center justify-between w-full mt-0">
                 <div class='mb-2 w-full'>
-                  <%= f.text_field :first_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: t('devise.registrations.first_name') %>
+                  <%= f.text_field :first_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: "Prénom*" %>
                 </div>
 
                 <div class='mb-2 mt-2 w-full'>
-                  <%= f.text_field :last_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: t('devise.registrations.last_name') %>
+                  <%= f.text_field :last_name, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: "Nom de famille*" %>
                 </div>
 
                 <div class='mb-2 mt-2 w-full'>
-                  <%= f.email_field :email, autofocus: true, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: t('devise.registrations.email') %>
+                  <%= f.email_field :email, autofocus: true, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: "Email*" %>
                 </div>
 
                 <div class='mb-2 mt-2 w-full'>
-                  <%= f.telephone_field :phone, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: t('devise.registrations.phone') %>
+                  <%= f.telephone_field :phone, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: "Téléphone*" %>
                 </div>
 
                 <div class='mb-2 mt-2 w-full'>
-                  <%= f.password_field :password, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: t('devise.registrations.password') %>
+                  <%= f.password_field :password, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: "Mot de passe*" %>
                 </div>
 
                 <div class='mb-2 mt-2 w-full'>
-                  <%= f.password_field :password_confirmation, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: t('devise.registrations.password_confirmation') %>
+                  <%= f.password_field :password_confirmation, required: true, class: "flex w-full h-[53px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(0,0,0,0.50)] bg-white text-black font-red-hat-display text-[14px] font-normal leading-[25px] background-color-transparent placeholder-color-grey", placeholder: "Confirmer le mot de passe*" %>
                 </div>
               </div>
 
 
               <div class='w-full flex items-center justify-center mt-8'>
-                <%= f.submit t('devise.registrations.sign_up_button'), class: "black-link" %>
+                <%= f.submit "S'inscrire", class: "black-link" %>
               </div>
 
 
               <div class="mt-4 text-sm text-center">
                 <p class="text-black">
-                  <a href="<%= new_session_path(resource_name) %>" class="font-medium text-black text-decoration-underline"><%= t('devise.registrations.already_have_account') %></a>
+                  <a href="<%= new_session_path(resource_name) %>" class="font-medium text-black text-decoration-underline">Vous avez déjà un compte ? Connectez-vous</a>
                 </p>
               </div>
 
