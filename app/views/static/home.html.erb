@@ -1,7 +1,7 @@
 <% content_for :styles do %>
   <%= stylesheet_link_tag 'home', media: 'all', rel: 'stylesheet' %>
 <% end %>
-<%= render "shared/seo/seocompletion", title: "Accueil", description: "" %>
+<%= render "shared/seo/seocompletion", title: t('seo.home'), description: "" %>
 <!--
 <div class="swiper">
   <div class="swiper-wrapper">
@@ -20,7 +20,7 @@
 <div class="home">
   <div class="hero-block">
     <%= image_tag 'Hero2.png', class: ' w-full h-auto object-center' %>
-    <%= link_to "Démarrer", start_path(continue: true), class: "black-link" %>
+    <%= link_to t('header.start'), start_path(continue: true), class: "black-link" %>
   </div>
 
 <%# <section class="hero">
@@ -37,30 +37,30 @@
 
 <section id="satisfied">
   <div class="relative max-w-[764px]">
-    <h2 class="max-w-[740px] mb-[32px]">Vous ne payez que si vous êtes satisfait du résultat!</h2>
+    <h2 class="max-w-[740px] mb-[32px]"><%= t('home.satisfied.title') %></h2>
     <%= image_tag 'gemotion-home-satisfied-img.png', class: 'absolute top-[-100px] right-[-100px] w-[220px] h-auto object-contain object-center' %>
-    <p class="text-center p-text-18">E-motions Vidéo est une plateforme innovante qui vous permet de créer à plusieurs des vidéos personnalisées uniques et chargées d'émotions pour toutes les occasions. Offrez un cadeau original et inoubliable à vos proches en retraçant les moments forts de leur vie.</p>
+    <p class="text-center p-text-18"><%= t('home.satisfied.description') %></p>
   </div>
 </section>
 
 <section id="how">
   <div class="max-w-[1062px]">
-    <h2 class="text-left mb-[69px]">Comment ça marche</h2>
+    <h2 class="text-left mb-[69px]"><%= t('home.how_it_works.title') %></h2>
 
     <div class="mx-auto flex items-center gap-[96px] mb-[48px]">
       <div class="flex-1">
         <ul class="flex flex-col gap-[32px]">
           <li class="how-li">
-            <div>Choisissez les caractéristiques de votre film</div>
+            <div><%= t('home.how_it_works.step1') %></div>
           </li>
           <li class="how-li">
-            <div>Invitez des participants</div>
+            <div><%= t('home.how_it_works.step2') %></div>
           </li>
           <li class="how-li">
-            <div>Chaque participant témoigne avec des vidéos et/ou des photos</div>
+            <div><%= t('home.how_it_works.step3') %></div>
           </li>
           <li class="how-li">
-            <div>Offrez le film</div>
+            <div><%= t('home.how_it_works.step4') %></div>
           </li>
         </ul>
       </div>
@@ -69,12 +69,12 @@
 
   </div>
 
-  <%= link_to "Lire la suite", about_path, class: "read-more black-link" %>
+  <%= link_to t('buttons.read_more'), about_path, class: "read-more black-link" %>
 </section>
 
 <section id="dedication" style="background-image: url(<%= asset_path 'gemotion-dedication-bg.svg' %>)" >
-  <h2 class="max-w-[740px] mb-[32px]">Choisissez la dédicace de fin qui rendra votre film unique</h2>
-  <p class="mb-[48px] p-text-18">Choisissez votre thème de dédicace de fin et laissez-vous guider !</p>
+  <h2 class="max-w-[740px] mb-[32px]"><%= t('home.dedication.title') %></h2>
+  <p class="mb-[48px] p-text-18"><%= t('home.dedication.description') %></p>
 
   <div class="max-w-[1062px] mx-auto flex gap-[41px] items-center mb-[48px]">
     <div class="flex-1">
@@ -83,59 +83,59 @@
     <ul class="min-w-[413px] max-w-[413px] pl-5">
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>01 Danse</div>
+          <div><%= t('home.dedication.themes.dance') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>02 Boulette</div>
+          <div><%= t('home.dedication.themes.ball') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>03 Les Balais</div>
+          <div><%= t('home.dedication.themes.brooms') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>04 Carpool</div>
+          <div><%= t('home.dedication.themes.carpool') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>05 Ballon</div>
+          <div><%= t('home.dedication.themes.balloon') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>06 Messages écrits</div>
+          <div><%= t('home.dedication.themes.written_messages') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>07 Messages vocaux</div>
+          <div><%= t('home.dedication.themes.voice_messages') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
       <li class="text-black font-montserrat text-[20px] font-bold leading-[24px] py-5 px-4">
         <div class="flex justify-between items-center">
-          <div>08 Les shots</div>
+          <div><%= t('home.dedication.themes.shots') %></div>
           <div><%= image_tag 'icons/IconContainer.png', class: 'icon-container' %></div>
         </div>
       </li>
     </ul>
   </div>
 
-  <a class="black-link show-more-features">Afficher plus de fonctionnalités</a>
+  <a class="black-link show-more-features"><%= t('buttons.show_more') %></a>
 </section>
 <div class="w-full flex justify-center items-center mt-8">
-  <h2>Nos tarifs</h2>
+  <h2><%= t('home.pricing.title') %></h2>
 </div>
 <%= render "shared/pricing" %>
 
