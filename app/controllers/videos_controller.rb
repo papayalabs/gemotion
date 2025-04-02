@@ -653,7 +653,7 @@ class VideosController < ApplicationController
       flash[:notice] = "Le traitement de la vidéo a été relancé en arrière-plan."
 
       # Redirect to the same action without the refresh parameter
-      redirect_to content_dedicace_path(@video) and return
+      redirect_to content_dedicace_path and return
     end
     # Check if the final video is already attached
     if @video.final_video_with_watermark.attached?
