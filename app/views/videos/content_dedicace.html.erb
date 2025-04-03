@@ -31,7 +31,7 @@
               Votre navigateur ne prend pas en charge l'élément vidéo.
             </video>
           </div>
-          <%= link_to "Actualiser la vidéo", content_dedicace_path(@video, refresh: true), class: "transparent-link", data: { disable_with: "Refreshing..." } %>
+          <%= link_to "Actualiser la vidéo", content_dedicace_path(refresh: true), class: "transparent-link", data: { disable_with: "Refreshing..." } %>
         <% elsif @video.processing? %>
           <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
         <% else %>

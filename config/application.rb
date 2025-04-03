@@ -11,11 +11,15 @@ module Gemotion
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
 
+    # Set default locale to French and available locales to French and English
+    config.i18n.default_locale = :fr
+    config.i18n.available_locales = %i[fr en]
+
     config.active_job.queue_adapter = :sidekiq
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w(assets tasks))
+    config.autoload_lib(ignore: %w[assets tasks])
     config.active_storage.previewers += [ActiveStorage::Previewer::VideoPreviewer]
     # Configuration for the application, engines, and railties goes here.
     #
