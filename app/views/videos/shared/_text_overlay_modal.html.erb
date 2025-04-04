@@ -84,15 +84,24 @@
         <!-- input type="number" id="font-size" class="w-full p-2 border rounded" min="12" max="72" value="80" -->
         <select id="font-size" class="w-full p-2 border rounded">
           <option value="40"><%= t("small") %></option>
-          <option value="80"><%= t("medium") %></option>
-          <option value="120"><%= t("large") %></option>
-          <option value="160"><%= t("extra_large") %></option>
+          <option value="70"><%= t("medium") %></option>
+          <option value="100"><%= t("large") %></option>
+          <option value="130"><%= t("extra_large") %></option>
         </select>
       </div>
     </div>
     
     <input type="hidden" id="current-preview-id">
     <input type="hidden" id="current-preview-position">
+
+    <div class="mt-6 p-4 border rounded-lg bg-gray-50 mb-4">
+      <h3 class="text-lg font-bold mb-2"><%= t("preview") %></h3>
+      <div id="text-preview" class="p-4 border rounded bg-black h-24 flex items-center justify-center overflow-hidden">
+        <p id="preview-text" style="font-family: Poppins; font-size: 24px; color: #ffffff;">
+          <%= t("preview_text") %>
+        </p>
+      </div>
+    </div>
     
     <div class="flex justify-end gap-4">
       <button id="cancel-overlay" class="px-4 py-2 bg-gray-300 rounded"><%= t("cancel") %></button>

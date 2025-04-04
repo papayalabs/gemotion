@@ -370,8 +370,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       
       // Show the modal
+      updatePreview();
       textOverlayModal.classList.remove("hidden");
+
     });
+
   });
   
   // Cancel button for text overlay modal
@@ -437,6 +440,46 @@ document.addEventListener("DOMContentLoaded", () => {
     // Always update the order before proceeding
     updateOrder();
   });
+
+
+  // Add preview update functionality
+  function updatePreview() {
+    const text = document.getElementById('overlay-text').value || document.getElementById('preview-text').textContent;
+    const fontType = document.getElementById('font-type').value;
+    const fontStyle = document.getElementById('font-style').value;
+    const fontSize = document.getElementById('font-size').value;
+    const textColor = document.getElementById('text-color').value;
+
+    const previewText = document.getElementById('preview-text');
+
+    // Update text content
+    previewText.textContent = text;
+
+    // Update styles
+    previewText.style.fontFamily = fontType;
+    previewText.style.color = textColor;
+
+    // Convert font size for preview display (scale down)
+    previewText.style.fontSize = `${fontSize / 2.5}px`;
+
+    // Handle font style
+    previewText.style.fontWeight = fontStyle.includes('Bold') ? 'bold' : 'normal';
+    previewText.style.fontStyle = fontStyle.includes('Italic') ? 'italic' : 'normal';
+  }
+
+  // Update preview on input changes
+  document.addEventListener('input', function(event) {
+    const target = event.target;
+    if (
+      target.id === 'overlay-text' || 
+      target.id === 'font-type' || 
+      target.id === 'font-style' || 
+      target.id === 'font-size' || 
+      target.id === 'text-color'
+    ) {
+      updatePreview();
+    }
+  });
 });
 </script>
 
@@ -474,5 +517,20 @@ document.addEventListener("DOMContentLoaded", () => {
   right: 0;
   margin: 5px;
   z-index: 10;
+}
+
+/* Styles for text preview */
+#text-preview {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+#preview-text {
+  text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.8);
+  max-width: 90%;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 </style>
