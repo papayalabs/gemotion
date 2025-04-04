@@ -4,7 +4,7 @@
     
     <div class="mb-4">
       <label for="overlay-text" class="block mb-2 font-bold"><%= t("text") %></label>
-      <textarea id="overlay-text" class="w-full p-2 border rounded" placeholder=<%= t("enter_your_text_here") %>></textarea>
+      <textarea id="overlay-text" class="w-full p-2 border rounded" placeholder="<%= t("enter_your_text_here") %>"></textarea>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -94,9 +94,18 @@
     <input type="hidden" id="current-preview-id">
     <input type="hidden" id="current-preview-position">
     
+    <div class="mt-6 p-4 border rounded-lg bg-gray-50 mb-4">
+      <h3 class="text-lg font-bold mb-2"><%= t("preview") %></h3>
+      <div id="text-preview" class="p-4 border rounded bg-black h-24 flex items-center justify-center overflow-hidden">
+        <p id="preview-text" style="font-family: Poppins; font-size: 24px; color: #ffffff;">
+          <%= t("preview_text") %>
+        </p>
+      </div>
+    </div>
+    
     <div class="flex justify-end gap-4">
       <button id="cancel-overlay" class="px-4 py-2 bg-gray-300 rounded"><%= t("cancel") %></button>
-      <button id="save-overlay" class="px-4 py-2 bg-blue-600 rounded"><%= t("save") %></button>
+      <button id="save-overlay" class="px-4 py-2 bg-blue-600 rounded text-white"><%= t("save") %></button>
     </div>
   </div>
 </div>

@@ -285,8 +285,8 @@ class VideosController < ApplicationController
         video_preview.preview.update(
           text: preview_overlay[:text],
           text_position: preview_overlay[:text_position],
-          start_time: 0,#preview_overlay[:start_time],
-          duration: 3,#preview_overlay[:duration],
+          start_time: preview_overlay[:start_time],
+          duration: preview_overlay[:duration],
           font_type: preview_overlay[:font_type],
           font_style: preview_overlay[:font_style],
           font_size: preview_overlay[:font_size],
@@ -321,8 +321,8 @@ class VideosController < ApplicationController
         preview_attrs.merge!(
           text: overlay_data[:text],
           text_position: overlay_data[:text_position],
-          start_time: 0,#overlay_data[:start_time],
-          duration: 3,#overlay_data[:duration],
+          start_time: overlay_data[:start_time],
+          duration: overlay_data[:duration],
           font_type: overlay_data[:font_type],
           font_style: overlay_data[:font_style],
           font_size: overlay_data[:font_size],

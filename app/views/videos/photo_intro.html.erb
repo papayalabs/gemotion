@@ -40,7 +40,7 @@
                       <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
                     </div>
                     <%= image_tag preview.image, class: "preview-photo-intro-image" %>
-                    <div class="edit-text-overlay-btn" data-preview-id="<%= preview.id %>">
+                    <div class="edit-text-overlay-btn" data-preview-id="<%= preview.id %>" data-position="<%= index + 1 %>">
                       <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Text", class: "edit-text-icon" %>
                     </div>
                   </div>
@@ -116,6 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const bigImageBlock = document.querySelector(".preview-big-image-block");
   const textOverlayModal = document.getElementById("text-overlay-modal");
 
+  // Constants for text display timing 
+  const DEFAULT_START_TIME = 0;
+  const DEFAULT_DURATION = 3;
+  
   // Text overlay form elements
   const overlayText = document.getElementById("overlay-text");
   const textPosition = document.getElementById("text-position");
@@ -123,8 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const fontType = document.getElementById("font-type");
   const fontStyle = document.getElementById("font-style");
   const textColor = document.getElementById("text-color");
-  const startTime = 0;//document.getElementById("start-time");
-  const duration = 3;//document.getElementById("duration");
   const fontSize = document.getElementById("font-size");
   const currentPreviewId = document.getElementById("current-preview-id");
   const currentPreviewPosition = document.getElementById("current-preview-position");
@@ -313,12 +315,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   };
 
-
-
-
-
-
-  // Handle text overlay editing
   document.querySelectorAll(".edit-text-overlay-btn").forEach(btn => {
     btn.addEventListener("click", event => {
       event.preventDefault();
@@ -328,73 +324,103 @@ document.addEventListener("DOMContentLoaded", () => {
       const previewId = previewBlock.dataset.previewId;
       const position = previewBlock.dataset.position;
       
-      // If it's an existing preview, load its text overlay properties
+      // Show the modal directly without using the controller
+      const textOverlayModal = document.getElementById("text-overlay-modal");
+      document.getElementById("current-preview-id").value = previewId;
+      document.getElementById("current-preview-position").value = position;
+      textOverlayModal.classList.remove("hidden");
+      
+      // Prefill form with existing values if available
       if (previewId) {
-        currentPreviewId.value = previewId;
-        
-        // Load existing values if available
         const textField = document.getElementById(`preview_text_${previewId}`);
         const positionField = document.getElementById(`preview_text_position_${previewId}`);
-        const startTimeField = document.getElementById(`preview_start_time_${previewId}`);
-        const durationField = document.getElementById(`preview_duration_${previewId}`);
         const fontTypeField = document.getElementById(`preview_font_type_${previewId}`);
         const fontStyleField = document.getElementById(`preview_font_style_${previewId}`);
         const fontSizeField = document.getElementById(`preview_font_size_${previewId}`);
         const animationField = document.getElementById(`preview_animation_${previewId}`);
         const textColorField = document.getElementById(`preview_text_color_${previewId}`);
 
-        overlayText.value = textField ? textField.value || "" : "";
-        textPosition.value = positionField ? positionField.value || "middle" : "middle";
-        startTime.value = 0;//startTimeField ? startTimeField.value || 0 : 0;
-        duration.value = 3;//durationField ? durationField.value || 3 : 3;
-        fontType.value = fontTypeField ? fontTypeField.value || "Poppins" : "Poppins";
-        fontStyle.value = fontStyleField ? fontStyleField.value || "Normal" : "Normal";
-        fontSize.value = fontSizeField ? fontSizeField.value || 80 : 80;
-        textAnimation.value = animationField ? animationField.value || "none" : "none";
-        textColor.value = textColorField ? textColorField.value || "#ffffff" : "#ffffff";
-      } else {
-        // For new image uploads, use default values and store the position
-        currentPreviewId.value = "";
-        currentPreviewPosition.value = position;
+        if (textField) document.getElementById("overlay-text").value = textField.value || "";
+        if (positionField) document.getElementById("text-position").value = positionField.value || "middle";
+        if (fontTypeField) document.getElementById("font-type").value = fontTypeField.value || "Poppins";
+        if (fontStyleField) document.getElementById("font-style").value = fontStyleField.value || "Normal";
+        if (fontSizeField) document.getElementById("font-size").value = fontSizeField.value || 80;
+        if (animationField) document.getElementById("text-animation").value = animationField.value || "none";
+        if (textColorField) document.getElementById("text-color").value = textColorField.value || "#ffffff";
         
-        // Set default values
-        overlayText.value = "";
-        textPosition.value = "middle";
-        startTime.value = 0;
-        duration.value = 3;
-        fontType.value = "Poppins";
-        fontStyle.value = "Normal";
-        fontSize.value = 80;
-        textAnimation.value = "none";
-        textColor.value = "#ffffff";
+        // Update the preview display
+        updatePreview();
       }
-      
-      // Show the modal
-      textOverlayModal.classList.remove("hidden");
     });
   });
   
-  // Cancel button for text overlay modal
+  // Manual event listeners for the modal buttons
   cancelOverlayBtn.addEventListener("click", () => {
+    const textOverlayModal = document.getElementById("text-overlay-modal");
     textOverlayModal.classList.add("hidden");
   });
   
-  // Save button for text overlay modal
+  // Add preview update functionality
+  function updatePreview() {
+    const text = document.getElementById('overlay-text').value || document.getElementById('preview-text').textContent;
+    const fontType = document.getElementById('font-type').value;
+    const fontStyle = document.getElementById('font-style').value;
+    const fontSize = document.getElementById('font-size').value;
+    const textColor = document.getElementById('text-color').value;
+    
+    const previewText = document.getElementById('preview-text');
+    
+    // Update text content
+    previewText.textContent = text;
+    
+    // Update styles
+    previewText.style.fontFamily = fontType;
+    previewText.style.color = textColor;
+    
+    // Convert font size for preview display (scale down)
+    previewText.style.fontSize = `${fontSize / 3}px`;
+    
+    // Handle font style
+    previewText.style.fontWeight = fontStyle.includes('Bold') ? 'bold' : 'normal';
+    previewText.style.fontStyle = fontStyle.includes('Italic') ? 'italic' : 'normal';
+  }
+
+  // Update preview on input changes
+  document.addEventListener('input', function(event) {
+    const target = event.target;
+    if (
+      target.id === 'overlay-text' || 
+      target.id === 'font-type' || 
+      target.id === 'font-style' || 
+      target.id === 'font-size' || 
+      target.id === 'text-color'
+    ) {
+      updatePreview();
+    }
+  });
+  
   saveOverlayBtn.addEventListener("click", () => {
-    const previewId = currentPreviewId.value;
-    const position = currentPreviewPosition.value;
+    const previewId = document.getElementById("current-preview-id").value;
+    const position = document.getElementById("current-preview-position").value;
+    
+    // Get values from form
+    const text = document.getElementById("overlay-text").value;
+    const textPosition = document.getElementById("text-position").value;
+    const animation = document.getElementById("text-animation").value;
+    const fontType = document.getElementById("font-type").value;
+    const fontStyle = document.getElementById("font-style").value;
+    const fontSize = document.getElementById("font-size").value;
+    const textColor = document.getElementById("text-color").value;
     
     if (previewId) {
       // Update existing preview's hidden fields
-      document.getElementById(`preview_text_${previewId}`).value = overlayText.value;
-      document.getElementById(`preview_text_position_${previewId}`).value = textPosition.value;
-      document.getElementById(`preview_start_time_${previewId}`).value = startTime.value;
-      document.getElementById(`preview_duration_${previewId}`).value = duration.value;
-      document.getElementById(`preview_font_type_${previewId}`).value = fontType.value;
-      document.getElementById(`preview_font_style_${previewId}`).value = fontStyle.value;
-      document.getElementById(`preview_font_size_${previewId}`).value = fontSize.value;
-      document.getElementById(`preview_animation_${previewId}`).value = textAnimation.value;
-      document.getElementById(`preview_text_color_${previewId}`).value = textColor.value;
+      document.getElementById(`preview_text_${previewId}`).value = text;
+      document.getElementById(`preview_text_position_${previewId}`).value = textPosition;
+      document.getElementById(`preview_font_type_${previewId}`).value = fontType;
+      document.getElementById(`preview_font_style_${previewId}`).value = fontStyle;
+      document.getElementById(`preview_font_size_${previewId}`).value = fontSize;
+      document.getElementById(`preview_animation_${previewId}`).value = animation;
+      document.getElementById(`preview_text_color_${previewId}`).value = textColor;
     } else if (position) {
       // For new uploads, create new hidden fields
       const form = document.getElementById('previews-form');
@@ -407,18 +433,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return field;
       };
       
-      form.appendChild(createHiddenField('text', overlayText.value));
-      form.appendChild(createHiddenField('text_position', textPosition.value));
-      form.appendChild(createHiddenField('start_time', startTime.value));
-      form.appendChild(createHiddenField('duration', duration.value));
-      form.appendChild(createHiddenField('font_type', fontType.value));
-      form.appendChild(createHiddenField('font_style', fontStyle.value));
-      form.appendChild(createHiddenField('font_size', fontSize.value));
-      form.appendChild(createHiddenField('animation', textAnimation.value));
-      form.appendChild(createHiddenField('text_color', textColor.value));
+      form.appendChild(createHiddenField('text', text));
+      form.appendChild(createHiddenField('text_position', textPosition));
+      form.appendChild(createHiddenField('start_time', DEFAULT_START_TIME));
+      form.appendChild(createHiddenField('duration', DEFAULT_DURATION));
+      form.appendChild(createHiddenField('font_type', fontType));
+      form.appendChild(createHiddenField('font_style', fontStyle));
+      form.appendChild(createHiddenField('font_size', fontSize));
+      form.appendChild(createHiddenField('animation', animation));
+      form.appendChild(createHiddenField('text_color', textColor));
     }
     
     // Close the modal
+    const textOverlayModal = document.getElementById("text-overlay-modal");
     textOverlayModal.classList.add("hidden");
   });
 
@@ -474,5 +501,20 @@ document.addEventListener("DOMContentLoaded", () => {
   right: 0;
   margin: 5px;
   z-index: 10;
+}
+
+/* Styles for text preview */
+#text-preview {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+#preview-text {
+  text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.8);
+  max-width: 90%;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 </style>
