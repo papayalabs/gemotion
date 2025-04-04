@@ -62,12 +62,10 @@
         <% colors = { white: 'white', red: 'red', orange: 'orange', yellow: 'yellow', green: 'green', lightblue: 'lightblue', dodgerblue: 'dodgerblue', violet: 'violet' } %>
         <% default_color = colors.keys.first.to_s %>
         <% colors.each do |color_name, color_value| %>
-            <%= radio_button_tag "text-color", color_value,
-                            id: "text-color",
-                            checked: (color_value == default_color) %>
-            <%= label_tag "#{color_value}", "&nbsp;".html_safe, class: "color-circle #{color_value}" %>
+            <%= radio_button_tag "text-color", color_value, (color_value == default_color), id: "text-color-#{color_value}", onclick: "document.getElementById('text-color').value = this.value;" %>
+            <%= label_tag "text-color-#{color_value}", "&nbsp;".html_safe, class: "color-circle #{color_value}" %>
         <% end %>
-       </div -->
+      </div -->
       
       <!-- div>
         <label for="start-time" class="block mb-2 font-bold"><%= t("start_time") %></label>
