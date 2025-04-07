@@ -146,6 +146,7 @@ class ContentDedicaceService
   def process_previews(preview_assets)
     # First, process each preview image individually
     mp4_preview_files = []
+    preview_transitions = []
     
     preview_assets.each_with_index do |preview, index|
       preview_path = ActiveStorage::Blob.service.send(:path_for, preview.preview.image.key)
@@ -162,7 +163,10 @@ class ContentDedicaceService
       font_size = preview.preview.font_size
       animation = preview.preview.animation
       text_color = preview.preview.text_color
-      transition_type = preview.preview.transition_type
+      transition_type = preview.preview.transition_type || "dissolve"
+      
+      # Store the transition type for each preview
+      preview_transitions << transition_type
 
       p "+" * 100 + "process_preview" + "+" * 100
 
@@ -241,32 +245,10 @@ class ContentDedicaceService
 
       # Store mp4 path for transitions
       mp4_preview_files << mp4_output_path
-
-      # NOTE: We don't add to @ts_videos here as we'll create a single combined video with transitions
     end
     
-    # Now process transitions between previews if we have multiple files
-    if mp4_preview_files.size > 1
-      transitions_service = TransitionsVideoService.new(@temp_dir)
-      
-      # Get transition type from the first preview or default to "dissolve"
-      first_preview = preview_assets.first
-      transition_type = first_preview&.preview&.transition_type || "dissolve"
-      
-      # Apply transitions between preview files
-      transitioned_output = transitions_service.create_transition_wipelt_videos(mp4_preview_files, transition_type)
-      
-      # Convert to ts format
-      transitioned_ts_output = @temp_dir.join("previews_with_transitions.ts")
-      system("ffmpeg -y -i \"#{transitioned_output}\" -c copy -f mpegts \"#{transitioned_ts_output}\"")
-      
-      # Add the combined file to our video list
-      @ts_videos << transitioned_ts_output.to_s
-      
-      # Add to MLT for XML output
-      add_to_mlt_video(transitioned_ts_output, "previews_with_transitions.ts", "previews_with_transitions")
-      upload_to_archive("previews_with_transitions.ts", transitioned_ts_output)
-    else
+    # Process based on how many preview files we have
+    if mp4_preview_files.size == 1
       # If we only have one preview, just convert it to ts and add it
       output_path = @temp_dir.join("preview_0.ts")
       system("ffmpeg -y -i \"#{mp4_preview_files[0]}\" -c copy -f mpegts \"#{output_path}\"")
@@ -274,7 +256,82 @@ class ContentDedicaceService
       
       add_to_mlt_img(output_path, "preview_0.ts", "preview_0", 3)
       upload_to_archive("preview_0.ts", output_path)
+    elsif mp4_preview_files.size > 1
+      transitions_service = TransitionsVideoService.new(@temp_dir)
+      
+      # For each consecutive pair of preview images, create a transition
+      transition_outputs = []
+      
+      0.upto(mp4_preview_files.size - 2) do |i|
+        # For this pair, use the transition type from the first of the pair
+        transition_type = preview_transitions[i]
+        
+        # Get beginning and final videos for this transition
+        beginning_video = mp4_preview_files[i]
+        final_video = mp4_preview_files[i + 1]
+        
+        # Create a transition output path
+        transition_output = @temp_dir.join("transition_#{i}_to_#{i+1}.mp4")
+        
+        # Apply transition between these two videos
+        # Make sure to handle errors gracefully
+        begin
+          transitions_service.create_transition_wipelt_videos(
+            beginning_video, 
+            final_video, 
+            transition_type,
+            1.0, # Explicitly pass numeric transition duration
+            transition_output
+          )
+        rescue StandardError => e
+          puts "Error creating transition between videos #{i} and #{i+1}: #{e.message}"
+          # Continue with next transition if this one fails
+          next
+        end
+        
+        # Store the transition output
+        transition_outputs << transition_output if File.exist?(transition_output)
+      end
+      
+      # Create a file list for FFmpeg concat if we have transitions
+      if transition_outputs.size > 0
+        concat_list = @temp_dir.join("preview_concat_list.txt")
+        File.open(concat_list, "w") do |file|
+          transition_outputs.each do |path|
+            file.puts("file '#{path}'")
+          end
+        end
+        
+        # Concatenate all transition segments
+        all_previews_output = @temp_dir.join("all_previews_with_transitions.mp4")
+        concat_command = <<~CMD
+          ffmpeg -y -f concat -safe 0 -i #{Shellwords.escape(concat_list.to_s)} \
+            -c copy #{Shellwords.escape(all_previews_output.to_s)}
+        CMD
+        
+        puts "Concatenating all preview transitions"
+        system(concat_command)
+        
+        # Convert to ts format for the main processing pipeline
+        transitioned_ts_output = @temp_dir.join("previews_with_transitions.ts")
+        system("ffmpeg -y -i \"#{all_previews_output}\" -c copy -f mpegts \"#{transitioned_ts_output}\"")
+        
+        # Add the combined file to our video list
+        @ts_videos << transitioned_ts_output.to_s
+        
+        # Add to MLT for XML output
+        add_to_mlt_video(transitioned_ts_output, "previews_with_transitions.ts", "previews_with_transitions")
+        upload_to_archive("previews_with_transitions.ts", transitioned_ts_output)
+        
+        # Clean up temporary files
+        transition_outputs.each { |file| File.delete(file) if File.exist?(file) }
+        File.delete(concat_list) if File.exist?(concat_list)
+        File.delete(all_previews_output) if File.exist?(all_previews_output)
+      end
     end
+    
+    # Clean up the original preview files
+    mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
   end
 
   def process_chapters(chapter_assets)
