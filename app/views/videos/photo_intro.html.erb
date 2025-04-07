@@ -55,6 +55,7 @@
                   <%= f.hidden_field "preview_overlay[#{preview.id}][font_size]", id: "preview_font_size_#{preview.id}", value: preview.font_size %>
                   <%= f.hidden_field "preview_overlay[#{preview.id}][animation]", id: "preview_animation_#{preview.id}", value: preview.animation %>
                   <%= f.hidden_field "preview_overlay[#{preview.id}][text_color]", id: "preview_text_color_#{preview.id}", value: preview.text_color %>
+                  <%= f.hidden_field "preview_overlay[#{preview.id}][transition_type]", id: "preview_transition_type_#{preview.id}", value: preview.transition_type %>
                 <% end %>
                 <% (3 - @ordered_previews.size).times do |i| %>
                   <div class="flex flex-col justify-center items-center w-full preview-small-image-block"
@@ -136,6 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
     animation: 150,
     onEnd: () => updateOrder(),
   });
+  
+  // Add transition type element handling
+  const transitionType = document.getElementById("transition-type");
 
   // Update the hidden field with the order of filenames
   const updateOrder = () => {
@@ -342,6 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const fontSizeField = document.getElementById(`preview_font_size_${previewId}`);
         const animationField = document.getElementById(`preview_animation_${previewId}`);
         const textColorField = document.getElementById(`preview_text_color_${previewId}`);
+        const transitionTypeField = document.getElementById(`preview_transition_type_${previewId}`);
 
         overlayText.value = textField ? textField.value || "" : "";
         textPosition.value = positionField ? positionField.value || "middle" : "middle";
@@ -352,6 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fontSize.value = fontSizeField ? fontSizeField.value || 80 : 80;
         textAnimation.value = animationField ? animationField.value || "none" : "none";
         textColor.value = textColorField ? textColorField.value || "#ffffff" : "#ffffff";
+        transitionType.value = transitionTypeField ? transitionTypeField.value || "none" : "none";
       } else {
         // For new image uploads, use default values and store the position
         currentPreviewId.value = "";
@@ -367,6 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fontSize.value = 80;
         textAnimation.value = "none";
         textColor.value = "#ffffff";
+        transitionType.value = "none";
       }
       
       // Show the modal
@@ -395,6 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(`preview_font_size_${previewId}`).value = fontSize.value;
       document.getElementById(`preview_animation_${previewId}`).value = textAnimation.value;
       document.getElementById(`preview_text_color_${previewId}`).value = textColor.value;
+      document.getElementById(`preview_transition_type_${previewId}`).value = transitionType.value;
     } else if (position) {
       // For new uploads, create new hidden fields
       const form = document.getElementById('previews-form');
@@ -416,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
       form.appendChild(createHiddenField('font_size', fontSize.value));
       form.appendChild(createHiddenField('animation', textAnimation.value));
       form.appendChild(createHiddenField('text_color', textColor.value));
+      form.appendChild(createHiddenField('transition_type', transitionType.value));
     }
     
     // Close the modal

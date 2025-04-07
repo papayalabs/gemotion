@@ -3,8 +3,22 @@ class TransitionsVideoService
     @temp_dir = temp_dir
   end
 
-  def create_transition_wipelt_videos(ts_videos, transition_duration = 1)
+  def create_transition_wipelt_videos(ts_videos, transition_type = "cube", transition_duration = 1)
     raise ArgumentError, "At least 2 videos are required for transitions." if ts_videos.size < 2
+
+    # Map transition_type to FFmpeg xfade transition names
+    transition_map = {
+      "dissolve" => "fade",
+      "flash" => "fadewhite",
+      "directional" => "slideleft",
+      "zoom" => "zoomin",
+      "swap_instant" => "smoothleft",
+      "none" => "fade",
+      "cube" => "cube"
+    }
+    
+    # Use the mapped transition or default to "fade" if not found
+    ffmpeg_transition = transition_map[transition_type] || "fade"
 
     # Paths
     output_video_path = @temp_dir.join("final_video_with_transitions.mp4")
@@ -30,7 +44,7 @@ class TransitionsVideoService
         ffmpeg -i #{Shellwords.escape(video1.to_s)} -i #{Shellwords.escape(video2.to_s)} -filter_complex "
         [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
         [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
-        [base][next]xfade=transition=cube:duration=#{transition_duration}:offset=0[out]" \
+        [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration}:offset=0[out]" \
         -map "[out]" -c:v libx264 -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
       CMD
 

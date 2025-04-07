@@ -87,6 +87,18 @@
           <option value="160"><%= t("extra_large") %></option>
         </select>
       </div>
+      
+      <div>
+        <label for="transition-type" class="block mb-2 font-bold"><%= t("transition") %></label>
+        <select id="transition-type" class="w-full p-2 border rounded">
+          <option value="none" selected><%= t("none") %></option>
+          <option value="dissolve"><%= t("dissolve") %></option>
+          <option value="flash"><%= t("flash") %></option>
+          <option value="directional"><%= t("directional") %></option>
+          <option value="zoom"><%= t("zoom") %></option>
+          <option value="swap_instant"><%= t("swap_instant") %></option>
+        </select>
+      </div>
     </div>
     
     <input type="hidden" id="current-preview-id">

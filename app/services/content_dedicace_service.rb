@@ -158,6 +158,7 @@ class ContentDedicaceService
       font_size = preview.preview.font_size
       animation = preview.preview.animation
       text_color = preview.preview.text_color
+      transition_type = preview.preview.transition_type
 
       p "+" * 100 + "process_preview" + "+" * 100
 
@@ -407,7 +408,35 @@ class ContentDedicaceService
 
   def concatenate_final_video
     final_music_path = ActiveStorage::Blob.service.send(:path_for, @video.music.music.key) if @video.whole_video?
-
+    
+    # Process previews with transitions if there are multiple preview files
+    preview_files = @ts_videos.grep(/preview_\d+\.ts/)
+    if preview_files.size > 1
+      transitions_service = TransitionsVideoService.new(@temp_dir)
+      # Get transition type from the first preview or default to "dissolve"
+      first_preview = @video.video_previews.includes(:preview).first
+      transition_type = first_preview&.preview&.transition_type || "dissolve"
+      
+      # Convert ts files to mp4 for transition processing
+      mp4_preview_files = []
+      preview_files.each_with_index do |ts_file, index|
+        mp4_file = @temp_dir.join("preview_#{index}_for_transition.mp4")
+        system("ffmpeg -y -i \"#{ts_file}\" -c:v libx264 -c:a aac \"#{mp4_file}\"")
+        mp4_preview_files << mp4_file
+      end
+      
+      # Apply transitions
+      transitioned_output = transitions_service.create_transition_wipelt_videos(mp4_preview_files, transition_type)
+      
+      # Convert back to ts
+      transitioned_ts_output = @temp_dir.join("previews_with_transitions.ts")
+      system("ffmpeg -y -i \"#{transitioned_output}\" -c copy -f mpegts \"#{transitioned_ts_output}\"")
+      
+      # Replace individual preview files with the combined transitions file
+      @ts_videos = @ts_videos.reject { |path| path.match?(/preview_\d+\.ts/) }
+      @ts_videos << transitioned_ts_output.to_s
+    end
+    
     final_video_ts_file_list = @ts_videos.join("|")
     final_concatenated_ts_path = @temp_dir.join("final_concatenated.ts")
     p "+" * 100 + "concatenate_final_video_ts" + "+" * 100
