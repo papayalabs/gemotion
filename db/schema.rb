@@ -155,6 +155,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_01_110536) do
     t.string "font_style"
     t.integer "font_size"
     t.string "animation"
+    t.string "transition"
     t.string "text_color"
   end
 
