@@ -291,7 +291,8 @@ class VideosController < ApplicationController
           font_style: preview_overlay[:font_style],
           font_size: preview_overlay[:font_size],
           animation: preview_overlay[:animation],
-          text_color: preview_overlay[:text_color]
+          text_color: preview_overlay[:text_color],
+          transition_type: preview_overlay[:transition_type]
         )
       end
     end
@@ -327,7 +328,8 @@ class VideosController < ApplicationController
           font_style: overlay_data[:font_style],
           font_size: overlay_data[:font_size],
           animation: overlay_data[:animation],
-          text_color: overlay_data[:text_color]
+          text_color: overlay_data[:text_color],
+          transition_type: overlay_data[:transition_type]
         )
       end
       
