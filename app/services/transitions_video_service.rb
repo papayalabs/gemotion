@@ -36,37 +36,72 @@ class TransitionsVideoService
 
     # Create transitions between each pair of normalized videos
     intermediate_videos = []
-    normalized_videos.each_cons(2).with_index do |(video1, video2), index|
-      transition_output = @temp_dir.join("transition_#{index}.mp4")
-      intermediate_videos << transition_output
+    normalized_videos.each_with_index do |video, index|
+      if index < normalized_videos.size - 1
+        video1 = video
+        video2 = normalized_videos[index + 1]
+        transition_output = @temp_dir.join("transition_#{index}.mp4")
+        
+        # Get video1 duration
+        video1_duration_cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"#{video1}\""
+        video1_duration = `#{video1_duration_cmd}`.strip.to_f
+        
+        # Adjust transition duration if video is shorter than transition
+        actual_transition_duration = [transition_duration, video1_duration - 0.1].max
+        
+        # Create transition between current video and next video
+        ffmpeg_command = <<~CMD
+          ffmpeg -i #{Shellwords.escape(video1.to_s)} -i #{Shellwords.escape(video2.to_s)} -filter_complex "
+          [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
+          [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
+          [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration}:offset=#{[video1_duration - transition_duration, 0].max}[out]" \
+          -map "[out]" -map 0:a -c:v libx264 -c:a aac -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
+        CMD
 
-      ffmpeg_command = <<~CMD
-        ffmpeg -i #{Shellwords.escape(video1.to_s)} -i #{Shellwords.escape(video2.to_s)} -filter_complex "
-        [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
-        [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
-        [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration}:offset=0[out]" \
-        -map "[out]" -c:v libx264 -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
-      CMD
-
-      # Execute the command
-      raise "Failed to create transition #{index}" unless system(ffmpeg_command)
+        # Execute the command
+        puts "Creating transition for video #{index}"
+        raise "Failed to create transition #{index}" unless system(ffmpeg_command)
+        
+        intermediate_videos << transition_output
+      else
+        # For the last video, just add it directly since it doesn't need a transition
+        puts "Adding last video without transition"
+        intermediate_videos << video
+      end
     end
 
-    # Concatenate all videos with transitions
+    # Prepare a proper concatenation file
     concat_list = @temp_dir.join("concat_list.txt")
+    
+    # First, convert all videos to have the same codec parameters for clean concatenation
+    standardized_videos = []
+    intermediate_videos.each_with_index do |video, index|
+      output = @temp_dir.join("standardized_#{index}.mp4")
+      system("ffmpeg -y -i \"#{video}\" -c:v libx264 -pix_fmt yuv420p -c:a aac \"#{output}\"")
+      standardized_videos << output
+    end
+    
+    # Create concat file
     File.open(concat_list, "w") do |file|
-      intermediate_videos.each do |path|
+      standardized_videos.each do |path|
         file.puts("file '#{path}'")
       end
     end
 
+    # Use concat demuxer instead of filter for more reliable results
     concat_command = <<~CMD
-      ffmpeg -f concat -safe 0 -i #{Shellwords.escape(concat_list.to_s)} \
+      ffmpeg -y -f concat -safe 0 -i #{Shellwords.escape(concat_list.to_s)} \
         -c copy #{Shellwords.escape(output_video_path.to_s)}
     CMD
 
+    puts "Concatenating all videos with transitions"
     # Execute the concatenation
     raise "Failed to concatenate videos" unless system(concat_command)
+    
+    # Verify the output exists and has content
+    if !File.exist?(output_video_path) || File.size(output_video_path) == 0
+      raise "Output video file is missing or empty"
+    end
 
     # Clean up intermediate files (optional)
     (normalized_videos + intermediate_videos).each { |file| File.delete(file) if File.exist?(file) }
