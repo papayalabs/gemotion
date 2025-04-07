@@ -8,7 +8,6 @@ class AddTextOverlayToPreviews < ActiveRecord::Migration[7.1]
     add_column :previews, :font_style, :string
     add_column :previews, :font_size, :integer
     add_column :previews, :animation, :string
-    add_column :previews, :transition, :string
     add_column :previews, :text_color, :string
   end
 end
