@@ -156,7 +156,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_07_072758) do
     t.string "animation"
     t.string "text_color"
     t.string "font_style", limit: 255
-    t.string "transition", limit: 255
     t.string "transition_type"
   end
 
