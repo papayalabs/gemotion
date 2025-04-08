@@ -61,6 +61,12 @@ class ContentDedicaceService
     # Now that we have introduction files, calculate its duration
     calculate_introduction_duration
 
+    # Print debug information about preview assets
+    puts "Processing #{preview_assets.size} preview assets with the following settings:"
+    preview_assets.each_with_index do |preview, index|
+      puts "Preview #{index}: ID=#{preview.id}, Text='#{preview.preview.text}', Animation='#{preview.preview.animation}', Transition='#{preview.preview.transition_type || 'default'}'"
+    end
+
     # Process previews with transitions (handles transitions from introduction to first preview)
     # This may or may not add the introduction to @ts_videos depending on the transition logic
     process_previews(preview_assets)
@@ -259,6 +265,9 @@ class ContentDedicaceService
       text_color = preview.preview.text_color
       transition_type = preview.preview.transition_type || "dissolve"
       
+      # Print debug information about the preview settings
+      puts "Preview #{index}: Text='#{preview_text}', Animation='#{animation}', Transition='#{transition_type}'"
+      
       # Store the transition type for each preview
       preview_transitions << transition_type
 
@@ -307,9 +316,12 @@ class ContentDedicaceService
                              ":fontsize='if(lt(t,#{start_time}),0,if(lt(t,#{start_time + 0.5}),(t-#{start_time})/0.5*#{font_size},#{font_size}))'"
                            when "typewriter"
                              # Typewriter effect is complex in ffmpeg; we'll do a simple version
-                             ":text='#{preview_text.chars.each_with_index.map do |c, i|
-                               preview_text[0..i]
-                             end.join('\\\\|')}':enable='between(t,#{start_time},#{start_time + duration})'"
+                             # We need to escape single quotes and create a proper sequence for the typewriter effect
+                             typewriter_text = preview_text.chars.each_with_index.map do |c, i|
+                               preview_text[0..i].gsub("'", "\\\\'")
+                             end.join('\\\\|')
+                             
+                             ":text='#{typewriter_text}':enable='between(t,#{start_time},#{start_time + duration})'"
                            else
                              ":enable='between(t,#{start_time},#{start_time + duration})'"
                            end
@@ -320,12 +332,16 @@ class ContentDedicaceService
                          "box=1:boxcolor=black@0.0:boxborderw=5#{animation_params}"
 
         # Apply the filter to the image
-        system(
-          "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
+        ffmpeg_command = "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
           "-f lavfi -i anullsrc=r=44100:cl=stereo " \
           "-c:v libx264 -c:a aac -t #{@imgs_to_video_duration_in_seconds} -r 30 -vf \"scale=1280:720,#{drawtext_filter}\" -pix_fmt yuvj420p " \
           "\"#{mp4_output_path}\""
-        )
+        
+        puts "Executing FFmpeg command for preview #{index} with animation '#{animation}':"
+        puts ffmpeg_command
+        
+        # Execute the command
+        system(ffmpeg_command)
       else
         # No text overlay, just use the standard processing
         system(
@@ -613,6 +629,8 @@ class ContentDedicaceService
       output_path = @temp_dir.join("preview_0.ts")
       system("ffmpeg -y -i \"#{mp4_preview_files[0]}\" -c copy -f mpegts \"#{output_path}\"")
       @ts_videos << output_path.to_s
+      
+      puts "Adding single preview directly with no transitions"
       
       add_to_mlt_img(output_path, "preview_0.ts", "preview_0", 3)
       upload_to_archive("preview_0.ts", output_path)
