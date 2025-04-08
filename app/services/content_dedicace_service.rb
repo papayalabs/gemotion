@@ -392,10 +392,10 @@ class ContentDedicaceService
             transition_outputs = [intro_to_preview_path]
             
             # Process transitions between the remaining previews
-            0.upto(mp4_preview_files.size - 2) do |i|
-              # Skip the first transition as we already handled intro->preview[0]
-              
-              # For this pair, use the transition type from the first of the pair
+            # Start from index 1 because we already handled the transition from introduction to preview[0]
+            1.upto(mp4_preview_files.size - 2) do |i|
+              # For this pair, use the transition type from the correct preview
+              # Since we're transitioning from preview[i] to preview[i+1], we use preview[i+1]'s transition type
               transition_type = preview_transitions[i + 1]
               
               # Get beginning and final videos for this transition
@@ -545,8 +545,9 @@ class ContentDedicaceService
     transition_outputs = []
     
     0.upto(mp4_preview_files.size - 2) do |i|
-      # For this pair, use the transition type from the first of the pair
-      transition_type = preview_transitions[i]
+      # For this pair, use the transition type of the destination preview (i+1)
+      # This makes it consistent with how we handle transitions in the main processing path
+      transition_type = preview_transitions[i + 1]
       
       # Get beginning and final videos for this transition
       beginning_video = mp4_preview_files[i]
