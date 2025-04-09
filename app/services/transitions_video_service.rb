@@ -37,8 +37,15 @@ class TransitionsVideoService
       current_transition_type = transition_types[i] || "dissolve"
       ffmpeg_transition = transition_map[current_transition_type] || "fade"
       
+      if transition_outputs.present?
+        first_video = Shellwords.escape(transition_outputs.last.to_s)
+        puts "*************** THIS IS THE FIST VIDEO = "+first_video.to_s+" **********************"
+      else
+        first_video = Shellwords.escape(normalized_videos[i].to_s)
+      end
+
       # Get beginning video duration
-      beginning_duration_cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"#{normalized_videos[i]}\""
+      beginning_duration_cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"#{first_video}\""
       beginning_duration = `#{beginning_duration_cmd}`.strip.to_f
       
       # Adjust transition duration for this pair
@@ -47,9 +54,9 @@ class TransitionsVideoService
       
       # Create transition between this pair of videos
       transition_output = @temp_dir.join("transition_#{i}_to_#{i+1}.mp4")
-      
+
       ffmpeg_command = <<~CMD
-        ffmpeg -i #{Shellwords.escape(normalized_videos[i].to_s)} -i #{Shellwords.escape(normalized_videos[i+1].to_s)} -filter_complex "
+        ffmpeg -i #{first_video} -i #{Shellwords.escape(normalized_videos[i+1].to_s)} -filter_complex "
         [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
         [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
         [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration_float}:offset=#{[beginning_duration - transition_duration_float, 0].max}[out]" \
@@ -72,9 +79,9 @@ class TransitionsVideoService
     # Create a file list for concatenation
     concat_list = @temp_dir.join("transitions_concat_list.txt")
     File.open(concat_list, "w") do |file|
-      transition_outputs.each do |path|
-        file.puts("file '#{path}'")
-      end
+      #transition_outputs.each do |path|
+        file.puts("file '#{transition_outputs.last}'")
+      #end
     end
     
     # Concatenate all transition segments into the final output
