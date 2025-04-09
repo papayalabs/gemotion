@@ -3,7 +3,7 @@ class TransitionsVideoService
     @temp_dir = temp_dir
   end
 
-  def create_transition_wipelt_videos(beginning_video, final_video, transition_type = "cube", transition_duration = 1, custom_output_path = nil)
+  def create_transition_wipelt_videos(videos, transition_types = [], transition_duration = 1, custom_output_path = nil)
     # Map transition_type to FFmpeg xfade transition names
     transition_map = {
       "dissolve" => "fade",
@@ -15,56 +15,82 @@ class TransitionsVideoService
       "cube" => "cube"
     }
     
-    # Use the mapped transition or default to "fade" if not found
-    ffmpeg_transition = transition_map[transition_type] || "fade"
-
+    # Return early if there are no videos or just one video
+    return nil if videos.nil? || videos.empty?
+    return videos.first if videos.length == 1
+    
     # Paths
     output_video_path = custom_output_path || @temp_dir.join("final_video_with_transitions.mp4")
     
-    # Normalize both videos
-    normalized_beginning = @temp_dir.join("normalized_beginning.mp4")
-    normalized_final = @temp_dir.join("normalized_final.mp4")
-    
-    normalize_video(beginning_video, normalized_beginning)
-    normalize_video(final_video, normalized_final)
-    
-    # Get beginning video duration
-    beginning_duration_cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"#{normalized_beginning}\""
-    beginning_duration = `#{beginning_duration_cmd}`.strip.to_f
-    
-    # Adjust transition duration if video is shorter than transition
-    # Ensure transition_duration is a float
-    transition_duration_float = transition_duration.to_f
-    actual_transition_duration = [transition_duration_float, beginning_duration - 0.1].max
-    
-    # Create transition between beginning and final video
-    transition_output = @temp_dir.join("transition_video.mp4")
-    
-    ffmpeg_command = <<~CMD
-      ffmpeg -i #{Shellwords.escape(normalized_beginning.to_s)} -i #{Shellwords.escape(normalized_final.to_s)} -filter_complex "
-      [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
-      [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
-      [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration_float}:offset=#{[beginning_duration - transition_duration_float, 0].max}[out]" \
-      -map "[out]" -map 0:a -c:v libx264 -c:a aac -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
-    CMD
-
-    # Execute the command
-    puts "Creating transition between beginning and final videos"
-    raise "Failed to create transition" unless system(ffmpeg_command)
-    
-    # Verify the output exists and has content
-    if !File.exist?(transition_output) || File.size(transition_output) == 0
-      raise "Output video file is missing or empty"
+    # Normalize all videos
+    normalized_videos = []
+    videos.each_with_index do |video, index|
+      normalized_path = @temp_dir.join("normalized_#{index}.mp4")
+      normalize_video(video, normalized_path)
+      normalized_videos << normalized_path
     end
-
-    # Standardize the output for consistent codec parameters
-    system("ffmpeg -y -i \"#{transition_output}\" -c:v libx264 -pix_fmt yuv420p -c:a aac \"#{output_video_path}\"")
+    
+    transition_outputs = []
+    
+    (0...normalized_videos.length-1).each do |i|
+      # Get the transition type for this pair or use default
+      current_transition_type = transition_types[i] || "dissolve"
+      ffmpeg_transition = transition_map[current_transition_type] || "fade"
+      
+      # Get beginning video duration
+      beginning_duration_cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"#{normalized_videos[i]}\""
+      beginning_duration = `#{beginning_duration_cmd}`.strip.to_f
+      
+      # Adjust transition duration for this pair
+      transition_duration_float = transition_duration.to_f
+      actual_transition_duration = [transition_duration_float, beginning_duration - 0.1].max
+      
+      # Create transition between this pair of videos
+      transition_output = @temp_dir.join("transition_#{i}_to_#{i+1}.mp4")
+      
+      ffmpeg_command = <<~CMD
+        ffmpeg -i #{Shellwords.escape(normalized_videos[i].to_s)} -i #{Shellwords.escape(normalized_videos[i+1].to_s)} -filter_complex "
+        [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
+        [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
+        [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration_float}:offset=#{[beginning_duration - transition_duration_float, 0].max}[out]" \
+        -map "[out]" -map 0:a -c:v libx264 -c:a aac -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
+      CMD
+      
+      puts "Creating transition #{i+1} of #{normalized_videos.length-1}"
+      system(ffmpeg_command)
+      
+      if File.exist?(transition_output) && File.size(transition_output) > 0
+        transition_outputs << transition_output
+      else
+        puts "Warning: Failed to create transition #{i} to #{i+1}"
+      end
+    end
+    
+    # If we couldn't create any transitions, return nil
+    return nil if transition_outputs.empty?
+    
+    # Create a file list for concatenation
+    concat_list = @temp_dir.join("transitions_concat_list.txt")
+    File.open(concat_list, "w") do |file|
+      transition_outputs.each do |path|
+        file.puts("file '#{path}'")
+      end
+    end
+    
+    # Concatenate all transition segments into the final output
+    concat_command = <<~CMD
+      ffmpeg -y -f concat -safe 0 -i #{Shellwords.escape(concat_list.to_s)} \
+        -c copy #{Shellwords.escape(output_video_path.to_s)}
+    CMD
+    
+    puts "Concatenating all transitions"
+    system(concat_command)
     
     # Clean up intermediate files
-    [normalized_beginning, normalized_final, transition_output].each { |file| File.delete(file) if File.exist?(file) }
-
-    # Return the final output path
-    output_video_path
+    [*normalized_videos, *transition_outputs, concat_list].each { |file| File.delete(file) if File.exist?(file) }
+    
+    # Return the final output path if it exists
+    return File.exist?(output_video_path) ? output_video_path : nil
   end
 
   def cube_view(ts_videos)
