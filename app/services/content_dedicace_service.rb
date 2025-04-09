@@ -402,8 +402,32 @@ class ContentDedicaceService
             # Clean up the original preview files before returning
             mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
             return # We're done with previews
+          elsif mp4_preview_files.size == 2
+            # SPECIAL HANDLING FOR EXACTLY 2 PREVIEWS
+            # Just use the intro to preview transition for the first preview
+            transition_ts_output_intro = @temp_dir.join("intro_to_preview.ts")
+            system("ffmpeg -y -i \"#{intro_to_preview_path}\" -c copy -f mpegts \"#{transition_ts_output_intro}\"")
+            
+            # Add the first transition
+            @ts_videos << transition_ts_output_intro.to_s
+            add_to_mlt_video(transition_ts_output_intro, "intro_to_preview.ts", "intro_to_preview")
+            upload_to_archive("intro_to_preview.ts", transition_ts_output_intro)
+            
+            # Add the second preview directly
+            second_preview_ts = @temp_dir.join("preview_1.ts")
+            system("ffmpeg -y -i \"#{mp4_preview_files[1]}\" -c copy -f mpegts \"#{second_preview_ts}\"")
+            @ts_videos << second_preview_ts.to_s
+            add_to_mlt_video(second_preview_ts, "preview_1.ts", "preview_1")
+            upload_to_archive("preview_1.ts", second_preview_ts)
+            
+            # Clean up
+            File.delete(intro_to_preview_path) if File.exist?(intro_to_preview_path)
+            
+            # Clean up the original preview files before returning
+            mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
+            return # We're done with previews
           else
-            # Multiple previews, so transition between each additional pair
+            # 3+ previews, so transition between each additional pair
             # and then concatenate with the intro-to-preview transition
             transition_outputs = [intro_to_preview_path]
             
@@ -474,8 +498,50 @@ class ContentDedicaceService
         # Clean up the original preview files before returning
         mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
         return
-      elsif mp4_preview_files.size > 1
-        # Process transitions between each pair of preview images
+      elsif mp4_preview_files.size == 2
+        # Special case for exactly 2 previews without introduction
+        # CRITICAL FIX: Add each preview as a separate video segment
+        # No transitions - just individual segments to ensure all are visible
+        
+        puts "*** Processing exactly 2 previews without introduction ***"
+        
+        # Process each preview individually
+        mp4_preview_files.each_with_index do |file, index|
+          output_path = @temp_dir.join("preview_#{index}.ts")
+          
+          # Convert to TS format with explicit duration and framerate settings
+          # Add extra verbose flags to debug
+          conversion_command = "ffmpeg -y -v verbose -i \"#{file}\" -c copy -f mpegts \"#{output_path}\""
+          puts "Running command: #{conversion_command}"
+          system(conversion_command)
+          
+          # Print file info after conversion
+          system("ffprobe -v error -show_format -show_streams \"#{output_path}\"")
+          
+          # Verify file exists and has content
+          if File.exist?(output_path) && File.size(output_path) > 0
+            puts "Successfully created TS file for preview #{index}: #{output_path} (size: #{File.size(output_path)} bytes)"
+            
+            # Add to MLT as image with fixed duration to force display
+            # Using longer duration to ensure it's visible
+            add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
+            upload_to_archive("preview_#{index}.ts", output_path)
+            
+            # Add to video list
+            @ts_videos << output_path.to_s
+          else
+            puts "WARNING: Failed to create TS file for preview #{index}, or file is empty"
+          end
+        end
+        
+        # Verify what was added to @ts_videos
+        puts "Preview videos added to @ts_videos: #{@ts_videos.join(', ')}"
+        
+        # Clean up the original preview files
+        mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
+        return
+      elsif mp4_preview_files.size > 2
+        # Process transitions between each pair of preview images for 3+ previews
         transition_outputs = []
         
         0.upto(mp4_preview_files.size - 2) do |i|
@@ -557,7 +623,45 @@ class ContentDedicaceService
   def process_remaining_previews(mp4_preview_files, preview_transitions, transitions_service)
     return if mp4_preview_files.empty?
     
-    # Create transitions between each pair of preview images
+    # Special case for exactly 2 previews
+    if mp4_preview_files.size == 2
+      # CRITICAL FIX: Add each preview as a separate video segment with debugging
+      puts "*** Process_remaining_previews: Processing exactly 2 previews ***"
+      
+      # Process each preview individually with verbose output
+      mp4_preview_files.each_with_index do |file, index|
+        # Different naming to avoid conflicts
+        output_path = @temp_dir.join("remaining_preview_#{index}.ts")
+        
+        # Convert to TS format with verbose output
+        conversion_command = "ffmpeg -y -v verbose -i \"#{file}\" -c copy -f mpegts \"#{output_path}\""
+        puts "Running command: #{conversion_command}"
+        system(conversion_command)
+        
+        # Print file info after conversion
+        system("ffprobe -v error -show_format -show_streams \"#{output_path}\"")
+        
+        # Verify file exists and has content
+        if File.exist?(output_path) && File.size(output_path) > 0
+          puts "Successfully created TS file for remaining preview #{index}: #{output_path} (size: #{File.size(output_path)} bytes)"
+          
+          # Add to MLT
+          add_to_mlt_img(output_path, "remaining_preview_#{index}.ts", "remaining_preview_#{index}", 3)
+          upload_to_archive("remaining_preview_#{index}.ts", output_path)
+          
+          # Add to video list to ensure it's included
+          @ts_videos << output_path.to_s
+        else
+          puts "WARNING: Failed to create TS file for remaining preview #{index}, or file is empty"
+        end
+      end
+      
+      # Print what we added to the video list
+      puts "Remaining preview videos added to @ts_videos: #{@ts_videos.join(', ')}"
+      return
+    end
+    
+    # For 3+ previews, create transitions between each pair
     transition_outputs = []
     
     0.upto(mp4_preview_files.size - 2) do |i|
