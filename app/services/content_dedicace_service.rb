@@ -144,9 +144,14 @@ class ContentDedicaceService
   end
 
   def process_previews(preview_assets)
+    # First, process each preview image individually
+    mp4_preview_files = []
+    preview_transitions = []
+    
     preview_assets.each_with_index do |preview, index|
       preview_path = ActiveStorage::Blob.service.send(:path_for, preview.preview.image.key)
       output_path = @temp_dir.join("preview_#{index}.ts")
+      mp4_output_path = @temp_dir.join("preview_#{index}.mp4")
 
       # Check if this preview has text overlay settings
       preview_text = preview.preview.text
@@ -158,6 +163,13 @@ class ContentDedicaceService
       font_size = preview.preview.font_size
       animation = preview.preview.animation
       text_color = preview.preview.text_color
+      transition_type = preview.preview.transition_type || "dissolve"
+      
+      # Print debug information about the preview settings
+      puts "Preview #{index}: Text='#{preview_text}', Animation='#{animation}', Transition='#{transition_type}'"
+      
+      # Store the transition type for each preview
+      preview_transitions << transition_type
 
       p "+" * 100 + "process_preview" + "+" * 100
 
@@ -204,9 +216,12 @@ class ContentDedicaceService
                              ":fontsize='if(lt(t,#{start_time}),0,if(lt(t,#{start_time + 0.5}),(t-#{start_time})/0.5*#{font_size},#{font_size}))'"
                            when "typewriter"
                              # Typewriter effect is complex in ffmpeg; we'll do a simple version
-                             ":text='#{preview_text.chars.each_with_index.map do |c, i|
-                               preview_text[0..i]
-                             end.join('\\\\|')}':enable='between(t,#{start_time},#{start_time + duration})'"
+                             # We need to escape single quotes and create a proper sequence for the typewriter effect
+                             typewriter_text = preview_text.chars.each_with_index.map do |c, i|
+                               preview_text[0..i].gsub("'", "\\\\'")
+                             end.join('\\\\|')
+                             
+                             ":text='#{typewriter_text}':enable='between(t,#{start_time},#{start_time + duration})'"
                            else
                              ":enable='between(t,#{start_time},#{start_time + duration})'"
                            end
@@ -217,27 +232,135 @@ class ContentDedicaceService
                          "box=1:boxcolor=black@0.0:boxborderw=5#{animation_params}"
 
         # Apply the filter to the image
-        system(
-          "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
+        ffmpeg_command = "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
           "-f lavfi -i anullsrc=r=44100:cl=stereo " \
           "-c:v libx264 -c:a aac -t #{@imgs_to_video_duration_in_seconds} -r 30 -vf \"scale=1280:720,#{drawtext_filter}\" -pix_fmt yuvj420p " \
-          "\"#{output_path}\""
-        )
+          "\"#{mp4_output_path}\""
+        
+        puts "Executing FFmpeg command for preview #{index} with animation '#{animation}':"
+        puts ffmpeg_command
+        
+        # Execute the command
+        system(ffmpeg_command)
       else
         # No text overlay, just use the standard processing
         system(
           "ffmpeg -y -loop 1 -i \"#{preview_path}\" " \
           "-f lavfi -i anullsrc=r=44100:cl=stereo " \
           "-c:v libx264 -c:a aac -t #{@imgs_to_video_duration_in_seconds} -r 30 -vf \"scale=1280:720\" -pix_fmt yuvj420p " \
-          "\"#{output_path}\""
+          "\"#{mp4_output_path}\""
         )
       end
       p "-" * 100 + "process_preview" + "-" * 100
-      @ts_videos << output_path.to_s
 
-      add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
-      upload_to_archive("preview_#{index}.ts", output_path)
+      # Store mp4 path for transitions
+      mp4_preview_files << mp4_output_path
     end
+    
+    # Initialize transition service
+    transitions_service = TransitionsVideoService.new(@temp_dir)
+    
+    # Prepare all videos for transitions including introduction if available
+    all_videos = []
+    all_transitions = []
+    
+    # Add introduction video if it exists
+    if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
+      all_videos << @introduction_mp4_path
+      # Use first preview's transition type for the transition from intro
+      all_transitions << (preview_assets.first&.preview&.transition_type || "dissolve")
+    end
+    
+    # Add all preview videos 
+    all_videos.concat(mp4_preview_files)
+    # Add all transitions except for the first one which we already included if we have introduction
+    if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
+      all_transitions.concat(preview_transitions.drop(1)) if mp4_preview_files.size > 1
+    else
+      # If no introduction, we need all transitions
+      all_transitions.concat(preview_transitions)
+    end
+    
+    # Special case handling for no videos or single video
+    if all_videos.empty?
+      return
+    end
+    
+    # Process all videos with transitions at once
+    all_transitions_output = @temp_dir.join("all_previews_with_transitions.mp4")
+    
+    begin
+      # Single call to create all transitions
+      transitions_service.create_transition_wipelt_videos(
+        all_videos,
+        all_transitions,
+        1.0,
+        all_transitions_output
+      )
+      
+      if File.exist?(all_transitions_output) && File.size(all_transitions_output) > 0
+        # Convert to TS format for the main processing pipeline
+        transitioned_ts_output = @temp_dir.join("previews_with_transitions.ts")
+        system("ffmpeg -y -i \"#{all_transitions_output}\" -c copy -f mpegts \"#{transitioned_ts_output}\"")
+        
+        # Add to our video list
+        @ts_videos << transitioned_ts_output.to_s
+        
+        # Add to MLT
+        add_to_mlt_video(transitioned_ts_output, "previews_with_transitions.ts", "previews_with_transitions")
+        upload_to_archive("previews_with_transitions.ts", transitioned_ts_output)
+        
+        # Clean up
+        File.delete(all_transitions_output) if File.exist?(all_transitions_output)
+      else
+        # If combined transitions failed, fall back to adding videos individually
+        puts "Warning: Failed to create transitions, adding individual videos"
+        
+        # Add introduction directly if it exists
+        if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
+          intro_ts = @temp_dir.join("introduction.ts")
+          system("ffmpeg -y -i \"#{@introduction_mp4_path}\" -c copy -f mpegts \"#{intro_ts}\"")
+          @ts_videos << intro_ts.to_s
+        end
+        
+        # Add each preview individually
+        mp4_preview_files.each_with_index do |file, index|
+          output_path = @temp_dir.join("preview_#{index}.ts")
+          system("ffmpeg -y -i \"#{file}\" -c copy -f mpegts \"#{output_path}\"")
+          
+          if File.exist?(output_path) && File.size(output_path) > 0
+            @ts_videos << output_path.to_s
+            add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
+            upload_to_archive("preview_#{index}.ts", output_path)
+          end
+        end
+      end
+    rescue StandardError => e
+      puts "Error processing transitions: #{e.message}"
+      
+      # Fall back to adding videos individually
+      # Add introduction directly if it exists
+      if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
+        intro_ts = @temp_dir.join("introduction.ts")
+        system("ffmpeg -y -i \"#{@introduction_mp4_path}\" -c copy -f mpegts \"#{intro_ts}\"")
+        @ts_videos << intro_ts.to_s
+      end
+      
+      # Add each preview individually
+      mp4_preview_files.each_with_index do |file, index|
+        output_path = @temp_dir.join("preview_#{index}.ts")
+        system("ffmpeg -y -i \"#{file}\" -c copy -f mpegts \"#{output_path}\"")
+        
+        if File.exist?(output_path) && File.size(output_path) > 0
+          @ts_videos << output_path.to_s
+          add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
+          upload_to_archive("preview_#{index}.ts", output_path)
+        end
+      end
+    end
+    
+    # Clean up the original preview files
+    mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
   end
 
   def process_chapters(chapter_assets)

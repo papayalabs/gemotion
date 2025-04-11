@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_01_110536) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_07_072758) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -152,11 +152,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_01_110536) do
     t.float "start_time"
     t.float "duration"
     t.string "font_type"
-    t.string "font_style"
     t.integer "font_size"
     t.string "animation"
-    t.string "transition"
     t.string "text_color"
+    t.string "font_style", limit: 255
+    t.string "transition_type"
   end
 
   create_table "users", force: :cascade do |t|

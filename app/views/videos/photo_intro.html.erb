@@ -35,13 +35,16 @@
                   <div class="flex flex-col justify-center items-center w-full preview-small-image-block"
                       data-position="<%= index + 1 %>" data-filename="<%= preview.image.blob.filename.to_s %>"
                       data-preview-id="<%= preview.id %>">
+                    <%= image_tag preview.image, class: "preview-photo-intro-image" %>
                     <div class="delete-preview-icon-btn"
                         data-url="<%= drop_preview_path(preview, video_id: @video.id) %>">
-                      <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
+                      <<%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
                     </div>
-                    <%= image_tag preview.image, class: "preview-photo-intro-image" %>
                     <div class="edit-text-overlay-btn" data-preview-id="<%= preview.id %>">
-                      <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Text", class: "edit-text-icon" %>
+                      <%= image_tag "icons/text-editor-font.svg", alt: "Edit Text", class: "edit-text-icon" %>
+                    </div>
+                    <div class="edit-transition-btn" data-position="<%= preview.id %>">
+                      <%= image_tag "icons/transition-right.svg", alt: "Edit Transition", class: "edit-text-icon" %>
                     </div>
                   </div>
                   
@@ -55,6 +58,7 @@
                   <%= f.hidden_field "preview_overlay[#{preview.id}][font_size]", id: "preview_font_size_#{preview.id}", value: preview.font_size %>
                   <%= f.hidden_field "preview_overlay[#{preview.id}][animation]", id: "preview_animation_#{preview.id}", value: preview.animation %>
                   <%= f.hidden_field "preview_overlay[#{preview.id}][text_color]", id: "preview_text_color_#{preview.id}", value: preview.text_color %>
+                  <%= f.hidden_field "preview_overlay[#{preview.id}][transition_type]", id: "preview_transition_type_#{preview.id}", value: preview.transition_type %>
                 <% end %>
                 <% (3 - @ordered_previews.size).times do |i| %>
                   <div class="flex flex-col justify-center items-center w-full preview-small-image-block"
@@ -66,10 +70,13 @@
                     </label>
                     <img id="preview_<%= @ordered_previews.size + i + 1 %>" src="" alt="Preview Image" class="preview-photo-intro-image hidden" />
                     <div class="delete-preview-icon-btn hidden" data-url="">
-                      <%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
+                      <<%= image_tag "icons/delete_icon.png", alt: "Delete Icon", class: "purge-chap-icon" %>
                     </div>
                     <div class="edit-text-overlay-btn hidden" data-position="<%= @ordered_previews.size + i + 1 %>">
-                      <%= image_tag "icons/akar-icons_edit.svg", alt: "Edit Text", class: "edit-text-icon" %>
+                      <%= image_tag "icons/text-editor-font.svg", alt: "Edit Text", class: "edit-text-icon" %>
+                    </div>
+                    <div class="edit-transition-btn hidden" data-position="<%= @ordered_previews.size + i + 1 %>">
+                      <%= image_tag "icons/transition-right.svg", alt: "Edit Transition", class: "edit-text-icon" %>
                     </div>
                   </div>
                 <% end %>
@@ -107,6 +114,7 @@
 
 <!-- Text Overlay Modal -->
 <%= render "videos/shared/text_overlay_modal" %>
+<%= render "videos/shared/transition_modal" %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>
@@ -115,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const imageOrderInput = document.getElementById("image_order");
   const bigImageBlock = document.querySelector(".preview-big-image-block");
   const textOverlayModal = document.getElementById("text-overlay-modal");
+  const transitionModal = document.getElementById("transition-modal");
 
   // Text overlay form elements
   const overlayText = document.getElementById("overlay-text");
@@ -130,12 +139,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentPreviewPosition = document.getElementById("current-preview-position");
   const cancelOverlayBtn = document.getElementById("cancel-overlay");
   const saveOverlayBtn = document.getElementById("save-overlay");
+  const cancelTransitionBtn = document.getElementById("cancel-transition");
+  const saveTransitionBtn = document.getElementById("save-transition");
 
   // Initialize Sortable.js
   new Sortable(sortableContainer, {
     animation: 150,
     onEnd: () => updateOrder(),
   });
+  
+  // Add transition type element handling
+  const transitionType = document.getElementById("transition-type");
 
   // Update the hidden field with the order of filenames
   const updateOrder = () => {
@@ -190,6 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
           block.querySelector(".add-more-preview-circle").classList.add("hidden");
           block.querySelector(".delete-preview-icon-btn").classList.remove("hidden");
           block.querySelector(".edit-text-overlay-btn").classList.remove("hidden");
+          block.querySelector(".edit-transition-btn").classList.remove("hidden");
           block.dataset.filename = file.name; // Save filename
           updateOrder(); // Update order with new filename
           displayInBigPreview(e.target.result); // Show the uploaded image in the big preview block
@@ -220,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
           deleteButton.classList.remove("hidden");
           parentBlock.dataset.filename = file.name; // Save filename in dataset
           parentBlock.querySelector(".edit-text-overlay-btn").classList.remove("hidden");
+          parentBlock.querySelector(".edit-transition-btn").classList.remove("hidden");
           updateOrder(); // Update order with new filename
 
           // Show the uploaded image in the big preview block
@@ -345,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         overlayText.value = textField ? textField.value || "" : "";
         textPosition.value = positionField ? positionField.value || "middle" : "middle";
-        startTime.value = startTimeField ? startTimeField.value || 0 : 0;
+        startTime.value = startTimeField ? startTimeField.value || 1 : 1;
         duration.value = durationField ? durationField.value || 3 : 3;
         fontType.value = fontTypeField ? fontTypeField.value || "Poppins" : "Poppins";
         fontStyle.value = fontStyleField ? fontStyleField.value || "Normal" : "Normal";
@@ -360,13 +376,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // Set default values
         overlayText.value = "";
         textPosition.value = "middle";
-        startTime.value = 0;
+        startTime.value = 1;
         duration.value = 3;
         fontType.value = "Poppins";
         fontStyle.value = "Normal";
         fontSize.value = 80;
         textAnimation.value = "none";
         textColor.value = "#ffffff";
+        transitionType.value = "none";
       }
       
       // Show the modal
@@ -422,6 +439,70 @@ document.addEventListener("DOMContentLoaded", () => {
     textOverlayModal.classList.add("hidden");
   });
 
+
+  // Handle transition editing
+  document.querySelectorAll(".edit-transition-btn").forEach(btn => {
+    btn.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const previewBlock = btn.closest(".preview-small-image-block");
+      const previewId = previewBlock.dataset.previewId;
+      const position = previewBlock.dataset.position;
+      
+      // If it's an existing preview, load its text overlay properties
+      if (previewId) {
+        currentPreviewId.value = previewId;
+        
+        // Load existing values if available
+        const transitionTypeField = document.getElementById(`preview_transition_type_${previewId}`);
+        transitionType.value = transitionTypeField ? transitionTypeField.value || "none" : "none";
+      } else {
+        // For new image uploads, use default values and store the position
+        currentPreviewId.value = "";
+        currentPreviewPosition.value = position;
+        
+        // Set default values
+        transitionType.value = "none";
+      }
+      
+      // Show the modal
+      transitionModal.classList.remove("hidden");
+    });
+  });
+  
+  // Cancel button for text overlay modal
+  cancelTransitionBtn.addEventListener("click", () => {
+    transitionModal.classList.add("hidden");
+  });
+  
+  // Save button for text overlay modal
+  saveTransitionBtn.addEventListener("click", () => {
+    const previewId = currentPreviewId.value;
+    const position = currentPreviewPosition.value;
+    
+    if (previewId) {
+      // Update existing preview's hidden fields
+      document.getElementById(`preview_transition_type_${previewId}`).value = transitionType.value;
+    } else if (position) {
+      // For new uploads, create new hidden fields
+      const form = document.getElementById('previews-form');
+      
+      const createHiddenField = (name, value) => {
+        const field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = `new_preview_overlay[${position}][${name}]`;
+        field.value = value;
+        return field;
+      };
+      
+      form.appendChild(createHiddenField('transition_type', transitionType.value));
+    }
+    
+    // Close the modal
+    transitionModal.classList.add("hidden");
+  });
+
   // Ensure at least one image is uploaded before form submission
   document.getElementById("previews-form").addEventListener("submit", (event) => {
     const filledInputs = Array.from(document.querySelectorAll(".image-input")).filter((input) => input.files.length > 0);
@@ -441,10 +522,27 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <style>
+.edit-transition-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  padding: 5px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  margin: 5px;
+}
+
+.edit-transition-btn:hover {
+  background-color: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
 .edit-text-overlay-btn {
   position: absolute;
   bottom: 0;
-  right: 0;
+  left: 20;
   background-color: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
   padding: 5px;
@@ -459,6 +557,14 @@ document.addEventListener("DOMContentLoaded", () => {
   transform: scale(1.1);
 }
 
+.delete-preview-icon-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 5px;
+  z-index: 10;
+}
+
 .edit-text-icon {
   width: 18px;
   height: 18px;
@@ -468,11 +574,5 @@ document.addEventListener("DOMContentLoaded", () => {
   position: relative;
 }
 
-.delete-preview-icon-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 5px;
-  z-index: 10;
-}
+
 </style>
