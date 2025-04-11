@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fontSize.value = 80;
         textAnimation.value = "none";
         textColor.value = "#ffffff";
-        transitionType.value = "none";
+        transitionType.value = "dissolve";
       }
       
       // Show the modal
@@ -456,14 +456,14 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Load existing values if available
         const transitionTypeField = document.getElementById(`preview_transition_type_${previewId}`);
-        transitionType.value = transitionTypeField ? transitionTypeField.value || "none" : "none";
+        transitionType.value = transitionTypeField ? transitionTypeField.value || "dissolve" : "dissolve";
       } else {
         // For new image uploads, use default values and store the position
         currentPreviewId.value = "";
         currentPreviewPosition.value = position;
         
         // Set default values
-        transitionType.value = "none";
+        transitionType.value = "dissolve";
       }
       
       // Show the modal
