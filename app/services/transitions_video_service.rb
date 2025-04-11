@@ -6,13 +6,12 @@ class TransitionsVideoService
   def create_transition_wipelt_videos(videos, transition_types = [], transition_duration = 1, custom_output_path = nil)
     # Map transition_type to FFmpeg xfade transition names
     transition_map = {
+      "none" => "fade",
       "dissolve" => "fade",
       "flash" => "fadewhite",
       "directional" => "slideleft",
       "zoom" => "zoomin",
       "swap_instant" => "smoothleft",
-      "none" => "fade",
-      "cube" => "cube"
     }
 
     # Return early if there are no videos or just one video

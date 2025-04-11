@@ -133,14 +133,17 @@ class ContentDedicaceService
   end
 
   def process_introduction
+    # The introoduction file is now added in process_previews method with the transitions
     introduction_input_path = Rails.root.join("app/assets/videos/previews/#{@video.introduction_video}.mp4")
     introduction_output_path = @temp_dir.join("introduction.ts")
     p "+" * 100 + "introduction" + "+" * 100
     system("ffmpeg -y -i \"#{introduction_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{introduction_output_path}\"")
     p "-" * 100 + "introduction" + "-" * 100
-    @ts_videos << introduction_output_path.to_s
-    add_to_mlt_video(introduction_output_path, "introduction.ts", "introduction")
-    upload_to_archive("introduction.ts", introduction_output_path)
+    if File.exist?(introduction_output_path) && File.size(introduction_output_path) > 0
+      @introduction_mp4_path = introduction_output_path
+    else
+      raise "Error: Failed to create introduction file"
+    end
   end
 
   def process_previews(preview_assets)
@@ -652,8 +655,11 @@ class ContentDedicaceService
   end
 
   def calculate_introduction_duration
-    # Assuming the first element of @ts_videos is the introduction video
-    introduction_video_path = @ts_videos.first
+    if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
+      introduction_video_path = @introduction_mp4_path
+    else
+      raise "Error: Could not retrieve introduction video duration because there is no introduction video file"
+    end
 
     output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 #{introduction_video_path.to_s.shellescape}`
 
