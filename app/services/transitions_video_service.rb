@@ -13,7 +13,7 @@ class TransitionsVideoService
       "zoom" => "zoomin",
       "swap_instant" => "smoothleft",
       "radial" => "radial",
-      "centered_drop" => "circledrop",
+      "centered_drop" => "circlecrop",
       "cube" => "cube", # ffmpeg-concat
       "heart" => "heart" # ffmpeg-concat
     }
