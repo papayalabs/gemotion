@@ -1,5 +1,5 @@
 class Preview < ApplicationRecord
-  TRANSITION_TYPES = %w[dissolve flash directional zoom swap_instant none].freeze
+  TRANSITION_TYPES = %w[dissolve flash directional zoom swap_instant radial centered_drop cube heart].freeze
   
   has_one_attached :image
   has_many :video_previews, dependent: :destroy
