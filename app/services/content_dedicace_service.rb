@@ -45,10 +45,13 @@ class ContentDedicaceService
 
     previews_duration_calc(preview_assets.count) if @video.by_chapters?
 
+    # Process the introduction defining  @introduction_mp4_path and @introduction_duration
     process_introduction
-    calculate_introduction_duration
 
+    # Process the Previews with texts and transitions
     process_previews(preview_assets)
+
+    # Process the chapters
     process_chapters(united_chapter_assets)
 
     if @video.video_type == "colab" && @video.dedicace.present?
@@ -139,18 +142,24 @@ class ContentDedicaceService
     p "+" * 100 + "introduction" + "+" * 100
     system("ffmpeg -y -i \"#{introduction_input_path}\" -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 44100 -r 30 -f mpegts \"#{introduction_output_path}\"")
     p "-" * 100 + "introduction" + "-" * 100
-    if File.exist?(introduction_output_path) && File.size(introduction_output_path) > 0
-      @introduction_mp4_path = introduction_output_path
-    else
+
+    unless File.exist?(introduction_output_path) && File.size(introduction_output_path) > 0
       raise "Error: Failed to create introduction file"
     end
+
+    @introduction_mp4_path = introduction_output_path
+    output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 #{@introduction_mp4_path.to_s.shellescape}`
+
+    raise "Error: Could not retrieve introduction video duration." if output.strip.empty?
+
+    @introduction_duration = Time.at(output.strip.to_f).utc.strftime("%H:%M:%S.%3N")
   end
 
   def process_previews(preview_assets)
     # First, process each preview image individually
     mp4_preview_files = []
     preview_transitions = []
-    
+
     preview_assets.each_with_index do |preview, index|
       preview_path = ActiveStorage::Blob.service.send(:path_for, preview.preview.image.key)
       output_path = @temp_dir.join("preview_#{index}.ts")
@@ -167,10 +176,10 @@ class ContentDedicaceService
       animation = preview.preview.animation
       text_color = preview.preview.text_color
       transition_type = preview.preview.transition_type || "dissolve"
-      
+
       # Print debug information about the preview settings
       puts "Preview #{index}: Text='#{preview_text}', Animation='#{animation}', Transition='#{transition_type}'"
-      
+
       # Store the transition type for each preview
       preview_transitions << transition_type
 
@@ -223,7 +232,7 @@ class ContentDedicaceService
                              typewriter_text = preview_text.chars.each_with_index.map do |c, i|
                                preview_text[0..i].gsub("'", "\\\\'")
                              end.join('\\\\|')
-                             
+
                              ":text='#{typewriter_text}':enable='between(t,#{start_time},#{start_time + duration})'"
                            else
                              ":enable='between(t,#{start_time},#{start_time + duration})'"
@@ -239,10 +248,10 @@ class ContentDedicaceService
           "-f lavfi -i anullsrc=r=44100:cl=stereo " \
           "-c:v libx264 -c:a aac -t #{@imgs_to_video_duration_in_seconds} -r 30 -vf \"scale=1280:720,#{drawtext_filter}\" -pix_fmt yuvj420p " \
           "\"#{mp4_output_path}\""
-        
+
         puts "Executing FFmpeg command for preview #{index} with animation '#{animation}':"
         puts ffmpeg_command
-        
+
         # Execute the command
         system(ffmpeg_command)
       else
@@ -259,22 +268,22 @@ class ContentDedicaceService
       # Store mp4 path for transitions
       mp4_preview_files << mp4_output_path
     end
-    
+
     # Initialize transition service
     transitions_service = TransitionsVideoService.new(@temp_dir)
-    
+
     # Prepare all videos for transitions including introduction if available
     all_videos = []
     all_transitions = []
-    
+
     # Add introduction video if it exists
     if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
       all_videos << @introduction_mp4_path
       # Use first preview's transition type for the transition from intro
       all_transitions << (preview_assets.first&.preview&.transition_type || "dissolve")
     end
-    
-    # Add all preview videos 
+
+    # Add all preview videos
     all_videos.concat(mp4_preview_files)
     # Add all transitions except for the first one which we already included if we have introduction
     if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
@@ -283,15 +292,13 @@ class ContentDedicaceService
       # If no introduction, we need all transitions
       all_transitions.concat(preview_transitions)
     end
-    
+
     # Special case handling for no videos or single video
-    if all_videos.empty?
-      return
-    end
-    
+    return if all_videos.empty?
+
     # Process all videos with transitions at once
     all_transitions_output = @temp_dir.join("all_previews_with_transitions.mp4")
-    
+
     begin
       # Single call to create all transitions
       transitions_service.create_transition_wipelt_videos(
@@ -300,47 +307,47 @@ class ContentDedicaceService
         1.0,
         all_transitions_output
       )
-      
+
       if File.exist?(all_transitions_output) && File.size(all_transitions_output) > 0
         # Convert to TS format for the main processing pipeline
         transitioned_ts_output = @temp_dir.join("previews_with_transitions.ts")
         system("ffmpeg -y -i \"#{all_transitions_output}\" -c copy -f mpegts \"#{transitioned_ts_output}\"")
-        
+
         # Add to our video list
         @ts_videos << transitioned_ts_output.to_s
-        
+
         # Add to MLT
         add_to_mlt_video(transitioned_ts_output, "previews_with_transitions.ts", "previews_with_transitions")
         upload_to_archive("previews_with_transitions.ts", transitioned_ts_output)
-        
+
         # Clean up
         File.delete(all_transitions_output) if File.exist?(all_transitions_output)
       else
         # If combined transitions failed, fall back to adding videos individually
         puts "Warning: Failed to create transitions, adding individual videos"
-        
+
         # Add introduction directly if it exists
         if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
           intro_ts = @temp_dir.join("introduction.ts")
           system("ffmpeg -y -i \"#{@introduction_mp4_path}\" -c copy -f mpegts \"#{intro_ts}\"")
           @ts_videos << intro_ts.to_s
         end
-        
+
         # Add each preview individually
         mp4_preview_files.each_with_index do |file, index|
           output_path = @temp_dir.join("preview_#{index}.ts")
           system("ffmpeg -y -i \"#{file}\" -c copy -f mpegts \"#{output_path}\"")
-          
-          if File.exist?(output_path) && File.size(output_path) > 0
-            @ts_videos << output_path.to_s
-            add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
-            upload_to_archive("preview_#{index}.ts", output_path)
-          end
+
+          next unless File.exist?(output_path) && File.size(output_path) > 0
+
+          @ts_videos << output_path.to_s
+          add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
+          upload_to_archive("preview_#{index}.ts", output_path)
         end
       end
     rescue StandardError => e
       puts "Error processing transitions: #{e.message}"
-      
+
       # Fall back to adding videos individually
       # Add introduction directly if it exists
       if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
@@ -348,20 +355,20 @@ class ContentDedicaceService
         system("ffmpeg -y -i \"#{@introduction_mp4_path}\" -c copy -f mpegts \"#{intro_ts}\"")
         @ts_videos << intro_ts.to_s
       end
-      
+
       # Add each preview individually
       mp4_preview_files.each_with_index do |file, index|
         output_path = @temp_dir.join("preview_#{index}.ts")
         system("ffmpeg -y -i \"#{file}\" -c copy -f mpegts \"#{output_path}\"")
-        
-        if File.exist?(output_path) && File.size(output_path) > 0
-          @ts_videos << output_path.to_s
-          add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
-          upload_to_archive("preview_#{index}.ts", output_path)
-        end
+
+        next unless File.exist?(output_path) && File.size(output_path) > 0
+
+        @ts_videos << output_path.to_s
+        add_to_mlt_img(output_path, "preview_#{index}.ts", "preview_#{index}", 3)
+        upload_to_archive("preview_#{index}.ts", output_path)
       end
     end
-    
+
     # Clean up the original preview files
     mp4_preview_files.each { |file| File.delete(file) if File.exist?(file) }
   end
@@ -652,21 +659,6 @@ class ContentDedicaceService
 
   def format_time(seconds)
     Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
-  end
-
-  def calculate_introduction_duration
-    if @introduction_mp4_path && File.exist?(@introduction_mp4_path)
-      introduction_video_path = @introduction_mp4_path
-    else
-      raise "Error: Could not retrieve introduction video duration because there is no introduction video file"
-    end
-
-    output = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 #{introduction_video_path.to_s.shellescape}`
-
-    raise "Error: Could not retrieve introduction video duration." if output.strip.empty?
-
-    seconds = output.strip.to_f
-    @introduction_duration = Time.at(seconds).utc.strftime("%H:%M:%S.%3N")
   end
 
   def set_final_video_length(final_video_path)
