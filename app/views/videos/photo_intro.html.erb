@@ -343,6 +343,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const previewBlock = btn.closest(".preview-small-image-block");
       const previewId = previewBlock.dataset.previewId;
       const position = previewBlock.dataset.position;
+      const text_start_time = <%= Rails.application.config.text_start_time %>;
+      const text_duration = <%= Rails.application.config.text_duration %>;
       
       // If it's an existing preview, load its text overlay properties
       if (previewId) {
@@ -361,8 +363,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         overlayText.value = textField ? textField.value || "" : "";
         textPosition.value = positionField ? positionField.value || "middle" : "middle";
-        startTime.value = startTimeField ? startTimeField.value || 1 : 1;
-        duration.value = durationField ? durationField.value || 3 : 3;
+        startTime.value = startTimeField ? startTimeField.value || text_start_time : text_start_time;
+        duration.value = durationField ? durationField.value || text_duration :  text_duration;
         fontType.value = fontTypeField ? fontTypeField.value || "Poppins" : "Poppins";
         fontStyle.value = fontStyleField ? fontStyleField.value || "Normal" : "Normal";
         fontSize.value = fontSizeField ? fontSizeField.value || 80 : 80;
@@ -376,8 +378,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Set default values
         overlayText.value = "";
         textPosition.value = "middle";
-        startTime.value = 1;
-        duration.value = 3;
+        startTime.value = text_start_time;
+        duration.value =  text_duration;
         fontType.value = "Poppins";
         fontStyle.value = "Normal";
         fontSize.value = 80;

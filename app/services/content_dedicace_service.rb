@@ -304,7 +304,7 @@ class ContentDedicaceService
       transitions_service.create_transition_wipelt_videos(
         all_videos,
         all_transitions,
-        1.0,
+        Rails.application.config.transition_duration,
         all_transitions_output
       )
 

@@ -3,7 +3,7 @@ class TransitionsVideoService
     @temp_dir = temp_dir
   end
 
-  def create_transition_wipelt_videos(videos, transition_types = [], transition_duration = 1, custom_output_path = nil)
+  def create_transition_wipelt_videos(videos, transition_types = [], transition_duration = Rails.application.config.transition_duration, custom_output_path = nil)
     # Map transition_type to FFmpeg xfade transition names
     transition_map = {
       "none" => "fade",
