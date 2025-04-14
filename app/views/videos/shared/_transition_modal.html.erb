@@ -1,0 +1,27 @@
+<div id="transition-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white p-8 rounded-lg w-11/12 md:w-2/3 lg:w-1/2 max-h-90vh overflow-y-auto">
+    <h2 class="text-2xl font-bold mb-4"><%= t("add_transition_to_image") %></h2>
+
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label for="transition-type" class="block mb-2 font-bold"><%= t("transition") %></label>
+        <select id="transition-type" class="w-full p-2 border rounded">
+          <option value="dissolve" selected><%= t("dissolve") %></option>
+          <option value="flash"><%= t("flash_transition") %></option>
+          <option value="directional"><%= t("directional") %></option>
+          <option value="zoom"><%= t("zoom") %></option>
+          <option value="swap_instant"><%= t("swap_instant") %></option>
+        </select>
+      </div>
+    </div>
+    
+    <input type="hidden" id="current-preview-id">
+    <input type="hidden" id="current-preview-position">
+    
+    <div class="flex justify-end gap-4">
+      <button id="cancel-transition" class="px-4 py-2 bg-gray-300 rounded"><%= t("cancel") %></button>
+      <button id="save-transition" class="px-4 py-2 bg-blue-600 rounded"><%= t("save") %></button>
+    </div>
+  </div>
+</div>

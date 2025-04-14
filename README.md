@@ -103,6 +103,8 @@ GE.motion is a web application that enables users to create personalized videos 
    - git add .
    - git commit -m "Description of First commit of PR" 
    - git push -f
+   - NOTE: If you Merged a Branch between the commits your are squashing you will need to make the Merge after the Squash
+
 
 #### Code Review Process
 
