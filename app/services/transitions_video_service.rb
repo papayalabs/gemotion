@@ -58,7 +58,7 @@ class TransitionsVideoService
       # Create transition between this pair of videos
       transition_output = @temp_dir.join("transition_#{i}_to_#{i + 1}.mp4")
 
-      if (ffmpeg_transition == "angular" || ffmpeg_transition == "cube" || ffmpeg_transition == "heart")
+      if (ffmpeg_transition == "cube" || ffmpeg_transition == "heart")
         ffmpeg_command = <<-CMD
           ffmpeg-concat -t #{ffmpeg_transition} -d #{transition_duration*1000} -o #{Shellwords.escape(transition_output.to_s)} #{first_video} #{second_video}
         CMD
