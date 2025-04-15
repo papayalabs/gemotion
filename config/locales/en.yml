@@ -66,6 +66,56 @@ en:
   copy: "Copy"
   invite: "Invite"
   or: "or"
+  faq:
+    title: "FAQs"
+    description: "Find answers to frequently asked questions about GE.Motion."
+    chevron_up: "Chevron Up"
+    chevron_down: "Chevron Down"
+    questions:
+      what_is_emotion:
+        question: "What is E Motions Videos?"
+        answer: "E Motions Videos is an easy-to-use innovative platform that allows you to create unique and emotional personalized videos for all occasions by sharing your photos and/or videos. Offer a unique and original video thanks to the personalized dedication option that will melt its recipient with emotions. E Motions Video handles the editing for a smooth and professional result."
+      what_is_emotion_alt:
+        question: "What is E Motions Video?"
+        answer: "E Motions Video is an easy-to-use innovative platform that allows you to create unique and emotional personalized videos for all occasions by sharing your photos and/or videos. Offer a unique and original video thanks to the personalized dedication option that will melt its recipient with emotions. E Motions Video handles the editing for a smooth and professional result."
+      video_cost:
+        question: "How much do the videos cost?"
+        answer: "Our prices vary depending on the options chosen. Please check our Pricing page for more details."
+      after_payment:
+        question: "What do I receive after payment?"
+        answer: "You will receive a high-quality personalized video, ready to be shared or downloaded."
+      payment_methods:
+        question: "What payment methods do you accept?"
+        answer: "We accept credit cards and payments via PayPal."
+      pay_after_creation:
+        question: "Can I pay at the end of the video creation?"
+        answer: "Payment must be made before the video is finalized."
+      invite_people:
+        question: "How can I invite people to create our video?"
+        answer: "You can invite people by sharing a unique link that will allow them to contribute to your video project."
+  footer:
+    contacts: "Contacts"
+    email_aria_label: "Send an email to email@gmail.com"
+    email_icon_alt: "Email Icon"
+    phone_aria_label: "Call 000-000-000" 
+    phone_icon_alt: "Phone Icon"
+    registration: "Registration"
+    create_account: "Create an account"
+    sign_in: "Sign in"
+    contact_us: "Contact us"
+    create_video: "Create a video"
+    get_started: "Get started"
+    how_it_works: "How it works"
+    pricing: "Pricing"
+    socials: "Socials"
+    instagram_aria_label: "Visit our Instagram page"
+    instagram_icon_alt: "Instagram Icon"
+    facebook_aria_label: "Visit our Facebook page"
+    facebook_icon_alt: "Facebook Icon"
+    twitter_aria_label: "Visit our Twitter page"
+    twitter_icon_alt: "Twitter Icon"
+    copyright_text: "@2024 All rights reserved. Created by "
+    agency_name: "Digitality Agency"
   header:
     home: "Home"
     how_it_works: "How it works"

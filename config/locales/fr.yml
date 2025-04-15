@@ -37,6 +37,56 @@ fr:
   copy: "Copier"
   invite: "Inviter"
   or: "ou"
+  faq:
+    title: "FAQs"
+    description: "Trouvez des réponses aux questions fréquemment posées sur GE.Motion."
+    chevron_up: "Chevron Haut"
+    chevron_down: "Chevron Bas"
+    questions:
+      what_is_emotion:
+        question: "Qu'est-ce que E Motions Videos ?"
+        answer: "E Motions Videos est une plateforme innovante simple d'utilisation qui vous permet de créer des vidéos personnalisées uniques et émotionnelles pour toutes les occasions en mettant en commun vos photos et/ou vidéos. Offrez une vidéo unique et originale grâce à l'option de la dédicace personnalisée qui fera fondre d'émotions son destinataire. E mOtions-vidéo se charge du montage pour un rendu fluide et professionnel."
+      what_is_emotion_alt:
+        question: "Qu'est-ce que E mOtions-video ?"
+        answer: "E mOtions-video est une plateforme innovante simple d'utilisation qui vous permet de créer des vidéos personnalisées uniques et émotionnelles pour toutes les occasions en mettant en commun vos photos et/ou vidéos. Offrez une vidéo unique et originale grâce à l'option de la dédicace personnalisée qui fera fondre d'émotions son destinataire. E mOtions-video se charge du montage pour un rendu fluide et professionnel."
+      video_cost:
+        question: "Combien coûtent les vidéos ?"
+        answer: "Nos prix varient en fonction des options choisies. Veuillez consulter notre page Tarifs pour plus de détails."
+      after_payment:
+        question: "Que reçois-je après le paiement ?"
+        answer: "Vous recevrez une vidéo personnalisée de haute qualité, prête à être partagée ou téléchargée."
+      payment_methods:
+        question: "Quels modes de paiement acceptez-vous ?"
+        answer: "Nous acceptons les cartes de crédit et les paiements via PayPal."
+      pay_after_creation:
+        question: "Puis-je payer à la fin de la création de la vidéo ?"
+        answer: "Le paiement doit être effectué avant la finalisation de la vidéo."
+      invite_people:
+        question: "Comment puis-je inviter des personnes à créer notre vidéo ?"
+        answer: "Vous pouvez inviter des personnes en partageant un lien unique qui leur permettra de contribuer à votre projet vidéo."
+  footer:
+    contacts: "Contacts"
+    email_aria_label: "Envoyer un email à email@gmail.com"
+    email_icon_alt: "Icône Email"
+    phone_aria_label: "Appeler 000-000-000"
+    phone_icon_alt: "Icône Téléphone"
+    registration: "Inscription"
+    create_account: "Créer un compte"
+    sign_in: "Se connecter"
+    contact_us: "Contactez-nous"
+    create_video: "Créer une vidéo"
+    get_started: "Démarrer"
+    how_it_works: "Comment ça marche"
+    pricing: "Tarification"
+    socials: "Socials"
+    instagram_aria_label: "Visitez notre page Instagram"
+    instagram_icon_alt: "Icône Instagram"
+    facebook_aria_label: "Visitez notre page Facebook"
+    facebook_icon_alt: "Icône Facebook"
+    twitter_aria_label: "Visitez notre page Twitter"
+    twitter_icon_alt: "Icône Twitter"
+    copyright_text: "@2024 Tous droits réservés. Créé par "
+    agency_name: "Digitality Agency"
   header:
     home: "Accueil"
     how_it_works: "Comment ça marche"

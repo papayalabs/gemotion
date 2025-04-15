@@ -5,62 +5,61 @@
         <%= image_tag 'gemotion-logo-footer.svg', alt: 'Gemotion Logo' %>
       <% end %>
       <div id="footer_contacts">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[20px] gradient-text">Contacts</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[20px] gradient-text"><%= t('footer.contacts') %></p>
         <nav>
           <ul class="flex flex-col gap-[14px]">
             <li class="flex items-center gap-[6px]">
-              <%= link_to "mailto:email@gmail.com", aria: { label: "Send an email to email@gmail.com" } do %>
-                <%= image_tag "icons/email.svg", alt: "Email Icon" %>
+              <%= link_to "mailto:email@gmail.com", aria: { label: t('footer.email_aria_label') } do %>
+                <%= image_tag "icons/email.svg", alt: t('footer.email_icon_alt') %>
               <% end %>
-              <%= link_to "email@gmail.com", "mailto:email@gmail.com", class: "p-text-16", aria: { label: "Send an email to email@gmail.com" } %>
+              <%= link_to "email@gmail.com", "mailto:email@gmail.com", class: "p-text-16", aria: { label: t('footer.email_aria_label') } %>
             </li>
             <li class="flex items-center gap-[6px]">
-              <%= link_to "tel:0000000", aria: { label: "Call 000-000-000" } do %>
-                <%= image_tag "icons/phone.svg", alt: "Phone Icon" %>
+              <%= link_to "tel:0000000", aria: { label: t('footer.phone_aria_label') } do %>
+                <%= image_tag "icons/phone.svg", alt: t('footer.phone_icon_alt') %>
               <% end %>
-              <%= link_to "000-000-000", "tel:0000000", class: "p-text-16", aria: { label: "Call 000-000-000" } %>
+              <%= link_to "000-000-000", "tel:0000000", class: "p-text-16", aria: { label: t('footer.phone_aria_label') } %>
             </li>
           </ul>
         </nav>
       </div>
       <div id="footer_inscription">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text">Inscription</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text"><%= t('footer.registration') %></p>
         <nav>
           <ul class="flex flex-col gap-[5px]">
-            <li><%= link_to "Créer un compte", root_path, class: "p-text-16" %></li>
-            <li><%= link_to "Se connecter", root_path, class: "p-text-16" %></li>
-
-            <li><%= link_to "Contactez-nous", new_contact_path, class: "p-text-16" %></li>
+            <li><%= link_to t('footer.create_account'), root_path, class: "p-text-16" %></li>
+            <li><%= link_to t('footer.sign_in'), root_path, class: "p-text-16" %></li>
+            <li><%= link_to t('footer.contact_us'), new_contact_path, class: "p-text-16" %></li>
           </ul>
         </nav>
       </div>
       <div id="footer_video">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text">Créer une vidéo</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[12px] gradient-text"><%= t('footer.create_video') %></p>
         <nav>
           <ul class="flex flex-col gap-[5px]">
-            <li><%= link_to "Démarrer", start_path(continue: true), class: "p-text-16" %></li>
-            <li><%= link_to "Comment ca marche", about_path, class: "p-text-16" %></li>
-            <li><%= link_to "Tarification", pricing_path, class: "p-text-16" %></li>
+            <li><%= link_to t('footer.get_started'), start_path(continue: true), class: "p-text-16" %></li>
+            <li><%= link_to t('footer.how_it_works'), about_path, class: "p-text-16" %></li>
+            <li><%= link_to t('footer.pricing'), pricing_path, class: "p-text-16" %></li>
           </ul>
         </nav>
       </div>
       <div id="footer_socials">
-        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[23px] gradient-text">Socials</p>
+        <p class="text-title-color text-xl font-montserrat font-bold leading-6 break-words mb-[23px] gradient-text"><%= t('footer.socials') %></p>
         <nav>
           <ul class="flex flex-row items-center gap-[11px]">
             <li>
-              <%= link_to "https://instagram.com", target: "_blank", aria: { label: "Visit our Instagram page" } do %>
-                <%= image_tag "icons/InstagramLogo.png", alt: "Instagram Icon", class: "instagram-icon" %>
+              <%= link_to "https://instagram.com", target: "_blank", aria: { label: t('footer.instagram_aria_label') } do %>
+                <%= image_tag "icons/InstagramLogo.png", alt: t('footer.instagram_icon_alt'), class: "instagram-icon" %>
               <% end %>
             </li>
             <li>
-              <%= link_to "https://facebook.com", target: "_blank", aria: { label: "Visit our Facebook page" } do %>
-                <%= image_tag "icons/facebook1.png", alt: "Facebook Icon", class: "facebook-icon"  %>
+              <%= link_to "https://facebook.com", target: "_blank", aria: { label: t('footer.facebook_aria_label') } do %>
+                <%= image_tag "icons/facebook1.png", alt: t('footer.facebook_icon_alt'), class: "facebook-icon"  %>
               <% end %>
             </li>
             <li>
-              <%= link_to "https://twitter.com", target: "_blank", aria: { label: "Visit our Twitter page" } do %>
-                <%= image_tag "icons/twitter1.png", alt: "Twitter Icon", class: "twitter-icon"  %>
+              <%= link_to "https://twitter.com", target: "_blank", aria: { label: t('footer.twitter_aria_label') } do %>
+                <%= image_tag "icons/twitter1.png", alt: t('footer.twitter_icon_alt'), class: "twitter-icon"  %>
               <% end %>
             </li>
           </ul>
@@ -71,8 +70,8 @@
 
   <section id="copyright" class="py-4 bg-shared-bg">
     <p class="text-white text-base font-red-hat-display font-normal leading-[25px] break-words text-center">
-      @2024 All rights reserved. Created by
-      <%= link_to "Digitality Agency", "https://digitality-agency.com", target: "_blank", class: "text-white" %>
+      <%= t('footer.copyright_text') %>
+      <%= link_to t('footer.agency_name'), "https://digitality-agency.com", target: "_blank", class: "text-white" %>
     </p>
   </section>
 </footer>

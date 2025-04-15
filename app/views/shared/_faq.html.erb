@@ -1,69 +1,69 @@
 <section id="faq">
-    <h2 class="relative">FAQs</h2>
-    <p class="p-text-18">Find answers to frequently asked questions about GE.Motion.</p>
+    <h2 class="relative"><%= t('faq.title') %></h2>
+    <p class="p-text-18"><%= t('faq.description') %></p>
 
     <div class="faq-section">
         <article class="faq-item">
             <header class="faq-question" aria-expanded="true">
-                <h3 class="gradient-text">Qu'est-ce que E Motions Videos ?</h3>
-                <%= image_tag "icons/chevron-up.svg", alt: "Chevron Up", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.what_is_emotion.question') %></h3>
+                <%= image_tag "icons/chevron-up.svg", alt: t('faq.chevron_up'), class: "chevron" %>
             </header>
             <div class="faq-answer">
-                <p class="p-text-16">E Motions Videos est une plateforme innovante simple d'utilisation qui vous permet de créer des vidéos personnalisées uniques et émotionnelles pour toutes les occasions en mettant en commun vos photos et/ou vidéos. Offrez une vidéo unique et originale grâce à l'option de la dédicace personnalisée qui fera fondre d'émotions son destinataire. E mOtions-vidéo se charge du montage pour un rendu fluide et professionnel.</p>
+                <p class="p-text-16"><%= t('faq.questions.what_is_emotion.answer') %></p>
             </div>
         </article>
         <article class="faq-item">
             <header class="faq-question" aria-expanded="false">
-                <h3 class="gradient-text">Qu'est-ce que E mOtions-video ?</h3>
-                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.what_is_emotion_alt.question') %></h3>
+                <%= image_tag "icons/chevron-down.svg", alt: t('faq.chevron_down'), class: "chevron" %>
             </header>
             <div class="faq-answer hidden">
-                <p class="p-text-16">E mOtions-video est une plateforme innovante simple d'utilisation qui vous permet de créer des vidéos personnalisées uniques et émotionnelles pour toutes les occasions en mettant en commun vos photos et/ou vidéos. Offrez une vidéo unique et originale grâce à l'option de la dédicace personnalisée qui fera fondre d'émotions son destinataire. E mOtions-video se charge du montage pour un rendu fluide et professionnel.</p>
+                <p class="p-text-16"><%= t('faq.questions.what_is_emotion_alt.answer') %></p>
             </div>
         </article>
         <article class="faq-item">
             <header class="faq-question" aria-expanded="false">
-                <h3 class="gradient-text">Combien coûtent les vidéos ?</h3>
-                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.video_cost.question') %></h3>
+                <%= image_tag "icons/chevron-down.svg", alt: t('faq.chevron_down'), class: "chevron" %>
             </header>
             <div class="faq-answer hidden">
-                <p class="p-text-16">Nos prix varient en fonction des options choisies. Veuillez consulter notre page Tarifs pour plus de détails.</p>
+                <p class="p-text-16"><%= t('faq.questions.video_cost.answer') %></p>
             </div>
         </article>
         <article class="faq-item">
             <header class="faq-question" aria-expanded="false">
-                <h3 class="gradient-text">Que reçois-je après le paiement ?</h3>
-                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.after_payment.question') %></h3>
+                <%= image_tag "icons/chevron-down.svg", alt: t('faq.chevron_down'), class: "chevron" %>
             </header>
             <div class="faq-answer hidden">
-                <p class="p-text-16">Vous recevrez une vidéo personnalisée de haute qualité, prête à être partagée ou téléchargée.</p>
+                <p class="p-text-16"><%= t('faq.questions.after_payment.answer') %></p>
             </div>
         </article>
         <article class="faq-item">
             <header class="faq-question" aria-expanded="false">
-                <h3 class="gradient-text">Quels modes de paiement acceptez-vous ?</h3>
-                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.payment_methods.question') %></h3>
+                <%= image_tag "icons/chevron-down.svg", alt: t('faq.chevron_down'), class: "chevron" %>
             </header>
             <div class="faq-answer hidden">
-                <p class="p-text-16">Nous acceptons les cartes de crédit et les paiements via PayPal.</p>
+                <p class="p-text-16"><%= t('faq.questions.payment_methods.answer') %></p>
             </div>
         </article>
         <article class="faq-item">
             <header class="faq-question" aria-expanded="false">
-                <h3 class="gradient-text">Puis-je payer à la fin de la création de la vidéo ?</h3>
-                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.pay_after_creation.question') %></h3>
+                <%= image_tag "icons/chevron-down.svg", alt: t('faq.chevron_down'), class: "chevron" %>
             </header>
             <div class="faq-answer hidden">
-                <p class="p-text-16">Le paiement doit être effectué avant la finalisation de la vidéo.</p>
+                <p class="p-text-16"><%= t('faq.questions.pay_after_creation.answer') %></p>
             </div>
         </article>
         <article class="faq-item">
             <header class="faq-question" aria-expanded="false">
-                <h3 class="gradient-text">Comment puis-je inviter des personnes à créer notre vidéo ?</h3>
-                <%= image_tag "icons/chevron-down.svg", alt: "Chevron Down", class: "chevron" %>
+                <h3 class="gradient-text"><%= t('faq.questions.invite_people.question') %></h3>
+                <%= image_tag "icons/chevron-down.svg", alt: t('faq.chevron_down'), class: "chevron" %>
             </header>
             <div class="faq-answer hidden">
-                <p class="p-text-16">Vous pouvez inviter des personnes en partageant un lien unique qui leur permettra de contribuer à votre projet vidéo.</p>
+                <p class="p-text-16"><%= t('faq.questions.invite_people.answer') %></p>
             </div>
         </article>
     </div>
