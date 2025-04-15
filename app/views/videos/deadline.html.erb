@@ -1,9 +1,9 @@
-<h1 class="h1-video gradient-text mt-8">Confirmez la date limite pour la création du film</h1>
+<h1 class="h1-video gradient-text mt-8"><%= t('videos.deadline.title') %></h1>
 
 <%= form_with url: deadline_post_path, method: :post, html: { data: { turbo: false } } do |f| %>
   <div class="flex flex-col justify-start items-center" id="date_fin">
     <div class="film-yourself-block flex flex-col justify-center items-center mt-65 pt-40 pb-40">
-      <h4 class="mt-8 video-h4">Au moins 7 jours avant la date de publication de la vidéo</h4>
+      <h4 class="mt-8 video-h4"><%= t('videos.deadline.subtitle') %></h4>
       <%= image_tag 'icons/eight.png', class: 'image-from-image-text-block' %>
       <div class="custom-calendar-container mt-65" data-controller="custom-calendar" data-custom-calendar-end-date="<%= @video.end_date %>">
         <%= hidden_field_tag 'end_date', @video.end_date, id: 'customDateField', data: { custom_calendar_target: "hiddenField" } %>
@@ -19,7 +19,7 @@
   <div class="flex flex-row justify-between items-center w-80">
     <%= render "videos/shared/back_button" %>
     <div>
-    <%= f.submit "Étape suivante", class: "black-link" %>
+    <%= f.submit t('next_step'), class: "black-link" %>
     </div>
   </div>
 </div>
