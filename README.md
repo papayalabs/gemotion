@@ -19,6 +19,7 @@ GE.motion is a web application that enables users to create personalized videos 
 - Active Storage for file uploads
 - Sidekiq with Redis for background processing
 - FFmpeg for video processing
+- ffmpeg-concat for complex GL transitions (https://github.com/transitive-bullshit/ffmpeg-concat)
 
 ## Contributing as a Developer
 
