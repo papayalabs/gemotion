@@ -69,12 +69,12 @@
       
       <!-- div>
         <label for="start-time" class="block mb-2 font-bold"><%= t("start_time") %></label>
-        <input type="number" id="start-time" class="w-full p-2 border rounded" min="0" max="3" step="0.1" value="0">
+        <input type="number" id="start-time" class="w-full p-2 border rounded" min="0" max="3" step="0.1" value="#{Rails.application.config.text_start_time}">
       </div>
       
       <div>
         <label for="duration" class="block mb-2 font-bold"><%= t("duration") %></label>
-        <input type="number" id="duration" class="w-full p-2 border rounded" min="0.5" max="3" step="0.1" value="3">
+        <input type="number" id="duration" class="w-full p-2 border rounded" min="0.5" max="3" step="0.1" value="#{Rails.application.config.text_duration}">
       </div -->
       
       <div>

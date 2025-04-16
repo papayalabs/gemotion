@@ -28,5 +28,10 @@ module Gemotion
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Default values for texts and transitions
+    config.transition_duration = 1
+    config.text_start_time = 1
+    config.text_duration = 3
   end
 end

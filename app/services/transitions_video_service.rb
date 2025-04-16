@@ -3,7 +3,7 @@ class TransitionsVideoService
     @temp_dir = temp_dir
   end
 
-  def create_transition_wipelt_videos(videos, transition_types = [], transition_duration = 1, custom_output_path = nil)
+  def create_transition_wipelt_videos(videos, transition_types = [], transition_duration = Rails.application.config.transition_duration, custom_output_path = nil)
     # Map transition_type to FFmpeg xfade transition names
     transition_map = {
       "none" => "fade",
@@ -12,6 +12,10 @@ class TransitionsVideoService
       "directional" => "slideleft",
       "zoom" => "zoomin",
       "swap_instant" => "smoothleft",
+      "radial" => "radial",
+      "centered_drop" => "circlecrop",
+      "cube" => "cube", # ffmpeg-concat
+      "heart" => "heart" # ffmpeg-concat
     }
 
     # Return early if there are no videos or just one video
@@ -54,13 +58,19 @@ class TransitionsVideoService
       # Create transition between this pair of videos
       transition_output = @temp_dir.join("transition_#{i}_to_#{i + 1}.mp4")
 
-      ffmpeg_command = <<~CMD
-        ffmpeg -i #{first_video} -i #{second_video} -filter_complex "
-        [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
-        [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
-        [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration_float}:offset=#{[beginning_duration - transition_duration_float, 0].max}[out]" \
-        -map "[out]" -map 0:a -c:v libx264 -c:a aac -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
-      CMD
+      if (ffmpeg_transition == "cube" || ffmpeg_transition == "heart")
+        ffmpeg_command = <<-CMD
+          ffmpeg-concat -t #{ffmpeg_transition} -d #{transition_duration*1000} -o #{Shellwords.escape(transition_output.to_s)} #{first_video} #{second_video}
+        CMD
+      else
+        ffmpeg_command = <<~CMD
+          ffmpeg -i #{first_video} -i #{second_video} -filter_complex "
+          [0:v]format=pix_fmts=yuv420p,scale=1920:1080[base];
+          [1:v]format=pix_fmts=yuv420p,scale=1920:1080[next];
+          [base][next]xfade=transition=#{ffmpeg_transition}:duration=#{transition_duration_float}:offset=#{[beginning_duration - transition_duration_float, 0].max}[out]" \
+          -map "[out]" -map 0:a -c:v libx264 -c:a aac -crf 23 -preset veryfast #{Shellwords.escape(transition_output.to_s)}
+        CMD
+      end
 
       puts "Creating transition #{i + 1} of #{normalized_videos.length - 1}"
       system(ffmpeg_command)
