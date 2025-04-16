@@ -1,19 +1,19 @@
 <div>
   <h1 class="video-h1">
-    Il est temps de remplir vos chapitres de merveilleux souvenirs !
+    <%= t('videos.content.fill_chapters') %>
   </h1>
   <div class="w-full flex flex-col justify-center items-center">
     <div class="text-with-image-block flex justify-center items-center mb-[72px] w-full p-text-16">
-      Faites glisser ou ajouter vos photos et/ou vidéos dans les chapitres ci-dessous
+      <%= t('videos.content.drag_instructions') %>
       <%= image_tag 'icons/file.png', class: 'image-from-image-text-block' %>
     </div>
   </div>
   <div class="w-full flex justify-center items-center">
     <div class="w-1360 flex flex-col justify-start items-start">
-      <div class="p-text-16">Vos médias</div>
+      <div class="p-text-16"><%= t('videos.content.your_media') %></div>
       <%= link_to step_back_path, class: "inviter-des-amis p-text-center-bold-16 flex flex-row items-center mt-4", data: { turbo: false } do %>
         <%= image_tag "icons/inviter.png", alt: "Icon", class: "icon-class" %>
-        Inviter des amis
+        <%= t('videos.content.invite_friends') %>
       <% end %>
     </div>
   </div>
@@ -29,7 +29,7 @@
                   <% if video_chapter.chapter_type.image.attached? %>
                     <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
                   <% else %>
-                    <p>Pas d'image</p>
+                    <p><%= t('videos.content.no_image') %></p>
                   <% end %>
                   <div class="video-music-thumb-wrapper-text flex flex-row justify-start items-center">
                     <div class="ml-2"><%= video_chapter.text %></div>
@@ -46,12 +46,12 @@
 
                 <div class="edit-video-alert w-full mt-8">
                   <%= image_tag "icons/alert.svg" %>
-                  <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
+                  <p class="p-text-16"><%= t('videos.content.drag_to_change') %></p>
                 </div>
 
                 <div class="w-100i text-center upload-music-block flex flex-col justify-center items-center">
                   <label for="custom_music_<%= video_chapter.id %>" class="cursor-pointer flex flex-col justify-center items-center w-full" id="video-upload-<%= video_chapter.id %>">
-                    <span>Ajouter 2 vidéos maximum</span>
+                    <span><%= t('videos.content.add_videos_limit') %></span>
                     <div class="add-more-circle mt-6">
                       <span class="plus-sign">+</span>
                     </div>
@@ -70,12 +70,12 @@
 
                 <div class="edit-video-alert w-full mt-8">
                   <%= image_tag "icons/alert.svg" %>
-                  <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
+                  <p class="p-text-16"><%= t('videos.content.drag_to_change') %></p>
                 </div>
 
                 <div class="w-100i text-center upload-music-block flex flex-col justify-center items-center">
                   <label for="custom_music_<%= video_chapter.id %>" class="cursor-pointer flex flex-col justify-center items-center w-full" id="photo-upload-<%= video_chapter.id %>">
-                    <span>Ajouter 2 photos maximum</span>
+                    <span><%= t('videos.content.add_photos_limit') %></span>
                     <div class="add-more-circle mt-6">
                       <span class="plus-sign">+</span>
                     </div>
@@ -93,7 +93,7 @@
 
         <div class="video-steps w-full">
           <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class: "black-link" %>
+          <%= f.submit t('next_step'), class: "black-link" %>
         </div>
       <% end %>
     </div>

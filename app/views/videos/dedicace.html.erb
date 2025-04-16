@@ -1,5 +1,5 @@
 <div>
-  <h1 class="video-h1">Choisissez votre dédicace personnalisée pour la fin de votre film</h1>
+  <h1 class="video-h1"><%= t('videos.dedicace.title') %></h1>
   <div class="w-full flex flex-col justify-center items-center">
     <div class="text-with-image-block-occasion flex justify-center items-center mb-[72px] w-full p-text-16">
       Lorem ipsum dolor sit amet consectetur. Dictum eu morbi ac elit enim at neque urna. Eleifend condimentum ipsum a lectus tortor est arcu. Feugiat lectus auctor cursus netus eu sit in pharetra. Convallis eget odio molestie urna phasellus etiam ac euismod justo. Ipsum tristique purus risus at ultrices non. Eget lectus diam eget feugiat nulla imperdiet ornare libero.
@@ -33,12 +33,12 @@
                           </div>
                         </div>
                       <% else %>
-                        <p>Pas de vidéo</p>
+                        <p><%= t('videos.dedicace.no_video') %></p>
                       <% end %>
                       <span class="dedication-name"><%= dedicace.name %></span>
                     </div>
                     <p class="p-text-16 mt-4"><%= dedicace.description %></p>
-                    <p class="p-text-16-bold mt-2 text-decoration-underline">Lire plus</p>
+                    <p class="p-text-16-bold mt-2 text-decoration-underline"><%= t('videos.dedicace.read_more') %></p>
                   </div>
                 </div>
               <% end %>
@@ -48,21 +48,21 @@
         <div class="w-full flex justify-center items-center mt-65">
           <div class="w-[1006px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
             <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">
-              Vous pouvez également nous envoyer une demande pour commander une vidéo avec votre thème spécial
+              <%= t('videos.dedicace.special_request') %>
             </h3>
             <p class="w-100 mb-[32px] p-text-center-16">
-              * Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.
+              <%= t('videos.dedicace.processing_time') %>
             </p>
             <%= f.text_area :special_request_dedicace,
                             id: "special_request_dedicace",
-                            placeholder: "Décrivez votre thème...",
+                            placeholder: t('videos.dedicace.describe_theme'),
                             rows: 3,
                             value: @video.special_request_dedicace,
                             class: "flex w-100i px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
             <div class="flex justify-center items-center gap-[16px] w-100 mt-4">
               <%= image_tag "icons/attention.svg" %>
               <p class="w-100 p-text-center-16">
-                Veuillez noter que des frais supplémentaires seront appliqués pour une vidéo sur mesure.
+                <%= t('videos.dedicace.additional_fees') %>
               </p>
             </div>
           </div>
@@ -70,7 +70,7 @@
 
         <div class="video-steps">
           <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class:"black-link" %>
+          <%= f.submit t('next_step'), class:"black-link" %>
         </div>
 
     <% end %>

@@ -1,6 +1,6 @@
 <div class="video_occasion">
   <section class="hero">
-    <h1 class="h1-video gradient-text">Pour quelle occasion?</h1>
+    <h1 class="h1-video gradient-text"><%= t('videos.occasion.title') %></h1>
   </section>
 
   <div class="flex flex-row justify-center w-full">
@@ -24,13 +24,13 @@
 
             <div class="flex items-center gap-[23px]">
                 <%= image_tag "icons/attention.svg" %>
-                <p class="p-text-16">Bientôt disponible : de nouvelles occasions pour votre film</p>
+                <p class="p-text-16"><%= t('videos.occasion.soon_available') %></p>
             </div>
           </div>
 
           <div class="flex justify-between">
             <%= render "videos/shared/back_button" %>
-            <%= f.submit "Étape suivante", class: "black-link" %>
+            <%= f.submit t('next_step'), class: "black-link" %>
           </div>
 
         <% end %>
