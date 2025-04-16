@@ -1,6 +1,6 @@
 <div class="date_fin">
   <section class="hero">
-    <h1 class="h1-video gradient-text">Dites nous quel jour vous voulez visionner la vidéo</h1>
+    <h1 class="h1-video gradient-text"><%= t('videos.date_fin.title') %></h1>
   </section>
   <div class="flex flex-row justify-center w-full">
     <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
@@ -18,8 +18,8 @@
 
           <div class="flex-block-container flex flex-col justify-start mb-[48px] relative inline-block w-full">
 
-              <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">Dites nous quel jour vous voulez visionner la vidéo</h3>
-              <p class="p-text-center-16 text-center font-red-hat-display text-[16px] font-normal leading-[25px]">La vidéo se terminera automatiquement 5 jours avant.</p>
+              <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]"><%= t('videos.date_fin.title') %></h3>
+              <p class="p-text-center-16 text-center font-red-hat-display text-[16px] font-normal leading-[25px]"><%= t('videos.date_fin.description') %></p>
               <%# <%= f.date_field :end_date, value: @video.end_date %>
               <div class="flex justify-center">
                 <div class="custom-calendar-container mt-65" data-controller="custom-calendar" data-custom-calendar-end-date="<%= @video.end_date %>">
@@ -33,7 +33,7 @@
 
           <div class="flex justify-between">
             <%= render "videos/shared/back_button" %>
-            <%= f.submit "Étape suivante", class: "black-link" %>
+            <%= f.submit t('next_step'), class: "black-link" %>
           </div>
 
         <% end %>

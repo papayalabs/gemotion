@@ -1,4 +1,4 @@
-<h1 class="video-h1">Votre projet</h1>
+<h1 class="video-h1"><%= t('videos.payment.title') %></h1>
 
 <div class='big-spaces-on-sides'>
   <div class="payment-container">
@@ -14,28 +14,28 @@
           </div>
         <% end %>
         <div class="flex flex-col justify-start items-center ml-50">
-          <div class="font-bold">PRODUIT</div>
+          <div class="font-bold"><%= t('videos.payment.product') %></div>
           <div class="mt-6"><%= "Film, #{format_time(@video.final_video_duration)} min." %></div>
         </div>
         <div class="flex flex-col justify-start items-center ml-50">
-          <div class="font-bold">PRIX</div>
+          <div class="font-bold"><%= t('videos.payment.price') %></div>
           <div class="flex justify-start items-center mt-6">
             €<%= @amount %>
           </div>
         </div>
         <div class="flex flex-col justify-start items-center ml-50">
-          <div class="font-bold">QUANTITÉ</div>
+          <div class="font-bold"><%= t('videos.payment.quantity') %></div>
           <div class="mt-6 div-input">1</div>
         </div>
 
         <div class="flex flex-col justify-start items-center ml-50">
-          <div class="font-bold">SOUS-TOTAL</div>
+          <div class="font-bold"><%= t('videos.payment.subtotal') %></div>
           <div class="mt-6">€<%= @amount %></div>
         </div>
       </div>
 
       <div class="payment-block payment-block-bottom flex flex-row justify-between items-center mt-6">
-        <div class="p-text-18">Ajouter à la commande un album avec tous les éléments du film (thème, chapitres, contenu)</div>
+        <div class="p-text-18"><%= t('videos.payment.add_album') %></div>
         <div class="div-rect"></div>
       </div>
     </div>
@@ -46,18 +46,18 @@
           <input type="hidden" name="stripeToken" id="stripeToken" data-payment-target="stripeToken">
           <div class="flex flex-col justify-between">
             <div class="mb-[48px]">
-              <div class="total-price mb-4">TOTAL DU PANIER</div>
+              <div class="total-price mb-4"><%= t('videos.payment.cart_total') %></div>
 
               <div class="flex justify-between items-center mb-4">
-                <span class="p-text-18">SOUS-TOTAL</span>
+                <span class="p-text-18"><%= t('videos.payment.subtotal') %></span>
                 <span>€<%= @amount %></span>
               </div>
 
-              <div class="mb-[16px]">Carte de crédit ou de débit</div>
+              <div class="mb-[16px]"><%= t('videos.payment.credit_card') %></div>
               <div id="card-element" data-payment-target="cardElement"></div>
 
               <div class="flex flex-col justify-start items-start mb-4 mt-8">
-                <span class="font-bold">Livraison</span>
+                <span class="font-bold"><%= t('videos.payment.delivery') %></span>
                 <div class="flex flex-col mt-2">
                   <% 5.times do %>
                     <div class="flex flex-row justify-start items-center mt-2">
@@ -69,20 +69,20 @@
               </div>
 
               <div class="flex justify-between items-center mt-8">
-                <span class="font-bold">Total du sac</span>
+                <span class="font-bold"><%= t('videos.payment.bag_total') %></span>
                 <span>€<%= @amount %></span>
               </div>
             </div>
             <div data-controller="dialog" data-action="click->dialog#clickOutside" class="payment-modal">
-              <div data-action="click->dialog#open" class="black-link w-full">Payer</div>
+              <div data-action="click->dialog#open" class="black-link w-full"><%= t('videos.payment.pay') %></div>
               <dialog data-dialog-target="modal" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full w-1006 popup-payment-modal bg-transparent">
                 <div class="text-with-image-block-payment w-100i flex flex-col justify-center items-center mt-65 mb-[72px] px-[27px] w-full p-text-center-16">
-                  <p class="w-80 mb-45 p-text-center-16">Merci ! Nous traitons déjà votre demande de thème vidéo personnalisé. Cela peut prendre jusqu'à 2 jours. Nous vous enverrons une confirmation par e-mail.</p>
+                  <p class="w-80 mb-45 p-text-center-16"><%= t('videos.payment.thank_you_message') %></p>
                   <div class="flex justify-center items-center">
                     <%= button_tag type: 'button', formmethod: 'dialog', class: 'transparent-link mr-8', data: { action: 'click->dialog#close' } do %>
-                      Créer un nouveau film
+                      <%= t('videos.payment.create_new_film') %>
                     <% end %>
-                    <button type="submit" class="black-link">Mon compte</button>
+                    <button type="submit" class="black-link"><%= t('videos.payment.my_account') %></button>
                   </div>
                   <%= image_tag 'icons/plus.png', class: 'image-from-image-text-block' %>
                 </div>

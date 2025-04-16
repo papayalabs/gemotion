@@ -1,10 +1,10 @@
 <div>
   <h1 class="video-h1">
-    Optionnel: Choisissez les musiques pour chacun des chapitres de votre film
+    <%= t('videos.music.title') %>
   </h1>
   <div class="w-full flex flex-col justify-center items-center">
     <div class="text-with-image-block-occasion flex justify-center items-center mb-[72px] w-full p-text-16">
-      Cette étape est facultative. Mais si vous le souhaitez, choisissez la musique pour chacun des chapitres que vous avez créés en sélectionnant la musique dans la liste proposée ou en téléchargeant la musique de votre choix (lien youtube, mp3). Si vous préférez passer cette étape, ne vous en faites pas nous sélectionnerons la musique pour vous.
+      <%= t('videos.music.description') %>
       <%= image_tag 'icons/headphone.png', class: 'image-from-image-text-block' %>
     </div>
   </div>
@@ -16,12 +16,12 @@
           <div class='flex justify-between items-center'>
             <div class='flex justify-between items-center'>
               <%= f.radio_button :music_type, 'whole_video', checked: @video.whole_video?, onchange: 'this.form.submit();' %>
-              <%= f.label :music_type_whole_video, "Vidéo complète", for: 'video_music_type_whole_video', class: "ml-2 p-text-16" %>
+              <%= f.label :music_type_whole_video, t('videos.music.full_video'), for: 'video_music_type_whole_video', class: "ml-2 p-text-16" %>
             </div>
 
             <div class='flex justify-between items-center'>
               <%= f.radio_button :music_type, 'by_chapters', checked: @video.by_chapters?, onchange: 'this.form.submit();' %>
-              <%= f.label :music_type_by_chapters, "Par chapitres", for: 'video_music_type_by_chapters', class: "ml-2 p-text-16" %>
+              <%= f.label :music_type_by_chapters, t('videos.music.by_chapters'), for: 'video_music_type_by_chapters', class: "ml-2 p-text-16" %>
             </div>
           </div>
         <% end %>
@@ -53,11 +53,11 @@
         <div class="w-full flex justify-center items-center mt-6">
           <div class="w-[1006px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
             <p class="w-100 mb-[32px] p-text-center-16">
-              Ou décrivez la musique que vous aimeriez entendre dans votre film et nous vous la fournirons.
+              <%= t('videos.music.describe_music') %>
             </p>
             <%= f.text_area :special_request_music,
                             id: "special_request_music",
-                            placeholder: "Décrivez votre musique...",
+                            placeholder: t('videos.music.describe_placeholder'),
                             rows: 3,
                             value: @video.special_request_music,
                             class: "flex w-100i px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
@@ -67,7 +67,7 @@
 
         <div class="video-steps">
           <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class:"black-link" %>
+          <%= f.submit t('next_step'), class:"black-link" %>
         </div>
       <% end %>
     </div>
@@ -82,7 +82,7 @@
                   <% if video_chapter.chapter_type.image.attached? %>
                     <%= image_tag video_chapter.chapter_type.image, class: "h-[200px] w-100i object-cover rounded" %>
                   <% else %>
-                    <p>Pas d'image</p>
+                    <p><%= t('videos.music.no_image') %></p>
                   <% end %>
                   <div class="video-music-thumb-wrapper-text flex flex-row justify-start items-center">
                     <div><%= "#{video_chapter.chapter_type.name} : " %></div>
@@ -104,7 +104,7 @@
                 <%end%>
                 <div class="w-100i text-center h-170i upload-music-block flex flex-col justify-center items-center">
                   <label for="custom_music_<%= video_chapter.id %>" class="cursor-pointer flex flex-col justify-center items-center w-full">
-                    <span>Ajoutez votre piste de musique (lien youtube, mp3)</span>
+                    <span><%= t('videos.music.add_music_track') %></span>
                     <div class="add-more-circle mt-6">
                       <span class="plus-sign">+</span>
                     </div>
@@ -116,7 +116,7 @@
                         accept="audio/mpeg">
                 </div>
 
-              <div class="w-full flex justify-center items-center p-text-center-bold-16">ou</div>
+              <div class="w-full flex justify-center items-center p-text-center-bold-16"><%= t('or') %></div>
                 <div class="w-full">
                   <% selected_music_id = video_chapter.video_music&.music_id %>
                   <div class="custom-music-dropdown flex justify-between items-center" data-selected-music="<%= selected_music_id %>">
@@ -124,7 +124,7 @@
                       <%if selected_music_id.present?%>
                         <span><%=video_chapter.video_music&.music&.name%></span>
                       <%else%>
-                        <span>Choisissez la musique dans la liste ci-dessous</span>
+                        <span><%= t('videos.music.choose_from_list') %></span>
                       <%end%>
                       <div class="dropdown-arrow">&#9662;</div>
                     </div>
@@ -158,7 +158,7 @@
 
         <div class="video-steps">
           <%= render "videos/shared/back_button" %>
-          <%= f.submit "Étape suivante", class: "black-link" %>
+          <%= f.submit t('next_step'), class: "black-link" %>
         </div>
       <% end %>
     </div>

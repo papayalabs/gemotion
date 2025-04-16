@@ -1,33 +1,33 @@
 <div>
-  <h1 class="video-h1">Une version finale de votre vidéo est déjà disponible</h1>
+  <h1 class="video-h1"><%= t('videos.render_final_page.title') %></h1>
 
   <div class="frame">
     <% if @video.completed? %>
       <div>
         <video controls style="max-width: 100%; height: auto;">
           <source src="<%= url_for(@video.final_video) %>" type="video/mp4">
-          Votre navigateur ne prend pas en charge l'élément vidéo.
+          <%= t('videos.render_final_page.browser_not_supported') %>
         </video>
         <div class="flex flex-row justify-center items-center mt-2">
-          <a href="<%= url_for(@video.final_video) %>" class= "cta mr-4" download>Télécharger la vidéo finale</a>
+          <a href="<%= url_for(@video.final_video) %>" class= "cta mr-4" download><%= t('videos.render_final_page.download_final_video') %></a>
           <% if @video.completed? && @video.final_video_xml.attached? %>
             <div>
-              <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download>Télécharger les archives MLT</a>
+              <a href="<%= url_for(@video.final_video_xml) %>" class= "cta" download><%= t('videos.render_final_page.download_mlt_archives') %></a>
             </div>
           <% else %>
-            <p>Aucun fichier MLT généré.</p>
+            <p><%= t('videos.render_final_page.no_mlt_file') %></p>
           <% end %>
         </div>
         <br>
       </div>
 
     <% elsif @video.processing? %>
-      <p>Votre vidéo est en cours de traitement. Cette page sera actualisée une fois prête.</p>
+      <p><%= t('videos.render_final_page.processing_message') %></p>
     <% else %>
-      <p>Aucune vidéo finale générée.</p>
+      <p><%= t('videos.render_final_page.no_final_video') %></p>
     <% end %>
     <%= form_with url: close_project_path(id: @video.id), method: :patch do |f| %>
-      <%= f.submit "Terminer le projet et enregistrer comme brouillon", class:"cta-transparent ml-2" %>
+      <%= f.submit t('videos.render_final_page.finish_project'), class:"cta-transparent ml-2" %>
     <% end %>
   </div>
 </div>

@@ -1,4 +1,4 @@
-<h1 class="video-h1">Ici, vous pouvez éditer la vidéo</h1>
+<h1 class="video-h1"><%= t('videos.edit_video.title') %></h1>
 <div class="flex flex-row justify-center w-full">
   <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
   <div class="content w-full flex flex-col justify-center items-center">
@@ -8,12 +8,12 @@
         <div class="edit-video-frame mt-6 flex flex-col justify-center items-center">
           <div class="w-full flex flex-col justify-start" >
             <div class="flex justify-start items-center">
-              <div class="mr-2">Vos médias</div>
+              <div class="mr-2"><%= t('videos.edit_video.your_media') %></div>
               <div class="flex justify-start items-center">
                 <%= image_tag 'icons/mingcute_time-line.png', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
                 <%= format_time(@video.final_video_duration) %>
               </div>
-              <div class="ml-50">Coût de votre film</div>
+              <div class="ml-50"><%= t('videos.edit_video.film_cost') %></div>
               <div class="flex justify-start items-center">
                 <%= image_tag 'icons/ant-design_euro-outlined', alt: 'Time Icon', class: 'inline-block ml-2 mr-2', style: 'height: 24px; width: 24px;' %>
                 <%duration_in_minutes = Video.calculate_duration(@video.final_video_duration) %>
@@ -21,7 +21,7 @@
               </div>
             </div>
             <div class="flex justify-start items-center mt-8">
-              <div class="mr-2 font-bold">Thème:</div>
+              <div class="mr-2 font-bold"><%= t('videos.edit_video.theme') %></div>
               <div class="flex justify-start items-center">
                 <%=@video&.dedicace&.name%>
               </div>
@@ -32,7 +32,7 @@
               <div class="w-full flex justify-center items-center">
                 <video controls style="max-width: 100%; height: auto; border-radius: 20px;">
                   <source src="<%= url_for(@video.final_video_with_watermark) %>" type="video/mp4">
-                  Votre navigateur ne prend pas en charge l'élément vidéo.
+                  <%= t('videos.edit_video.browser_not_supported') %>
                 </video>
               </div>
             </div>
@@ -48,12 +48,12 @@
           <%= render "videos/shared/popup_edit_video", chapters: @chapters, musics: @musics, video: @video, f: f, collab: false %>
           <div class="edit-video-alert w-full">
             <%= image_tag "icons/alert.svg" %>
-            <p class="p-text-16">Cliquez et faites glisser pour changer l'ordre</p>
+            <p class="p-text-16"><%= t('videos.edit_video.drag_to_change') %></p>
           </div>
         </div>
           <div class="video-steps">
-            <%= link_to "Ajouter un chapitre", go_to_select_chapters_path, class: "transparent-link mr-8", data: {turbo: false} %>
-            <%= f.submit "Enregistrer et payer", class: "black-link" %>
+            <%= link_to t('videos.edit_video.add_chapter'), go_to_select_chapters_path, class: "transparent-link mr-8", data: {turbo: false} %>
+            <%= f.submit t('videos.edit_video.save_and_pay'), class: "black-link" %>
           </div>
       <% end %>
     </div>

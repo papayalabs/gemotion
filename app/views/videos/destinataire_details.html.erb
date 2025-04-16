@@ -1,13 +1,13 @@
 <div class="info_destinataire">
   <section class="hero">
-    <h1 class="h1-video gradient-text">Dites nous en plus sur le, la, les destinataires du film</h1>
+    <h1 class="h1-video gradient-text"><%= t('videos.destinataire_details.title') %></h1>
   </section>
 
   <div class="flex flex-row justify-center w-full">
     <%= image_tag 'left-no-star.png', class: 'image-sides left-image' %>
     <div class="content w-full flex flex-col justify-center items-center">
       <div class="text-with-image-block flex justify-center items-center mt-65 mb-[72px] w-full p-text-16">
-        Dites nous en plus sur le ou les destinataires
+        <%= t('videos.destinataire_details.subtitle') %>
         <%if @video_destinataires.count > 0%>
           <%= image_tag 'icons/emojis.png', class: 'image-from-image-text-block' %>
         <%else%>
@@ -26,35 +26,35 @@
                 <div class="bigger-destinataire flex flex-col justify-center mb-[48px] relative inline-block w-full">
                   <div class="form step-1 row-1 flex gap-[23px] mb-[26px]">
                     <%= f.label :age_destinataire, "1", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-                    <%= f.number_field :age_destinataire, placeholder: "Indiquez l'âge du destinataire", value: video_destinataire&.age, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+                    <%= f.number_field :age_destinataire, placeholder: t('videos.destinataire_details.form_placeholders.age'), value: video_destinataire&.age, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
                   </div>
 
                   <div class="form step-1 row-2 flex gap-[23px] mb-[26px]">
                     <%= f.label :name_destinataire, "2", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-                    <%= f.text_field :name_destinataire, placeholder: "Indiquez le nom du destinataire", value: video_destinataire&.name, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+                    <%= f.text_field :name_destinataire, placeholder: t('videos.destinataire_details.form_placeholders.name'), value: video_destinataire&.name, class: "flex w-[677px] h-[60px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
                   </div>
 
                   <div class="form step-1 row-3 flex gap-[23px] mb-[26px]">
                     <%= f.label :more_info_destinataire, "3", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-                    <%= f.text_area :more_info_destinataire, placeholder: "Indiquez le nombre d'enfants et les prénoms des enfants (facultatif)", value: video_destinataire&.more_info,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+                    <%= f.text_area :more_info_destinataire, placeholder: t('videos.destinataire_details.form_placeholders.more_info'), value: video_destinataire&.more_info,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
                   </div>
 
                   <div class="form step-1 row-1 flex gap-[23px] mb-[26px]">
                     <%= f.label :passions_and_hobbies, "4", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-                    <%= f.text_area :passions_and_hobbies, placeholder: "Décrivez ses passions et ses hobbies", value: video_destinataire&.passions_and_hobbies,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+                    <%= f.text_area :passions_and_hobbies, placeholder: t('videos.destinataire_details.form_placeholders.passions'), value: video_destinataire&.passions_and_hobbies,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
                   </div>
 
                   <div class="form step-1 row-2 flex gap-[23px] mb-[26px]">
                     <%= f.label :personality_description, "5", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-                    <%= f.text_area :personality_description, placeholder: "Décrivez sa personnalité", value: video_destinataire&.personality_description,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+                    <%= f.text_area :personality_description, placeholder: t('videos.destinataire_details.form_placeholders.personality'), value: video_destinataire&.personality_description,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
                   </div>
 
                   <div class="form step-1 row-3 flex gap-[23px] mb-[26px]">
                     <%= f.label :favorite_quotes, "6", class: "text-white font-red-hat-display text-[16px] font-normal leading-[25px] flex w-[53px] h-[53px] p-[10px] flex-col justify-center items-center gap-[10px] rounded-[50px] bg-black" %>
-                    <%= f.text_area :favorite_quotes, placeholder: "Nommez ses citations ou phrases préférées", value: video_destinataire&.favorite_quotes,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
+                    <%= f.text_area :favorite_quotes, placeholder: t('videos.destinataire_details.form_placeholders.quotes'), value: video_destinataire&.favorite_quotes,rows: 2,  class: "flex w-[677px] px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
                   </div>
                   <div class="w-full flex justify-center">
-                    <%= f.submit "Sauvegarder", class: "black-link mt-6 w-60" %>
+                    <%= f.submit t('videos.destinataire_details.save'), class: "black-link mt-6 w-60" %>
                   </div>
                 </div>
               <% end %>
@@ -67,48 +67,48 @@
 
             <div class="flex flex-col w-full">
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">Nom du destinataire (pour qui nous préparons le film) :</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.recipient_name') %></div>
                 <div class="p-text-16 w-434"><%=video_destinataire.name%></div>
               </div>
 
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">Occasion :</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.occasion') %></div>
                 <div class="p-text-16 w-434"><%=@video.occasion.humanize%></div>
               </div>
 
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">L'âge du destinataire</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.recipient_age') %></div>
                 <div class="p-text-16 w-434"><%=video_destinataire.age%></div>
               </div>
 
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">Le nombre et les noms des enfants*</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.children_info') %></div>
                 <div class="p-text-16 w-434"><%=video_destinataire.more_info%></div>
               </div>
 
 
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">Les loisirs du destinataire</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.recipient_hobbies') %></div>
                 <div class="p-text-16 w-434"><%=video_destinataire.passions_and_hobbies%></div>
               </div>
 
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">La description du destinataire</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.recipient_description') %></div>
                 <div class="p-text-16 w-434"><%=video_destinataire.personality_description%></div>
               </div>
 
               <div class="flex flex-row justify-start w-full mb-15">
-                <div class="p-text-16-bold mr-4 w-300">Les citations et phrases préférées du destinataire</div>
+                <div class="p-text-16-bold mr-4 w-300"><%= t('videos.destinataire_details.recipient_quotes') %></div>
                 <div class="p-text-16 w-434"><%=video_destinataire.favorite_quotes%></div>
               </div>
             </div>
           </div>
             <div class="flex justify-center">
-              <%= button_to 'Supprimer le destinataire',
+              <%= button_to t('videos.destinataire_details.delete_recipient'),
                 delete_destinataire_path(video_destinataire.id),
                 method: :delete,
                 class: 'mt-6 p-text-16-bold text-decoration-underline',
-                form: { data: { turbo_confirm: 'Êtes-vous sûr de vouloir supprimer ce collaborateur ?' } } %>
+                form: { data: { turbo_confirm: t('videos.destinataire_details.delete_confirmation') } } %>
             </div>
         </div>
 
@@ -118,31 +118,31 @@
         <div>
           <div class="w-[1006px] h-[386px] flex-shrink-0 rounded-[20px] border border-[rgba(201,225,255,0.20)] bg-white shadow-[4px_4px_20px_5px_rgba(13,103,131,0.10)] py-[49.5px] px-[116px] mb-[56px]">
             <h3 class="text-black text-center font-montserrat text-[32px] font-bold leading-[37px] mb-[24px]">
-              Si vous avez des demandes spéciales concernant votre vidéo, contactez-nous !
+              <%= t('videos.destinataire_details.special_requests_title') %>
             </h3>
             <p class="w-100 mb-[32px] p-text-center-16">
-              * Le traitement et la confirmation de votre thème peuvent prendre jusqu'à 2 jours.
+              <%= t('videos.destinataire_details.processing_notice') %>
             </p>
             <%= f.text_area :special_request_destinataire,
                             id: "special_request_destinataire",
-                            placeholder: "Décrivez ici vos attentes, votre scénario, votre thème .... pour une vidéo sur mesure",
+                            placeholder: t('videos.destinataire_details.special_request_placeholder'),
                             rows: 3,
                             value: @video.theme_specific_request,
                             class: "flex w-100i px-[27px] py-[15px] items-start gap-[10px] rounded-[8px] border border-[rgba(32,31,31,0.50)] bg-white text-black font-red-hat-display text-[16px] font-normal leading-[25px]" %>
             <div class="flex justify-center items-center gap-[16px] w-100 mt-4">
               <%= image_tag "icons/attention.svg" %>
               <p class="w-100 p-text-center-16">
-                Veuillez noter que des frais supplémentaires seront appliqués pour une vidéo sur mesure.
+                <%= t('videos.destinataire_details.additional_fee_notice') %>
               </p>
             </div>
           </div>
 
           <div class="flex justify-between">
             <%= render "videos/shared/back_button" %>
-            <%= f.submit "Étape suivante", class: "black-link", data: { action: "dialog#open" } %>
+            <%= f.submit t('next_step'), class: "black-link", data: { action: "dialog#open" } %>
             <dialog id="confirmationDialog" class="backdrop:bg-slate-400 backdrop:opacity-80 w-full w-1006 popup-theme-modal bg-transparent">
               <div class="text-with-image-block w-100i flex justify-center items-center mt-65 mb-[72px] px-[27px] w-full p-text-center-16">
-                Merci ! Nous traitons déjà votre demande de thème vidéo personnalisé. Cela peut prendre jusqu'à 2 jours. Nous vous enverrons une confirmation par e-mail.
+                <%= t('videos.destinataire_details.dialog_confirmation') %>
                 <%= image_tag 'icons/plus.png', class: 'image-from-image-text-block' %>
               </div>
             </dialog>
