@@ -80,6 +80,8 @@ Rails.application.routes.draw do
 
     patch "videos/:id/update_video_slot", to: "videos#update_video_slot", as: "update_video_slot"
 
+    get "videos/:id/get_video_slot_status", to: "videos#get_video_slot_status", as: "get_video_slot_status"
+
     get "videos/edit_video", to: "videos#edit_video", as: "edit_video"
     post "videos/edit_video_post", to: "videos#edit_video_post", as: "edit_video_post"
     get "videos/skip_edit_video", to: "videos#skip_edit_video", as: "skip_edit_video"

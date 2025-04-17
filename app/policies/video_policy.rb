@@ -70,4 +70,5 @@ class VideoPolicy < ApplicationPolicy
   def process_video_slot? = start_post?
   def update_video_slot? = start_post?
   def video_processing_status? = start_post?
+  def get_video_slot_status? = start_post?
 end

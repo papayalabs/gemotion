@@ -3,22 +3,27 @@ require "shellwords"
 class RemoveBackgroundJob < ApplicationJob
   queue_as :default
 
+  sidekiq_options retry: false, log_level: :warn
+
   def perform(video_dedicace_slot_id, input_path, slot_number)
     video_dedicace_slot = VideoDedicaceSlot.find(video_dedicace_slot_id)
 
-    Rails.logger.info("Processing video #{video_dedicace_slot.video_dedicace.id} with slot number #{slot_number}")
+    logger.info("Processing video #{video_dedicace_slot.video_dedicace.id} with slot number #{slot_number}")
 
+    video_dedicace_slot.status = "processing"
+    video_dedicace_slot.save!
+    logger.info("Video status set to processing")
     # Create temporary paths
     timestamp = Time.now.to_i
     converted_path = Rails.root.join("tmp", "converted_video_#{video_dedicace_slot_id}_#{slot_number}_#{timestamp}.mp4")
     output_path = Rails.root.join("tmp", "processed_video_#{video_dedicace_slot_id}_#{slot_number}_#{timestamp}.mp4")
 
-    Rails.logger.info("Input path: #{input_path}")
-    Rails.logger.info("Converted path: #{converted_path}")
-    Rails.logger.info("Output path: #{output_path}")
+    logger.info("Input path: #{input_path}")
+    logger.info("Converted path: #{converted_path}")
+    p("Output path: #{output_path}")
 
     # First convert WebM to MP4 with optimized settings
-    Rails.logger.info("Converting WebM to MP4")
+    p("Converting WebM to MP4")
     convert_result = system("ffmpeg -i #{Shellwords.escape(input_path)} " \
                           "-c:v libx264 " \
                           "-preset veryfast " \
@@ -32,7 +37,9 @@ class RemoveBackgroundJob < ApplicationJob
                           "#{Shellwords.escape(converted_path)}")
 
     unless convert_result
-      Rails.logger.error("Failed to convert WebM to MP4")
+      video_dedicace_slot.status = "error"
+      video_dedicace_slot.save
+      logger.error("Failed to convert WebM to MP4")
       return {
         success: false,
         errors: ["Failed to convert video format"]
@@ -40,7 +47,9 @@ class RemoveBackgroundJob < ApplicationJob
     end
 
     unless File.exist?(converted_path)
-      Rails.logger.error("Converted video file not created")
+      video_dedicace_slot.status = "error"
+      video_dedicace_slot.save!
+      logger.error("Converted video file not created")
       return {
         success: false,
         errors: ["Converted video file not created"]
@@ -58,13 +67,15 @@ class RemoveBackgroundJob < ApplicationJob
                   end
 
     # Execute the Python script and capture output
-    Rails.logger.info("Executing Python script")
+    logger.info("Executing Python script")
     result = system("#{python_path} #{python_script} #{Shellwords.escape(converted_path)} #{Shellwords.escape(output_path)}")
 
-    Rails.logger.info("Result: #{result}")
+    logger.info("Result: #{result}")
 
     unless result
-      Rails.logger.error("Failed to process video with Python script")
+      video_dedicace_slot.status = "error"
+      video_dedicace_slot.save
+     logger.error("Failed to process video with Python script")
       return {
         success: false,
         errors: ["Failed to process video"]
@@ -72,7 +83,7 @@ class RemoveBackgroundJob < ApplicationJob
     end
 
     unless File.exist?(output_path)
-      Rails.logger.error("Output video file not created")
+      logger.error("Output video file not created")
       return {
         success: false,
         errors: ["Output video file not created"]
@@ -92,12 +103,14 @@ class RemoveBackgroundJob < ApplicationJob
       preview_result = system("ffmpeg -i #{output_path} -vframes 1 -vf \"chromakey=0x00FF00:0.1:0.2\" -f image2 -update 1 #{preview_path}")
 
       unless preview_result
-        Rails.logger.error("Failed to generate preview")
+        logger.error("Failed to generate preview")
         return {
           success: false,
           errors: ["Failed to generate preview"]
         }
       end
+
+      logger.info("Preview generated successfully")
 
       if File.exist?(preview_path)
         video_dedicace_slot.preview.attach(
@@ -107,32 +120,27 @@ class RemoveBackgroundJob < ApplicationJob
         )
       end
 
+      logger.info("Preview attached successfully")
+      logger.info("Preview path: #{preview_path}")
+      video_dedicace_slot.status = "done"
+      video_dedicace_slot.save
+
+      logger.info("Video processing completed successfully")
+      {
+        success: true
+      }
+    rescue StandardError => e
+      logger.error("Error in video processing: #{e.message}")
+      {
+        success: false,
+        errors: ["Error processing video: #{e.message}"]
+      }
+    ensure
       # Clean up temporary files
       File.delete(input_path) if File.exist?(input_path)
       File.delete(converted_path) if File.exist?(converted_path)
       File.delete(output_path) if File.exist?(output_path)
       File.delete(preview_path) if File.exist?(preview_path)
-
-      # Get the host from Rails configuration
-      host = Rails.application.config.action_mailer.default_url_options[:host]
-
-      # Create URLs with the host
-      video_url = video_dedicace_slot.video.attached? ? Rails.application.routes.url_helpers.url_for(video_dedicace_slot.video) : nil
-      preview_url = video_dedicace_slot.preview.attached? ? Rails.application.routes.url_helpers.url_for(video_dedicace_slot.preview) : nil
-
-      video_dedicace_slot.save!
-
-      {
-        success: true,
-        video_url:,
-        preview_url:
-      }
-    rescue StandardError => e
-      Rails.logger.error("Error in video processing: #{e.message}")
-      {
-        success: false,
-        errors: ["Error processing video: #{e.message}"]
-      }
     end
   end
 end

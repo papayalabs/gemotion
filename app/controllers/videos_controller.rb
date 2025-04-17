@@ -4,7 +4,8 @@ class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
   before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type
                                           concat_status delete_video_chapter purge_chapter_attachment drop_custom_music
-                                          drop_preview stream_video delete_destinataire update_destinataire update_video_slot]
+                                          drop_preview stream_video delete_destinataire update_destinataire update_video_slot
+                                          get_video_slot_status]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -769,23 +770,6 @@ class VideosController < ApplicationController
     else
       render dedicace_de_fin_path, status: :unprocessable_entity
     end
-
-    # Rails.logger.info("Result: #{result}")
-    # if params[:dedicace].present? &&
-    #    params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
-    #   file = params[:dedicace][:creator_end_dedication_video].presence || params[:dedicace][:creator_end_dedication_video_uploaded]
-    #   video_dedicace = VideoDedicace.find_or_initialize_by(video: @video, dedicace: @video.dedicace)
-    #   video_dedicace.creator_end_dedication_video.attach(file)
-    #   # @dedicace.update(car_position: position)
-    #   if video_dedicace.save
-    #     VideoProcessingJob.perform_later(video_dedicace.id, "VideoDedicace")
-    #     skip_element(dedicace_de_fin_path)
-    #   else
-    #     render :edit, alert: "\u00C9chec de la mise \u00E0 jour de la vid\u00E9o."
-    #   end
-    # else
-    #   redirect_to dedicace_de_fin_path, alert: "Aucun fichier vid\u00E9o fourni."
-    # end
   end
 
   def skip_dedicace_de_fin
@@ -1114,6 +1098,8 @@ class VideosController < ApplicationController
       # Create or find video_dedicace with the dedicace
       video_dedicace = @video.video_dedicace || @video.create_video_dedicace(dedicace: @dedicace)
 
+      video_dedicace.save
+
       video_dedicace_slot = video_dedicace.video_dedicace_slots.find_or_create_by(
         slot: params[:slot_number]
       )
@@ -1127,31 +1113,16 @@ class VideosController < ApplicationController
         end
 
         # Process the video
-        result = RemoveBackgroundJob.perform_now(video_dedicace_slot.id, temp_video_path.to_s, params[:slot_number])
+        RemoveBackgroundJob.perform_later(video_dedicace_slot.id, temp_video_path.to_s, params[:slot_number])
 
-        Rails.logger.info("Result: #{result}")
         # Clean up temporary file
-        File.delete(temp_video_path) if File.exist?(temp_video_path)
 
-        if result[:success]
-          # Ensure URLs are absolute
-          video_url = result[:video_url].start_with?("http") ? result[:video_url] : request.base_url + result[:video_url]
-          preview_url = result[:preview_url].start_with?("http") ? result[:preview_url] : request.base_url + result[:preview_url]
-
-          render json: {
-            success: true,
-            video_url:,
-            preview_url:
-          }
-        else
-          render json: {
-            success: false,
-            errors: ["Failed to process video"]
-          }, status: :unprocessable_entity
-        end
+        render json: {
+          status: "processing"
+        }
       else
         render json: {
-          success: false,
+          status: "error",
           errors: ["No video file provided"]
         }, status: :unprocessable_entity
       end
@@ -1160,6 +1131,39 @@ class VideosController < ApplicationController
         success: false,
         errors: ["An error occurred: #{e.message}"]
       }, status: :unprocessable_entity
+    end
+  end
+
+  def get_video_slot_status
+    @video = Video.find(params[:id])
+    authorize @video, :get_video_slot_status?, policy_class: VideoPolicy
+
+    video_dedicace = @video.video_dedicace
+
+    video_dedicace_slot = video_dedicace.video_dedicace_slots.find_by(
+      slot: params[:slot_number]
+    )
+
+    if @video.video_dedicace.present?
+      video_dedicace_slot_status = video_dedicace_slot.status
+      if video_dedicace_slot_status == "done"
+        video_url = url_for(video_dedicace_slot.video)
+        preview_url = url_for(video_dedicace_slot.preview)
+        render json: {
+          status: "done",
+          video_url:,
+          preview_url:
+        }
+      else
+        render json: {
+          status: "processing"
+        }
+      end
+    else
+      render json: {
+        status: "error",
+        errors: ["No video_dedicace found for this video"]
+      }
     end
   end
 

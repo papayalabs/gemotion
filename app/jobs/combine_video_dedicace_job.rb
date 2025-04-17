@@ -1,4 +1,5 @@
 class CombineVideoDedicaceJob < ApplicationJob
+
   queue_as :default
 
   sidekiq_options retry: true
@@ -113,9 +114,9 @@ class CombineVideoDedicaceJob < ApplicationJob
     ensure
       # Clean up temporary files
       p output_path
-      # [output_path].each do |path|
-      #   File.delete(path) if File.exist?(path)
-      # end
+      [output_path].each do |path|
+        File.delete(path) if File.exist?(path)
+      end
     end
   end
 end
