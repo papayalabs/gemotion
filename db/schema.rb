@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_07_072758) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_16_141434) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -152,10 +152,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_07_072758) do
     t.float "start_time"
     t.float "duration"
     t.string "font_type"
+    t.string "font_style"
     t.integer "font_size"
     t.string "animation"
     t.string "text_color"
-    t.string "font_style", limit: 255
     t.string "transition_type"
   end
 
@@ -192,6 +192,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_07_072758) do
     t.json "waveform"
     t.index ["chapter_type_id"], name: "index_video_chapters_on_chapter_type_id"
     t.index ["video_id"], name: "index_video_chapters_on_video_id"
+  end
+
+  create_table "video_dedicace_slots", force: :cascade do |t|
+    t.integer "slot"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "video_dedicace_id", null: false
+    t.index ["video_dedicace_id"], name: "index_video_dedicace_slots_on_video_dedicace_id"
   end
 
   create_table "video_dedicaces", force: :cascade do |t|
@@ -283,6 +291,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_07_072758) do
   add_foreign_key "dedicace_contents", "videos"
   add_foreign_key "video_chapters", "chapter_types"
   add_foreign_key "video_chapters", "videos"
+  add_foreign_key "video_dedicace_slots", "video_dedicaces"
   add_foreign_key "video_dedicaces", "dedicaces"
   add_foreign_key "video_dedicaces", "videos"
   add_foreign_key "video_destinataires", "videos"

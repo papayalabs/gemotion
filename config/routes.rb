@@ -71,12 +71,14 @@ Rails.application.routes.draw do
     get "videos/skip_deadline", to: "videos#skip_deadline", as: "skip_deadline"
 
     get "videos/dedicace_de_fin", to: "videos#dedicace_de_fin", as: "dedicace_de_fin"
-    patch "videos/dedicace_de_fin_post", to: "videos#dedicace_de_fin_post", as: "dedicace_de_fin_post"
+    patch "/:id/videos/dedicace_de_fin_post", to: "videos#dedicace_de_fin_post", as: "dedicace_de_fin_post"
     get "videos/skip_dedicace_de_fin", to: "videos#skip_dedicace_de_fin", as: "skip_dedicace_de_fin"
 
     get "videos/confirmation", to: "videos#confirmation", as: "confirmation"
     post "videos/confirmation", to: "videos#confirmation_post", as: "confirmation_post"
     get "videos/skip_confirmation", to: "videos#skip_confirmation", as: "skip_confirmation"
+
+    patch "videos/:id/update_video_slot", to: "videos#update_video_slot", as: "update_video_slot"
 
     get "videos/edit_video", to: "videos#edit_video", as: "edit_video"
     post "videos/edit_video_post", to: "videos#edit_video_post", as: "edit_video_post"

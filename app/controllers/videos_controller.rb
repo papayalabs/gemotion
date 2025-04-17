@@ -4,7 +4,7 @@ class VideosController < ApplicationController
   before_action :authenticate_user!, except: :join
   before_action :select_video, except: %i[go_back go_to_select_chapters join update_video_music_type
                                           concat_status delete_video_chapter purge_chapter_attachment drop_custom_music
-                                          drop_preview stream_video delete_destinataire update_destinataire]
+                                          drop_preview stream_video delete_destinataire update_destinataire update_video_slot]
   before_action :define_chapter_type, only: %i[select_chapters select_chapters_post]
   before_action :define_music, only: %i[music music_post edit_video]
   before_action :define_dedicace, only: %i[dedicace dedicace_post]
@@ -278,23 +278,22 @@ class VideosController < ApplicationController
       if (new_order_index = ordered_previews.index(filename))
         video_preview.update(order: new_order_index)
       end
-      
+
       # Update text overlay properties for existing previews
-      if params[:preview_overlay] && params[:preview_overlay][video_preview.preview.id.to_s]
-        preview_overlay = params[:preview_overlay][video_preview.preview.id.to_s]
-        video_preview.preview.update(
-          text: preview_overlay[:text],
-          text_position: preview_overlay[:text_position],
-          start_time: preview_overlay[:start_time],
-          duration: preview_overlay[:duration],
-          font_type: preview_overlay[:font_type],
-          font_style: preview_overlay[:font_style],
-          font_size: preview_overlay[:font_size],
-          animation: preview_overlay[:animation],
-          text_color: preview_overlay[:text_color],
-          transition_type: preview_overlay[:transition_type]
-        )
-      end
+      next unless params[:preview_overlay] && params[:preview_overlay][video_preview.preview.id.to_s]
+
+      preview_overlay = params[:preview_overlay][video_preview.preview.id.to_s]
+      video_preview.preview.update(
+        text: preview_overlay[:text],
+        text_position: preview_overlay[:text_position],
+        start_time: 0, # preview_overlay[:start_time],
+        duration: 3, # preview_overlay[:duration],
+        font_type: preview_overlay[:font_type],
+        font_style: preview_overlay[:font_style],
+        font_size: preview_overlay[:font_size],
+        animation: preview_overlay[:animation],
+        text_color: preview_overlay[:text_color]
+      )
     end
 
     # Add new previews and assign order based on their position in `images_order`
@@ -307,15 +306,15 @@ class VideosController < ApplicationController
       positions = []
       positions = params[:previews].values
       keys = params[:previews].keys
-      positions.each_with_index do |value,index|
+      positions.each_with_index do |value, index|
         position = keys[index] if value == preview_file
       end
 
       order_index = ordered_previews.index(preview_file.original_filename)
-      
+
       # Create the preview with text overlay properties if available
       preview_attrs = { image: preview_file }
-      
+
       # Check if we have text overlay data for this position
       if params[:new_preview_overlay] && params[:new_preview_overlay][position.to_s]
         overlay_data = params[:new_preview_overlay][position.to_s]
@@ -332,9 +331,9 @@ class VideosController < ApplicationController
           transition_type: overlay_data[:transition_type]
         )
       end
-      
+
       preview = Preview.create(preview_attrs)
-      @video.video_previews.create(preview: preview, order: order_index) if order_index
+      @video.video_previews.create(preview:, order: order_index) if order_index
     end
 
     # Re-assign previews_order for the video model
@@ -736,7 +735,7 @@ class VideosController < ApplicationController
   def dedicace_de_fin
     authorize @video, :dedicace_de_fin?, policy_class: VideoPolicy
     @dedicace = @video.dedicace
-    @video_dedicace = @video.video_dedicace
+    @video_dedicace = @video.video_dedicace || @video.create_video_dedicace(dedicace: @dedicace)
   end
 
   def dedicace_de_fin_post
@@ -754,25 +753,39 @@ class VideosController < ApplicationController
     #   @video.update(stop_at: @video.current_step)
     #   render dedicace_path, status: :unprocessable_entity
     # end
-    unless params[:dedicace].present?
-      skip_element(dedicace_de_fin_path)
-      return
-    end
-    if params[:dedicace].present? &&
-       params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
-      file = params[:dedicace][:creator_end_dedication_video].presence || params[:dedicace][:creator_end_dedication_video_uploaded]
-      video_dedicace = VideoDedicace.find_or_initialize_by(video: @video, dedicace: @video.dedicace)
-      video_dedicace.creator_end_dedication_video.attach(file)
-      # @dedicace.update(car_position: position)
-      if video_dedicace.save
-        VideoProcessingJob.perform_later(video_dedicace.id, "VideoDedicace")
+
+    # unless params[:dedicace].present?
+    #   skip_element(dedicace_de_fin_path)
+    #   return
+    # end
+    result = CombineVideoDedicaceJob.perform_now(@video.id)
+    if result
+      if @video.video_dedicace.creator_end_dedication_video.attached?
+        @video.video_dedicace.save
         skip_element(dedicace_de_fin_path)
       else
-        render :edit, alert: "\u00C9chec de la mise \u00E0 jour de la vid\u00E9o."
+        render dedicace_de_fin_path, status: :unprocessable_entity
       end
     else
-      redirect_to dedicace_de_fin_path, alert: "Aucun fichier vid\u00E9o fourni."
+      render dedicace_de_fin_path, status: :unprocessable_entity
     end
+
+    # Rails.logger.info("Result: #{result}")
+    # if params[:dedicace].present? &&
+    #    params[:dedicace][:creator_end_dedication_video].present? || params[:dedicace][:creator_end_dedication_video_uploaded].present?
+    #   file = params[:dedicace][:creator_end_dedication_video].presence || params[:dedicace][:creator_end_dedication_video_uploaded]
+    #   video_dedicace = VideoDedicace.find_or_initialize_by(video: @video, dedicace: @video.dedicace)
+    #   video_dedicace.creator_end_dedication_video.attach(file)
+    #   # @dedicace.update(car_position: position)
+    #   if video_dedicace.save
+    #     VideoProcessingJob.perform_later(video_dedicace.id, "VideoDedicace")
+    #     skip_element(dedicace_de_fin_path)
+    #   else
+    #     render :edit, alert: "\u00C9chec de la mise \u00E0 jour de la vid\u00E9o."
+    #   end
+    # else
+    #   redirect_to dedicace_de_fin_path, alert: "Aucun fichier vid\u00E9o fourni."
+    # end
   end
 
   def skip_dedicace_de_fin
@@ -1084,6 +1097,72 @@ class VideosController < ApplicationController
     render json: { concat_status: video.concat_status }
   end
 
+  def update_video_slot
+    @video = Video.find(params[:id])
+    authorize @video, :update_video_slot?, policy_class: VideoPolicy
+
+    begin
+      # Get the dedicace from the video
+      dedicace = @video.dedicace
+      if dedicace.nil?
+        return render json: {
+          success: false,
+          errors: ["No dedicace found for this video"]
+        }, status: :unprocessable_entity
+      end
+
+      # Create or find video_dedicace with the dedicace
+      video_dedicace = @video.video_dedicace || @video.create_video_dedicace(dedicace: @dedicace)
+
+      video_dedicace_slot = video_dedicace.video_dedicace_slots.find_or_create_by(
+        slot: params[:slot_number]
+      )
+
+      if params[:video_file].present?
+        # Save the video file temporarily
+        temp_video_path = Rails.root.join("tmp",
+                                          "temp_video_#{video_dedicace_slot.id}_#{params[:slot_number]}_#{Time.now.to_i}.webm")
+        File.open(temp_video_path, "wb") do |file|
+          file.write(params[:video_file].read)
+        end
+
+        # Process the video
+        result = RemoveBackgroundJob.perform_now(video_dedicace_slot.id, temp_video_path.to_s, params[:slot_number])
+
+        Rails.logger.info("Result: #{result}")
+        # Clean up temporary file
+        File.delete(temp_video_path) if File.exist?(temp_video_path)
+
+        if result[:success]
+          # Ensure URLs are absolute
+          video_url = result[:video_url].start_with?("http") ? result[:video_url] : request.base_url + result[:video_url]
+          preview_url = result[:preview_url].start_with?("http") ? result[:preview_url] : request.base_url + result[:preview_url]
+
+          render json: {
+            success: true,
+            video_url:,
+            preview_url:
+          }
+        else
+          render json: {
+            success: false,
+            errors: ["Failed to process video"]
+          }, status: :unprocessable_entity
+        end
+      else
+        render json: {
+          success: false,
+          errors: ["No video file provided"]
+        }, status: :unprocessable_entity
+      end
+    rescue StandardError => e
+      render json: {
+        success: false,
+        errors: ["An error occurred: #{e.message}"]
+      }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def generate_fcpxml(final_video_path, video_path, music_path)
@@ -1200,5 +1279,12 @@ class VideosController < ApplicationController
     order_param.split(",").map do |filename|
       attachments.find { |attachment| attachment.blob.filename.to_s == filename }&.blob_id
     end.compact
+  end
+
+  def video_dedicace_params
+    params.require(:video_dedicace).permit(
+      :video_slot_1, :video_slot_2, :video_slot_3,
+      :video_slot_1_preview, :video_slot_2_preview, :video_slot_3_preview
+    )
   end
 end
