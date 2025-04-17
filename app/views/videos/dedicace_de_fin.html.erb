@@ -338,15 +338,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Open recording modal with proper sizing
   function openRecordingModal(slotNumber) {
-    currentSlot = slotNumber;
-    recordingModal.style.display = 'flex';
-    loadingSpinner.style.display = 'none';
-    
-    // Reset video and canvas
     if (videoPreview.srcObject) {
       videoPreview.srcObject.getTracks().forEach(track => track.stop());
     }
-    videoPreview.style.display = 'block';
+    currentSlot = slotNumber;
+    recordingModal.style.display = 'flex';
+    videoPreview.style.display = 'none';
+    videoPreview.controls = false;
+    videoPreview.muted = true;
+    loadingSpinner.style.display = 'none';
+    
+    // Reset video and canvas
     
     startButton.style.display = 'block';
     stopButton.style.display = 'none';
@@ -376,6 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
       recordedChunks = [];
       timeLeft = 30;
       videoRecordingPreviewBlock.style.display = 'none';
+      videoPreview.style.display = 'block'; 
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -506,29 +509,69 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(data.errors ? data.errors.join(', ') : 'Failed to process video');
       }
 
-      if (data.success) {
-        processedVideo = true;
-        const slot = document.querySelector(`.video-slot[data-slot-number="${currentSlot}"]`);
-        slot.innerHTML = `
-          <img src="${data.preview_url}" class="video-preview" alt="Video Preview">
-          <div class="re-record-overlay">
-            <span>Re-record?</span>
-          </div>
-        `;
-        // closeRecordingModal();
-        videoPreview.src = data.video_url;
-        videoPreview.currentTime = 0;
-        loadingSpinner.style.display = 'none';
-        videoPreview.style.display = 'block';
-        videoPreview.controls = true;
-      } else {
-        throw new Error(data.errors ? data.errors.join(', ') : 'Failed to process video');
+      if (data.status === 'processing') {
+        const checkSlotStatus = setInterval(async () => {
+          const url = `/videos/${<%= @video.id %>}/get_video_slot_status?${new URLSearchParams({
+            slot_number: currentSlot
+          }).toString()}`
+          const checkResponse = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'X-CSRF-Token': token
+            },
+            credentials: 'same-origin'
+          });
+          const checkData = await checkResponse.json();
+
+          if (checkData.status === 'error') {
+            clearInterval(checkSlotStatus);
+            alert('Error processing video: ' + checkData.message);
+            loadingSpinner.style.display = 'none';
+            return;
+          }
+          
+          if (checkData.status === 'done') {
+            clearInterval(checkSlotStatus);
+            processedVideo = true;
+            const slot = document.querySelector(`.video-slot[data-slot-number="${currentSlot}"]`);
+            slot.innerHTML = `
+              <img src="${checkData.preview_url}" class="video-preview" alt="Video Preview">
+              <div class="re-record-overlay">
+                <span>Re-record?</span>
+              </div>
+            `;
+            videoPreview.src = checkData.video_url;
+            videoPreview.currentTime = 0;
+            loadingSpinner.style.display = 'none';
+            videoPreview.style.display = 'block';
+            videoPreview.controls = true;
+          }
+        }, 5000);
+
       }
+
+      // if (data.success) {
+      //   processedVideo = true;
+      //   const slot = document.querySelector(`.video-slot[data-slot-number="${currentSlot}"]`);
+      //   slot.innerHTML = `
+      //     <img src="${data.preview_url}" class="video-preview" alt="Video Preview">
+      //     <div class="re-record-overlay">
+      //       <span>Re-record?</span>
+      //     </div>
+      //   `;
+      //   // closeRecordingModal();
+      //   videoPreview.src = data.video_url;
+      //   videoPreview.currentTime = 0;
+      //   loadingSpinner.style.display = 'none';
+      //   videoPreview.style.display = 'block';
+      //   videoPreview.controls = true;
+      // } else {
+      //   throw new Error(data.errors ? data.errors.join(', ') : 'Failed to process video');
+      // }
     } catch (error) {
       console.error('Error saving video:', error);
-      alert('Failed to save video: ' + error.message);
-    } finally {
       loadingSpinner.style.display = 'none';
+      alert('Failed to save video: ' + error.message);
     }
   }
 
@@ -541,6 +584,7 @@ document.addEventListener("DOMContentLoaded", () => {
       videoPreview.srcObject.getTracks().forEach(track => track.stop());
     }
     videoPreview.pause();
+    timeLeft = 30;
     videoPreview.currentTime = 0;
     videoPreview.srcObject = null;
     videoPreview.src = '';
