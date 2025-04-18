@@ -293,7 +293,8 @@ class VideosController < ApplicationController
         font_style: preview_overlay[:font_style],
         font_size: preview_overlay[:font_size],
         animation: preview_overlay[:animation],
-        text_color: preview_overlay[:text_color]
+        text_color: preview_overlay[:text_color],
+        transition_type: preview_overlay[:transition_type]
       )
     end
 
